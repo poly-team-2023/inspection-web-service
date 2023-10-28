@@ -17,10 +17,10 @@ public class Audio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "audio_url")
+    @Column(name = "audio_url", columnDefinition = "TEXT")
     private String audioUrl;
 
-    @Column(name = "audio_text")
+    @Column(name = "audio_text", columnDefinition = "TEXT")
     private String audioText;
 
     @Enumerated(EnumType.STRING)

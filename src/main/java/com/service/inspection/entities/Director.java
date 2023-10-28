@@ -14,13 +14,13 @@ public class Director {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, columnDefinition = "TEXT")
     private String name;
 
-    @Column(name = "position_name")
+    @Column(name = "position_name", columnDefinition = "TEXT")
     private String positionName;
 
-    @Column(name = "signature_url", nullable = false)
+    @Column(name = "signature_url", nullable = false, columnDefinition = "TEXT")
     private String signatureUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)

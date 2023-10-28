@@ -18,10 +18,10 @@ public class Defect {
     @JoinColumn(name = "photo_id")
     private Photo photo;
 
-    @Column(name = "name")
+    @Column(name = "name", columnDefinition = "TEXT")
     private String name;
 
-    @Column(name = "location")
+    @Column(name = "location", columnDefinition = "TEXT")
     private String location;
 
     @Column(name = "elumanation_way")

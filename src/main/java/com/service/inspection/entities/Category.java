@@ -17,14 +17,14 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, columnDefinition = "TEXT")
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inspection_id")
     private Inspection inspection;
 
-    @Column(name = "inspection_result")
+    @Column(name = "inspection_result", columnDefinition = "TEXT")
     private String inspectionResult;
 
     @Enumerated(EnumType.STRING)

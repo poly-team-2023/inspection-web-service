@@ -19,7 +19,15 @@ public class Engineer {
     @Column(name = "position_name")
     private String positionName;
 
-    @OneToMany(mappedBy = "engineer", fetch = FetchType.LAZY)
+    @ManyToMany
+    @JoinTable(
+            name = "engineer_inspector",
+            joinColumns = {
+                    @JoinColumn(name="user_id", referencedColumnName="user_id"),
+                    @JoinColumn(name="company_id", referencedColumnName="company_id")
+            },
+            inverseJoinColumns = @JoinColumn(name = "inspection_id")
+    )
     private Set<Inspection> inspections;
 
     @Embeddable

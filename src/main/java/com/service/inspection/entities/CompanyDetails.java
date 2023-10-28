@@ -15,7 +15,7 @@ public class CompanyDetails {
     @JoinColumn(name = "company_id")
     private Company company;
 
-    @Column(name = "legal_address", nullable = false)
+    @Column(name = "legal_address", nullable = false, columnDefinition = "TEXT")
     private String legalAddress;
 
     @Column(name = "sro", nullable = false)
@@ -27,12 +27,12 @@ public class CompanyDetails {
     @Column(name = "cipher", nullable = false)
     private String cipher;
 
-    @Column(name = "logo_url", nullable = false)
+    @Column(name = "logo_url", nullable = false, columnDefinition = "TEXT")
     private String logoUrl;
 
-    @Column(name = "sro_scan_url", nullable = false)
+    @Column(name = "sro_scan_url", nullable = false, columnDefinition = "TEXT")
     private String sroScanUrl;
 
-    @Column(name = "license_scan_url", nullable = false)
+    @Column(name = "license_scan_url", nullable = false, columnDefinition = "TEXT")
     private String licenseScanUrl;
 }

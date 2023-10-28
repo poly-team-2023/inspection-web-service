@@ -16,13 +16,12 @@ public class InspectedObject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, columnDefinition = "TEXT")
     private String name;
 
-    @Column(name = "address")
+    @Column(name = "address", columnDefinition = "TEXT")
     private String address;
 
     @OneToMany(mappedBy = "object", fetch = FetchType.LAZY)
     private Set<Inspection> inspections;
-
 }

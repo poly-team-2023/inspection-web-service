@@ -18,18 +18,14 @@ public class Inspection {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "name")
+    @Column(name = "name", columnDefinition = "TEXT")
     private String name;
 
     @Column(name = "start_date")
     private OffsetDateTime startDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns({
-            @JoinColumn(name="user_id", referencedColumnName="user_id", insertable = false, updatable = false),
-            @JoinColumn(name="company_id", referencedColumnName="company_id", insertable = false, updatable = false)
-    })
-    private Engineer engineer;
+    @ManyToMany(mappedBy = "inspections")
+    private Set<Engineer> engineer;
 
     @Column(name = "end_date")
     private OffsetDateTime endDate;

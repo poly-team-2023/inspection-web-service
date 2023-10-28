@@ -4,25 +4,37 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "plan_categorie_photo")
 @Data
 @NoArgsConstructor
-public class PlanCategoriePhoto {
+public class PlanCategoryPhoto {
 
-    @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categorie_id")
     private Category category;
 
-    @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "photo_uuid")
     private Photo photo;
 
-    @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
+    @Embeddable
+    @Data
+    @NoArgsConstructor
+    class EngineerId implements Serializable {
+
+        @ManyToOne
+        @JoinColumn(name = "user_id")
+        private User user;
+
+        @ManyToOne
+        @JoinColumn(name = "company_id")
+        private Company company;
+    }
 }

@@ -14,7 +14,7 @@ public class Plan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "plan_url")
+    @Column(name = "plan_url", columnDefinition = "TEXT")
     private String planUrl;
 }
 

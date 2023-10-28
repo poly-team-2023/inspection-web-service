@@ -25,11 +25,10 @@ public class Equipment {
     @Column(name = "verification_date", nullable = false)
     private OffsetDateTime verificationDate;
 
-    @Column(name = "verification_scan_url", nullable = false)
+    @Column(name = "verification_scan_url", nullable = false, columnDefinition = "TEXT")
     private String verificationScanUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
 }
