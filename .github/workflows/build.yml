@@ -17,8 +17,16 @@ jobs:
       - name: Maven Verify
         run: mvn -B clean verify
 
-      - name: Code climate
-        uses: poly-team-2023/inspection-web-service/codeclimate-action@v2.0.0
+      - name: Setup Code Climate CLI
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+
+      - name: Code climate | code сoverage
+        uses: poly-team-2023/inspection-web-service/codeclimate-action@v1.0.0
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
           JACOCO_SOURCE_PATH: src/main/java
