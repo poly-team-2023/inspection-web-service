@@ -16,14 +16,8 @@ jobs:
           java-version: 17
       - name: Maven Verify
         run: mvn -B clean verify
-
-      - name: Test Coverage
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-
       - name: Publish code coverage
-        uses: Queenore/codeclimate-action@v5.0.0
+        uses: poly-team-2023/inspection-web-service/codeclimate-action@v5.0.0
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
           JACOCO_SOURCE_PATH: src/main/java
