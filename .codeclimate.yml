@@ -1,0 +1,74 @@
+version: "1"
+plugins:
+  duplication:
+    enabled: false
+    config:
+      languages:
+        java:
+  checkstyle:
+    enabled: true
+    config:
+      file: "checkstyle.xml"
+  pmd:
+    enabled: true
+    config:
+      rules:
+        - "java-basic"
+        - "java-clone"
+        - "java-design"
+        - "java-empty"
+        - "java-finalizers"
+        - "java-imports"
+        - "java-migrating"
+        - "java-optimizations"
+        - "java-strictexception"
+        - "java-strings"
+        - "java-sunsecure"
+        - "java-typeresolution"
+        - "java-unnecessary"
+        - "java-unusedcode"
+    checks:
+      AvoidCatchingGenericException:
+        enabled: false
+      AvoidInstantiatingObjectsInLoops:
+        enabled: false
+      AvoidSynchronizedAtMethodLevel:
+        enabled: false
+      AvoidThrowingRawExceptionTypes:
+        enabled: false
+      DataClass:
+        enabled: false
+      UselessParentheses:
+        enabled: false
+      MethodArgumentCouldBeFinal:
+        enabled: false
+      LocalVariableCouldBeFinal:
+        enabled: false
+      PrematureDeclaration:
+        enabled: false
+  sonar-java:
+    enabled: true
+    config:
+      sonar.java.source: "17"
+    checks:
+      squid:S00112:
+        enabled: false
+checks:
+  argument-count:
+    config:
+      threshold: 6
+  method-lines:
+    config:
+      threshold: 80
+  method-complexity:
+    config:
+      threshold: 15
+  similar-code:
+    config:
+      threshold: 60
+  identical-code:
+    config:
+      threshold: 60
+  return-statements:
+    config:
+      threshold: 10
