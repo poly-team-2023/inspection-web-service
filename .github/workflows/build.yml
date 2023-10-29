@@ -17,8 +17,8 @@ jobs:
       - name: Maven Verify
         run: mvn -B clean verify
 
-      - name: Publish code coverage
-        uses: poly-team-2023/inspection-web-service/codeclimate-action@v1
+      - name: Code climate
+        uses: inspection-web-service/codeclimate-action@v1.0.0
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
           JACOCO_SOURCE_PATH: src/main/java
