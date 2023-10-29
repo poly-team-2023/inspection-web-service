@@ -1,16 +1,13 @@
-name: Build
+name: Java CI with Maven
 
 on:
   pull_request:
     branches:
       - '*'
-  push:
-    branches:
-      - 'main'
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - name: set up JDK 17
