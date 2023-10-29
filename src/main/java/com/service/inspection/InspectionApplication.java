@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Bean;
 public class InspectionApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(InspectionApplication.class, args);
-		SpringApplication.run(CommandLineRunner.class, args);
+//		SpringApplication.run(InspectionApplication.class, args);
+//		SpringApplication.run(CommandLineRunner.class, args);
 	}
 
 	@Bean
