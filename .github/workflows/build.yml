@@ -6,7 +6,7 @@ on:
       - '*'
 
 jobs:
-  Build:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -29,7 +29,7 @@ jobs:
 
 #  Codestyle:
 
-  Coverage:
+  coverage:
     runs-on: ubuntu-latest
     steps:
       - name: JaCoCo Code Coverage Report
