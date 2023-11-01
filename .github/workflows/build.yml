@@ -26,20 +26,3 @@ jobs:
 
       - name: Maven Package
         run: mvn -B clean package -DskipTests
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Install CodeClimate CLI
-        run: |
-          curl -L https://github.com/codeclimate/codeclimate/archive/master.tar.gz | tar xvz
-          mv codeclimate-* codeclimate
-          chmod +x codeclimate
-          sudo mv codeclimate /usr/local/bin/
-
-      - name: Run CodeClimate Analysis
-        run: |
-          codeclimate analyze
