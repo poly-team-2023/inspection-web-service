@@ -27,6 +27,14 @@ jobs:
       - name: Maven Package
         run: mvn -B clean package -DskipTests
 
+      - uses: remarkablemark/setup-codeclimate@v2
+      - run: |
+          cc-test-reporter before-build
+          npm test
+          cc-test-reporter after-build --exit-code $?
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+
   #  codestyle:
   #    runs-on: ubuntu-latest
   #    steps:
@@ -38,14 +46,3 @@ jobs:
   #
   #      - name: Upload results to CodeClimate
   #        run: codeclimate format-coverage -t lcov coverage/.resultset.json
-
-  coverage:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: remarkablemark/setup-codeclimate@v2
-      - run: |
-          cc-test-reporter before-build
-          npm test
-          cc-test-reporter after-build --exit-code $?
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
