@@ -30,8 +30,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Code Climate Test Reporter
-        uses: aktions/codeclimate-test-reporter@v1
-        with:
-          codeclimate-test-reporter-id: ${{ secrets.CC_TEST_REPORTER_ID }}
-          command: after-build
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Install CodeClimate CLI
+        run: |
+          curl -L https://github.com/codeclimate/codeclimate/archive/master.tar.gz | tar xvz
+          mv codeclimate-* codeclimate
+          chmod +x codeclimate
+          sudo mv codeclimate /usr/local/bin/
+
+      - name: Run CodeClimate Analysis
+        run: |
+          codeclimate analyze --dev
