@@ -6,7 +6,7 @@ on:
       - '*'
 
 jobs:
-  build:
+  BuildAndTest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -24,14 +24,32 @@ jobs:
           app_user_password: admin
           app_db: inspection-service-sb
 
-      - name: Maven Verify
-        run: mvn -B clean verify
+      - name: Maven Package
+        run: mvn -B clean package -DskipTests
 
-      - name: Publish code coverage
+#  Codestyle:
+
+  Coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: JaCoCo Code Coverage Report
+        id: jacoco_reporter
+        uses: PavanMudigonda/jacoco-reporter@v4.8
+        with:
+          coverage_results_path: jacoco-report/test.xml
+          coverage_report_name: Coverage
+          coverage_report_title: JaCoCo
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_check_run: false
+          minimum_coverage: 80
+          fail_below_threshold: false
+          publish_only_summary: false
+
+      - name: Test & publish code coverage
         uses: paambaati/codeclimate-action@v5.0.0
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
-          JACOCO_SOURCE_PATH: src/main/java
+          JACOCO_SOURCE_PATH: "${{github.workspace}}/src/main/java"
         with:
-          coverageCommand: make report
-          coverageLocations: ${{github.workspace}}/build/reports/jacoco/test/jacocoTestReport.xml:jacoco
+          coverageCommand: mvn test
+          coverageLocations: ${{github.workspace}}/jacoco-report/test.xml:jacoco
