@@ -42,4 +42,4 @@ jobs:
 
       - name: Run CodeClimate Analysis
         run: |
-          codeclimate analyze --dev
+          codeclimate analyze
