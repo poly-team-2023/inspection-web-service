@@ -10,17 +10,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+
       - name: set up JDK 17
         uses: actions/setup-java@v1
         with:
           java-version: 17
+
+      - name: Setup Postgres database
+        uses: Daniel-Marynicz/postgresql-action@master
+        with:
+          postgres_image_tag: 16.0
+          app_user: admin
+          app_user_password: admin
+          app_db: inspection-service-sb
+
       - name: Maven Verify
         run: mvn -B clean verify
 
-      - name: Setup Code Climate CLI
-        run: |
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-          chmod +x ./cc-test-reporter
-          ./cc-test-reporter before-build
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+#      - name: Setup Code Climate CLI
+#        uses: poly-team-2023/inspection-web-service/setup-codeclimate@v2
+#
+#      - name: Code climate | code сoverage
+#        uses: poly-team-2023/inspection-web-service/codeclimate-action@v1.0.0
+#        env:
+#          CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
+#          JACOCO_SOURCE_PATH: src/main/java
+#        with:
+#          coverageCommand: make report
+#          coverageLocations: ${{github.workspace}}/build/reports/jacoco/test/jacocoTestReport.xml:jacoco
