@@ -48,7 +48,7 @@ jobs:
       - name: Run Test and Upload Coverage
         run: |
           cc-test-reporter before-build
-          mvm test
+          mvn test
           cc-test-reporter after-build --exit-code $?
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
