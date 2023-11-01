@@ -27,13 +27,11 @@ jobs:
       - name: Maven Package
         run: mvn -B clean package -DskipTests
 
-  coverage:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: amancevice/setup-code-climate@main
+      - name: Code Climate Test Reporter
+        uses: aktions/codeclimate-test-reporter@v1
         with:
-          cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
-      - run: cc-test-reporter before-build
-      - run: npm install
-      - run: npm test
-      - run: cc-test-reporter after-build
+          codeclimate-test-reporter-id: ${{ secrets.CC_TEST_REPORTER_ID }}
+          command: after-build
