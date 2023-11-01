@@ -42,21 +42,13 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     steps:
-      - name: Generate JaCoCo Report
+      - name: Setup Code Climate
+        uses: remarkablemark/setup-codeclimate@v2
+
+      - name: Run Test and Upload Coverage
         run: |
-          mvn jacoco:report
-
-      - name: Upload JaCoCo Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: jacoco-report
-          path: target/site/jacoco
-
-      - name: Test & publish code coverage
-        uses: paambaati/codeclimate-action@v5.0.0
+          cc-test-reporter before-build
+          mvm test
+          cc-test-reporter after-build --exit-code $?
         env:
-          CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
-          JACOCO_SOURCE_PATH: "${{github.workspace}}/src/main/java"
-        with:
-          coverageCommand: mvn test
-          coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
