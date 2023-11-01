@@ -45,8 +45,8 @@ jobs:
       - name: Setup Code Climate
         uses: remarkablemark/setup-codeclimate@v2
 
-      - name: Run Test and Upload Coverage
-        run: |
+      - uses: remarkablemark/setup-codeclimate@v2
+      - run: |
           cc-test-reporter before-build
           npm test
           cc-test-reporter after-build --exit-code $?
