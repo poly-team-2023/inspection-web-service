@@ -27,22 +27,15 @@ jobs:
       - name: Maven Package
         run: mvn -B clean package -DskipTests
 
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
       - uses: remarkablemark/setup-codeclimate@v2
+        with:
+          cli-name: cc-test-reporter
       - run: |
           cc-test-reporter before-build
           npm test
           cc-test-reporter after-build --exit-code $?
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-
-  #  codestyle:
-  #    runs-on: ubuntu-latest
-  #    steps:
-  #      - name: Install CodeClimate CLI
-  #        run: gem install codeclimate
-  #
-  #      - name: Run CodeClimate analysis
-  #        run: codeclimate analyze --all
-  #
-  #      - name: Upload results to CodeClimate
-  #        run: codeclimate format-coverage -t lcov coverage/.resultset.json
