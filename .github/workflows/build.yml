@@ -30,12 +30,10 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: remarkablemark/setup-codeclimate@v2
+      - uses: amancevice/setup-code-climate@main
         with:
-          cli-name: cc-test-reporter
-      - run: |
-          cc-test-reporter before-build
-          npm test
-          cc-test-reporter after-build --exit-code $?
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+          cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
+      - run: cc-test-reporter before-build
+      - run: npm install
+      - run: npm test
+      - run: cc-test-reporter after-build
