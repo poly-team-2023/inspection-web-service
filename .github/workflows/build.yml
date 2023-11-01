@@ -27,23 +27,30 @@ jobs:
       - name: Maven Package
         run: mvn -B clean package -DskipTests
 
-#  Codestyle:
+  #  codestyle:
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - name: Install CodeClimate CLI
+  #        run: gem install codeclimate
+  #
+  #      - name: Run CodeClimate analysis
+  #        run: codeclimate analyze --all
+  #
+  #      - name: Upload results to CodeClimate
+  #        run: codeclimate format-coverage -t lcov coverage/.resultset.json
 
   coverage:
     runs-on: ubuntu-latest
     steps:
-      - name: JaCoCo Code Coverage Report
-        id: jacoco_reporter
-        uses: PavanMudigonda/jacoco-reporter@v4.8
+      - name: Generate JaCoCo Report
+        run: |
+          mvn jacoco:report
+
+      - name: Upload JaCoCo Report
+        uses: actions/upload-artifact@v2
         with:
-          coverage_results_path: jacoco-report/test.xml
-          coverage_report_name: Coverage
-          coverage_report_title: JaCoCo
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          skip_check_run: false
-          minimum_coverage: 80
-          fail_below_threshold: false
-          publish_only_summary: false
+          name: jacoco-report
+          path: target/site/jacoco
 
       - name: Test & publish code coverage
         uses: paambaati/codeclimate-action@v5.0.0
@@ -52,4 +59,4 @@ jobs:
           JACOCO_SOURCE_PATH: "${{github.workspace}}/src/main/java"
         with:
           coverageCommand: mvn test
-          coverageLocations: ${{github.workspace}}/jacoco-report/test.xml:jacoco
+          coverageLocations: ${{github.workspace}}/target/site/jacoco/jacoco.xml:jacoco
