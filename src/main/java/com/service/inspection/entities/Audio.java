@@ -18,19 +18,19 @@ public class Audio {
     private int id;
 
     @Column(name = "url", columnDefinition = "TEXT")
-    private String audioUrl;
+    private String url;
 
     @Column(name = "text", columnDefinition = "TEXT")
-    private String audioText;
+    private String text;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private ProgressingStatus audioStatus;
+    private ProgressingStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inspection_id_fk")
     private Inspection inspection;
 
-    @Column(name = "audio_date")
-    private OffsetDateTime audioDate;
+    @Column(name = "date")
+    private OffsetDateTime date;
 }

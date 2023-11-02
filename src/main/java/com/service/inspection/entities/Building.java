@@ -24,7 +24,7 @@ public class Building {
     private String address;
 
     @Column(name="photo_url")
-    private String photoUrl;
+    private String url;
 
     @Enumerated(EnumType.STRING)
     @Column(name="building_type")

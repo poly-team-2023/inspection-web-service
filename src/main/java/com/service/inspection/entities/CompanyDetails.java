@@ -15,24 +15,24 @@ public class CompanyDetails {
     @JoinColumn(name = "company_id")
     private Company company;
 
-    @Column(name = "legal_address", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "legal_address", columnDefinition = "TEXT")
     private String legalAddress;
 
-    @Column(name = "sro", nullable = false)
+    @Column(name = "sro")
     private String sro;
 
-    @Column(name = "license", nullable = false)
+    @Column(name = "license")
     private String license;
 
-    @Column(name = "cipher", nullable = false)
+    @Column(name = "cipher")
     private String cipher;
 
-    @Column(name = "logo_url", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "logo_url", columnDefinition = "TEXT")
     private String logoUrl;
 
-    @Column(name = "sro_scan_url", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "sro_scan_url", columnDefinition = "TEXT")
     private String sroScanUrl;
 
-    @Column(name = "license_scan_url", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "license_scan_url", columnDefinition = "TEXT")
     private String licenseScanUrl;
 }

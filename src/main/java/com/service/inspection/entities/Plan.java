@@ -17,7 +17,7 @@ public class Plan {
     private int id;
 
     @Column(name = "url", columnDefinition = "TEXT")
-    private String planUrl;
+    private String url;
 
     @OneToMany(mappedBy = "plan")
     private Set<Photo> photos;

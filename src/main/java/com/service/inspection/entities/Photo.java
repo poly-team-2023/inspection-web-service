@@ -29,13 +29,10 @@ public class Photo {
     private Plan plan;
 
     @Column(name = "place")
-    private String photoLocation;
+    private String location;
 
-    @Column(name = "url", nullable = false, columnDefinition = "TEXT")
-    private String photoUrl;
-
-    @Column(name = "inspection_url", columnDefinition = "TEXT")
-    private String photoInspectionUrl;
+    @Column(name = "url", columnDefinition = "TEXT")
+    private String url;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
@@ -46,20 +43,19 @@ public class Photo {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private ProgressingStatus inspectionStatus;
+    private ProgressingStatus status;
 
-    @Column(name = "photo_date")
-    private OffsetDateTime photoDate;
+    @Column(name = "date")
+    private OffsetDateTime date;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    private Set<Defect> defectsCoord;
+    private Set<Defect> defectsCoords;
 
     @JdbcTypeCode(SqlTypes.JSON)
     private Set<DefectsElimination> defectsEliminations;
 
     @OneToOne(mappedBy = "photo")
-    private PhotoCoord photoCoord;
-
+    private PhotoCoord coords;
 
     @Embeddable
     @Data
