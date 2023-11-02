@@ -16,7 +16,7 @@ public class Plan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "plan_url", columnDefinition = "TEXT")
+    @Column(name = "url", columnDefinition = "TEXT")
     private String planUrl;
 
     @OneToMany(mappedBy = "plan")

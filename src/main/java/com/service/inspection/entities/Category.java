@@ -24,11 +24,11 @@ public class Category {
     @JoinColumn(name = "inspection_id")
     private Inspection inspection;
 
-    @Column(name = "inspection_result", columnDefinition = "TEXT")
-    private String inspectionResult;
+    @Column(name = "reccomandation", columnDefinition = "TEXT")
+    private String recommendation;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "inspection_status")
+    @Column(name = "status")
     private ProgressingStatus inspectionStatus;
 
     @Column(name = "inspected_photos_count")

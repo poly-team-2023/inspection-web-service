@@ -31,10 +31,10 @@ public class Photo {
     @Column(name = "place")
     private String photoLocation;
 
-    @Column(name = "photo_url", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "url", nullable = false, columnDefinition = "TEXT")
     private String photoUrl;
 
-    @Column(name = "photo_inspection_url", columnDefinition = "TEXT")
+    @Column(name = "inspection_url", columnDefinition = "TEXT")
     private String photoInspectionUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,7 +45,7 @@ public class Photo {
     private String recommendation;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "inspection_status")
+    @Column(name = "status")
     private ProgressingStatus inspectionStatus;
 
     @Column(name = "photo_date")

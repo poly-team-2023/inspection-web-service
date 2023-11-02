@@ -17,14 +17,14 @@ public class Audio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "audio_url", columnDefinition = "TEXT")
+    @Column(name = "url", columnDefinition = "TEXT")
     private String audioUrl;
 
-    @Column(name = "audio_text", columnDefinition = "TEXT")
+    @Column(name = "text", columnDefinition = "TEXT")
     private String audioText;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "audio_status")
+    @Column(name = "status")
     private ProgressingStatus audioStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)

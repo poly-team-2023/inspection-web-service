@@ -36,14 +36,14 @@ public class Inspection {
     @Column(name = "work_plan_url")
     private String workPlan;
 
-    @Column(name = "inspection_result")
-    private String inspectionResult;
+    @Column(name = "result")
+    private String result;
 
-    @Column(name = "inspection_script")
+    @Column(name = "script")
     private String script;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "inspection_status")
+    @Column(name = "status")
     private ProgressingStatus status;
 
     @Column(name = "inspected_categories_count")
