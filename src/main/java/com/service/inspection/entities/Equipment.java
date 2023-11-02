@@ -22,10 +22,10 @@ public class Equipment {
     @Column(name = "serial_number", nullable = false)
     private String serialNumber;
 
-    @Column(name = "verification_date", nullable = false)
+    @Column(name = "verification_date")
     private OffsetDateTime verificationDate;
 
-    @Column(name = "verification_scan_url", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "verification_scan_url", columnDefinition = "TEXT")
     private String verificationScanUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
