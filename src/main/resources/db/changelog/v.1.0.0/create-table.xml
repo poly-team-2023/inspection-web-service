@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet id="create-users-table" author="admin">
+        <createTable tableName="users">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="username" type="varchar(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                    <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-roles-table" author="admin">
+        <createTable tableName="roles">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                    <constraints unique="true" nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-user-roles-table" author="admin">
+        <createTable tableName="user_roles">
+            <column name="user_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-fk-users-user-roles" author="admin">
+        <addForeignKeyConstraint baseTableName="user_roles" baseColumnNames="user_id"
+                                 constraintName="fk_users_user_roles" referencedTableName="users"
+                                 referencedColumnNames="id"  deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"
+        />
+    </changeSet>
+
+    <changeSet id="create-fk-roles-user-roles" author="admin">
+        <addForeignKeyConstraint baseTableName="user_roles" baseColumnNames="role_id"
+                                 constraintName="fk_roles_user_roles" referencedTableName="roles"
+                                 referencedColumnNames="id"  deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="create-companies-table" author="admin">
+        <createTable tableName="companies">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="text">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-company-details-table" author="admin">
+        <createTable tableName="company_details">
+            <column name="company_id" type="int">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="legal_address" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sro" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="license" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cipher" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="logo_url" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sro_scan_url" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="license_scan_url" type="text">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="fk-companies-company-details" author="admin">
+        <addForeignKeyConstraint baseTableName="companies" baseColumnNames="id"
+                                 constraintName="fk_company_id"
+                                 referencedTableName="company_details"
+                                 referencedColumnNames="company_id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="create-engineers-table" author="admin">
+        <createTable tableName="engineers">
+            <column name="user_id" type="int">
+                <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="pk_engineers_table"/>
+            </column>
+            <column name="company_id" type="int">
+                <constraints primaryKey="true" unique="true" primaryKeyName="pk_engineers_table"/>
+            </column>
+            <column name="position_name" type="text"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="fk-users-engineers" author="admin">
+        <addForeignKeyConstraint baseTableName="users" baseColumnNames="id"
+                                 constraintName="fk_users_engineers"
+                                 referencedTableName="engineers" referencedColumnNames="user_id"
+                                 initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="fk-companies-engineers" author="admin">
+        <addForeignKeyConstraint baseTableName="companies" baseColumnNames="id"
+                                 constraintName="fk_companies_engineers"
+                                 referencedTableName="engineers" referencedColumnNames="company_id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="create-engineers-inspection-table" author="admin">
+        <createTable tableName="engineers_inspection">
+            <column name="user_id" type="int">
+                <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="pk_engineers_inspection_table"/>
+            </column>
+            <column name="company_id" type="int">
+                <constraints primaryKey="true" unique="true" primaryKeyName="pk_engineers_inspection_table"/>
+            </column>
+            <column name="inspection_id" type="int">
+                <constraints primaryKey="true" unique="true" primaryKeyName="pk_engineers_inspection_table"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="fk-user-id-engineers_inspection" author="admin">
+        <addForeignKeyConstraint baseTableName="engineers" baseColumnNames="user_id"
+                                 constraintName="fk_user_id_engineers_inspection"
+                                 referencedTableName="engineers_inspection" referencedColumnNames="user_id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="fk-company-id-engineers_inspection" author="admin">
+        <addForeignKeyConstraint baseTableName="engineers" baseColumnNames="company_id"
+                                 constraintName="fk_company_id_engineers_inspection"
+                                 referencedTableName="engineers_inspection" referencedColumnNames="company_id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="create-directors-table" author="admin">
+        <createTable tableName="directors">
+            <column name="id" type="int" autoIncrement="true" >
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="name" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="position_name" type="text"/>
+            <column name="signature_url" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="company_id" type="int">
+                <constraints unique="true" nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="fk-companies-directors" author="admin">
+        <addForeignKeyConstraint baseTableName="companies" baseColumnNames="id"
+                                 constraintName="fk_companies_directors"
+                                 referencedTableName="directors" referencedColumnNames="company_id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="create-equipment-table" author="admin">
+        <createTable tableName="equipment">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="name" type="text"/>
+            <column name="serial_number" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="verification_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="verification_number" type="text"/>
+            <column name="verification_scan_url" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="company_id" type="int">
+                <constraints unique="true" nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="fk-companies-equipment" author="admin">
+        <addForeignKeyConstraint baseTableName="companies" baseColumnNames="id"
+                                 constraintName="fk_companies_equipment"
+                                 referencedTableName="equipment" referencedColumnNames="company_id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="create-building-type" author="admin">
+        <sql>CREATE TYPE building_type AS ENUM ('CULTURE','NOT_CULTURE')</sql>
+    </changeSet>
+
+    <changeSet id="create-building-table" author="admin">
+        <createTable tableName="building">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="name" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="text"/>
+            <column name="photo_url" type="text"/>
+            <column name="building_type" type="building_type"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-status-type" author="admin">
+        <sql>CREATE TYPE status AS ENUM ('READY','WAIT_ANALYZE', 'WAIT_FILLING')</sql>
+    </changeSet>
+
+    <changeSet id="create-categories-table" author="admin">
+        <createTable tableName="categories">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="name" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="inspection_id" type="int">
+                <constraints unique="true"/>
+            </column>
+            <column name="category_condition" type="status"/>
+            <column name="category_recommendation" type="text"/>
+            <column name="inspection_photos_count" type="int"/> 
+        </createTable>
+    </changeSet>
+    
+    <changeSet id="create-photos-table" author="admin">
+        <createTable tableName="photos">
+            <column name="uuid" type="uuid">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="category_id" type="int">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="plan_id" type="int">
+                <constraints unique="true"/>
+            </column>
+            <column name="place" type="text"/>
+            <column name="photo_date" type="timestamptz"/>
+            <column name="photo_url" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="recommendation" type="text"/>
+            <column name="defects_coord" type="json"/>
+            <column name="defects_eliminations" type="json"/>
+            <column name="inspection_status" type="status"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-inspection-table" author="admin">
+        <createTable tableName="inspection">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="name" type="text"/>
+            <column name="start_time" type="timestamptz"/>
+            <column name="end_date" type="timestamptz"/>
+            <column name="building_id" type="int">
+                <constraints unique="true"/>
+            </column>
+            <column name="inspection_tor_url" type="text"/>
+            <column name="inspection_work_plan_url" type="text"/>
+            <column name="inspection_status" type="status"/>
+            <column name="inspection_report_name" type="text"/>
+            <column name="inspection_script" type="text"/>
+            <column name="inspection_result" type="text"/>
+            <column name="inspected_categories_count" type="int"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="fk-building-inspection" author="admin">
+        <addForeignKeyConstraint baseTableName="building" baseColumnNames="id"
+                                 constraintName="fk_building_inspection"
+                                 referencedTableName="inspection" referencedColumnNames="building_id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="fk-categories-photos" author="admin">
+        <addForeignKeyConstraint baseTableName="categories" baseColumnNames="id"
+                                 constraintName="fk_categories_photos"
+                                 referencedTableName="photos" referencedColumnNames="category_id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="create-audio-table" author="admin">
+        <createTable tableName="audio">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints unique="true" primaryKey="true"/>
+            </column>
+            <column name="audio_url" type="text"/>
+            <column name="audio_text" type="text"/>
+            <column name="audio_status" type="status"/>
+            <column name="inspection_id_fk" type="int">
+                <constraints unique="true"/>
+            </column>
+            <column name="audio_date" type="timestamptz"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="fk-inspection-audio" author="admin">
+        <addForeignKeyConstraint baseTableName="inspection" baseColumnNames="id"
+                                 constraintName="fk_inspection_audio"
+                                 referencedTableName="audio" referencedColumnNames="inspection_id_fk"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="create-photo-coord-table" author="admin">
+        <createTable tableName="photo_coord">
+            <column name="photo_uuid" type="uuid">
+                <constraints unique="true" primaryKey="true"/>
+            </column>
+            <column name="x" type="double"/>
+            <column name="y" type="double"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="fk-photos-photo-coord" author="admin">
+        <addForeignKeyConstraint baseTableName="photos" baseColumnNames="uuid"
+                                 constraintName="fk_photos_photo_coord"
+                                 referencedTableName="photo_coord" referencedColumnNames="photo_uuid"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="create-plan-table" author="admin">
+        <createTable tableName="plan">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints unique="true" primaryKey="true"/>
+            </column>
+            <column name="plan_url" type="text"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="fk-plan-photos" author="admin">
+        <addForeignKeyConstraint baseTableName="plan" baseColumnNames="id"
+                                 constraintName="fk_plan_photos"
+                                 referencedTableName="photos" referencedColumnNames="plan_id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="create-employers-table" author="admin">
+        <createTable tableName="employers">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints unique="true" primaryKey="true"/>
+            </column>
+            <column name="name" type="text"/>
+            <column name="position_name" type="text"/>
+            <column name="signature_url" type="status">
+                <constraints nullable="false"/>
+            </column>
+            <column name="company_id" type="int">
+                <constraints unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="fk-companies-employers" author="admin">
+        <addForeignKeyConstraint baseTableName="companies" baseColumnNames="id"
+                                 constraintName="fk_companies_employers"
+                                 referencedTableName="employers" referencedColumnNames="company_id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="fk-inspections-categories" author="admin">
+        <addForeignKeyConstraint baseTableName="inspection" baseColumnNames="id"
+                                 constraintName="fk_inspections_categories"
+                                 referencedTableName="categories" referencedColumnNames="inspection_id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>
