@@ -33,5 +33,4 @@ public class Audio {
 
     @Column(name = "audio_date")
     private OffsetDateTime audioDate;
-
 }

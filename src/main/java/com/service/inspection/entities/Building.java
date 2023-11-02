@@ -1,5 +1,6 @@
 package com.service.inspection.entities;
 
+import com.service.inspection.entities.enums.BuildingType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,10 +8,10 @@ import lombok.NoArgsConstructor;
 import java.util.Set;
 
 @Entity
-@Table(name = "objects")
+@Table(name = "building")
 @Data
 @NoArgsConstructor
-public class InspectedObject {
+public class Building {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +23,13 @@ public class InspectedObject {
     @Column(name = "address", columnDefinition = "TEXT")
     private String address;
 
-    @OneToMany(mappedBy = "object", fetch = FetchType.LAZY)
+    @Column(name="photo_url")
+    private String photoUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="building_type")
+    private BuildingType buildingType;
+
+    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY)
     private Set<Inspection> inspections;
 }

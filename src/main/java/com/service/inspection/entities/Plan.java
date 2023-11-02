@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Entity
 @Table(name = "plan")
 @Data
@@ -16,5 +18,8 @@ public class Plan {
 
     @Column(name = "plan_url", columnDefinition = "TEXT")
     private String planUrl;
+
+    @OneToMany(mappedBy = "plan")
+    private Set<Photo> photos;
 }
 

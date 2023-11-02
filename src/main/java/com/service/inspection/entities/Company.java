@@ -18,13 +18,15 @@ public class Company {
     @Column(name = "name", nullable = false, columnDefinition = "TEXT")
     private String name;
 
-    @OneToOne(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "company", cascade = CascadeType.ALL)
     private CompanyDetails companyDetails;
 
     @OneToMany(mappedBy = "engineerId.company", fetch = FetchType.LAZY)
     private Set<Engineer> engineers;
 
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
-    private Set<Director> directors;
+    private Set<Employer> employers;
 
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
+    private Set<Equipment> equipments;
 }

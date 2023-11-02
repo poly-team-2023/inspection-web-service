@@ -21,30 +21,44 @@ public class Inspection {
     @Column(name = "name", columnDefinition = "TEXT")
     private String name;
 
+    @Column(name = "report_name")
+    private String reportName;
+
     @Column(name = "start_date")
     private OffsetDateTime startDate;
-
-    @ManyToMany(mappedBy = "inspections")
-    private Set<Engineer> engineer;
 
     @Column(name = "end_date")
     private OffsetDateTime endDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "object_id")
-    private InspectedObject object;
+    @Column(name="tor_url")
+    private String torUrl;
+
+    @Column(name = "work_plan_url")
+    private String workPlan;
+
+    @Column(name = "inspection_result")
+    private String inspectionResult;
+
+    @Column(name = "inspection_script")
+    private String script;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "inspection_status")
-    private ProgressingStatus inspectionStatus;
+    private ProgressingStatus status;
 
     @Column(name = "inspected_categories_count")
     private int inspectedCategoriesCount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "building_id", referencedColumnName = "id")
+    private Building building;
+
+    @ManyToMany(mappedBy = "inspections")
+    private Set<Engineer> engineer;
 
     @OneToMany(mappedBy = "inspection")
     private Set<Category> categories;
 
     @OneToMany(mappedBy = "inspection", fetch = FetchType.LAZY)
     private Set<Audio> audios;
-
 }

@@ -36,5 +36,4 @@ public class Category {
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private Set<Photo> photos;
-
 }
