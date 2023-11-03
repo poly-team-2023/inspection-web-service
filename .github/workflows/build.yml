@@ -16,13 +16,16 @@ jobs:
         with:
           java-version: 17
 
-      - name: Setup Postgres database
-        uses: Daniel-Marynicz/postgresql-action@master
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          postgres_image_tag: 16.0
-          app_user: admin
-          app_user_password: admin
-          app_db: inspection-service-sb
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Deploy with Docker Compose
+        run: |
+          docker-compose up -d
+        continue-on-error: true
 
       - name: Maven Package
         run: mvn -B clean package -DskipTests
