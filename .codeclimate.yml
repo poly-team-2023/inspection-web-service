@@ -8,7 +8,7 @@ plugins:
   checkstyle:
     enabled: true
     config:
-      file: "checkstyle.xml"
+      file: "codestyle.xml"
   pmd:
     enabled: true
     config:
