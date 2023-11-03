@@ -15,6 +15,9 @@
             <column name="password" type="varchar(255)">
                     <constraints nullable="false"/>
             </column>
+            <column name="email" type="varchar(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
@@ -134,14 +137,10 @@
     <changeSet id="create-engineers-inspection-table" author="admin">
         <createTable tableName="engineers_inspection">
             <column name="user_id" type="int">
-                <constraints nullable="false" unique="true" primaryKey="true"/>
+                <constraints nullable="false" unique="true"/>
             </column>
-            <column name="company_id" type="int">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="inspection_id" type="int">
-                <constraints primaryKey="true"/>
-            </column>
+            <column name="company_id" type="int"/>
+            <column name="inspection_id" type="int"/>
         </createTable>
     </changeSet>
 
