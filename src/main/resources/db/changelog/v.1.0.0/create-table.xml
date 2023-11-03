@@ -96,10 +96,9 @@
     </changeSet>
 
     <changeSet id="fk-companies-company-details" author="admin">
-        <addForeignKeyConstraint baseTableName="companies" baseColumnNames="id"
+        <addForeignKeyConstraint baseTableName="company_details" baseColumnNames="company_id"
                                  constraintName="fk_company_id"
-                                 referencedTableName="company_details"
-                                 referencedColumnNames="company_id"
+                                 referencedTableName="companies" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
@@ -107,27 +106,27 @@
     <changeSet id="create-engineers-table" author="admin">
         <createTable tableName="engineers">
             <column name="user_id" type="int">
-                <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="pk_engineers_table"/>
+                <constraints nullable="false" unique="true" primaryKey="true"/>
             </column>
             <column name="company_id" type="int">
-                <constraints primaryKey="true" unique="true" primaryKeyName="pk_engineers_table"/>
+                <constraints primaryKey="true"/>
             </column>
             <column name="position_name" type="text"/>
         </createTable>
     </changeSet>
 
     <changeSet id="fk-users-engineers" author="admin">
-        <addForeignKeyConstraint baseTableName="users" baseColumnNames="id"
+        <addForeignKeyConstraint baseTableName="engineers" baseColumnNames="user_id"
                                  constraintName="fk_users_engineers"
-                                 referencedTableName="engineers" referencedColumnNames="user_id"
-                                 initiallyDeferred="false"
+                                 referencedTableName="users" referencedColumnNames="id"
+                                 deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
 
     <changeSet id="fk-companies-engineers" author="admin">
-        <addForeignKeyConstraint baseTableName="companies" baseColumnNames="id"
+        <addForeignKeyConstraint baseTableName="engineers" baseColumnNames="company_id"
                                  constraintName="fk_companies_engineers"
-                                 referencedTableName="engineers" referencedColumnNames="company_id"
+                                 referencedTableName="companies" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
@@ -135,29 +134,29 @@
     <changeSet id="create-engineers-inspection-table" author="admin">
         <createTable tableName="engineers_inspection">
             <column name="user_id" type="int">
-                <constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="pk_engineers_inspection_table"/>
+                <constraints nullable="false" unique="true" primaryKey="true"/>
             </column>
             <column name="company_id" type="int">
-                <constraints primaryKey="true" unique="true" primaryKeyName="pk_engineers_inspection_table"/>
+                <constraints primaryKey="true"/>
             </column>
             <column name="inspection_id" type="int">
-                <constraints primaryKey="true" unique="true" primaryKeyName="pk_engineers_inspection_table"/>
+                <constraints primaryKey="true"/>
             </column>
         </createTable>
     </changeSet>
 
     <changeSet id="fk-user-id-engineers_inspection" author="admin">
-        <addForeignKeyConstraint baseTableName="engineers" baseColumnNames="user_id"
+        <addForeignKeyConstraint baseTableName="engineers_inspection" baseColumnNames="user_id"
                                  constraintName="fk_user_id_engineers_inspection"
-                                 referencedTableName="engineers_inspection" referencedColumnNames="user_id"
+                                 referencedTableName="engineers" referencedColumnNames="user_id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
 
     <changeSet id="fk-company-id-engineers_inspection" author="admin">
-        <addForeignKeyConstraint baseTableName="engineers" baseColumnNames="company_id"
+        <addForeignKeyConstraint baseTableName="engineers_inspection" baseColumnNames="company_id"
                                  constraintName="fk_company_id_engineers_inspection"
-                                 referencedTableName="engineers_inspection" referencedColumnNames="company_id"
+                                 referencedTableName="companies" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
@@ -165,7 +164,7 @@
     <changeSet id="create-directors-table" author="admin">
         <createTable tableName="directors">
             <column name="id" type="int" autoIncrement="true" >
-                <constraints nullable="false" unique="true" primaryKey="true"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="name" type="text">
                 <constraints nullable="false"/>
@@ -175,15 +174,15 @@
                 <constraints nullable="false"/>
             </column>
             <column name="company_id" type="int">
-                <constraints unique="true" nullable="false"/>
+                <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
 
     <changeSet id="fk-companies-directors" author="admin">
-        <addForeignKeyConstraint baseTableName="companies" baseColumnNames="id"
+        <addForeignKeyConstraint baseTableName="directors" baseColumnNames="company_id"
                                  constraintName="fk_companies_directors"
-                                 referencedTableName="directors" referencedColumnNames="company_id"
+                                 referencedTableName="companies" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
@@ -191,7 +190,7 @@
     <changeSet id="create-equipment-table" author="admin">
         <createTable tableName="equipment">
             <column name="id" type="int" autoIncrement="true">
-                <constraints nullable="false" unique="true" primaryKey="true"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="name" type="text"/>
             <column name="serial_number" type="text">
@@ -205,15 +204,15 @@
                 <constraints nullable="false"/>
             </column>
             <column name="company_id" type="int">
-                <constraints unique="true" nullable="false"/>
+                <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
 
     <changeSet id="fk-companies-equipment" author="admin">
-        <addForeignKeyConstraint baseTableName="companies" baseColumnNames="id"
+        <addForeignKeyConstraint baseTableName="equipment" baseColumnNames="company_id"
                                  constraintName="fk_companies_equipment"
-                                 referencedTableName="equipment" referencedColumnNames="company_id"
+                                 referencedTableName="companies" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
@@ -225,7 +224,7 @@
     <changeSet id="create-building-table" author="admin">
         <createTable tableName="building">
             <column name="id" type="int" autoIncrement="true">
-                <constraints nullable="false" unique="true" primaryKey="true"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="name" type="text">
                 <constraints nullable="false"/>
@@ -243,14 +242,12 @@
     <changeSet id="create-categories-table" author="admin">
         <createTable tableName="categories">
             <column name="id" type="int" autoIncrement="true">
-                <constraints nullable="false" unique="true" primaryKey="true"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="name" type="text">
                 <constraints nullable="false"/>
             </column>
-            <column name="inspection_id" type="int">
-                <constraints unique="true"/>
-            </column>
+            <column name="inspection_id" type="int"/>
             <column name="category_condition" type="status"/>
             <column name="category_recommendation" type="text"/>
             <column name="inspection_photos_count" type="int"/> 
@@ -260,14 +257,12 @@
     <changeSet id="create-photos-table" author="admin">
         <createTable tableName="photos">
             <column name="uuid" type="uuid">
-                <constraints nullable="false" unique="true" primaryKey="true"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="category_id" type="int">
-                <constraints unique="true" nullable="false"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="plan_id" type="int">
-                <constraints unique="true"/>
-            </column>
+            <column name="plan_id" type="int"/>
             <column name="place" type="text"/>
             <column name="photo_date" type="timestamptz"/>
             <column name="photo_url" type="text">
@@ -283,14 +278,12 @@
     <changeSet id="create-inspection-table" author="admin">
         <createTable tableName="inspection">
             <column name="id" type="int" autoIncrement="true">
-                <constraints nullable="false" unique="true" primaryKey="true"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="name" type="text"/>
             <column name="start_time" type="timestamptz"/>
             <column name="end_date" type="timestamptz"/>
-            <column name="building_id" type="int">
-                <constraints unique="true"/>
-            </column>
+            <column name="building_id" type="int"/>
             <column name="inspection_tor_url" type="text"/>
             <column name="inspection_work_plan_url" type="text"/>
             <column name="inspection_status" type="status"/>
@@ -302,17 +295,17 @@
     </changeSet>
 
     <changeSet id="fk-building-inspection" author="admin">
-        <addForeignKeyConstraint baseTableName="building" baseColumnNames="id"
+        <addForeignKeyConstraint baseTableName="inspection" baseColumnNames="building_id"
                                  constraintName="fk_building_inspection"
-                                 referencedTableName="inspection" referencedColumnNames="building_id"
+                                 referencedTableName="building" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
 
     <changeSet id="fk-categories-photos" author="admin">
-        <addForeignKeyConstraint baseTableName="categories" baseColumnNames="id"
+        <addForeignKeyConstraint baseTableName="photos" baseColumnNames="category_id"
                                  constraintName="fk_categories_photos"
-                                 referencedTableName="photos" referencedColumnNames="category_id"
+                                 referencedTableName="categories" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
@@ -320,22 +313,20 @@
     <changeSet id="create-audio-table" author="admin">
         <createTable tableName="audio">
             <column name="id" type="int" autoIncrement="true">
-                <constraints unique="true" primaryKey="true"/>
+                <constraints primaryKey="true"/>
             </column>
             <column name="audio_url" type="text"/>
             <column name="audio_text" type="text"/>
             <column name="audio_status" type="status"/>
-            <column name="inspection_id_fk" type="int">
-                <constraints unique="true"/>
-            </column>
+            <column name="inspection_id_fk" type="int"/>
             <column name="audio_date" type="timestamptz"/>
         </createTable>
     </changeSet>
 
     <changeSet id="fk-inspection-audio" author="admin">
-        <addForeignKeyConstraint baseTableName="inspection" baseColumnNames="id"
+        <addForeignKeyConstraint baseTableName="audio" baseColumnNames="inspection_id_fk"
                                  constraintName="fk_inspection_audio"
-                                 referencedTableName="audio" referencedColumnNames="inspection_id_fk"
+                                 referencedTableName="inspection" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
@@ -351,9 +342,9 @@
     </changeSet>
 
     <changeSet id="fk-photos-photo-coord" author="admin">
-        <addForeignKeyConstraint baseTableName="photos" baseColumnNames="uuid"
+        <addForeignKeyConstraint baseTableName="photo_coord" baseColumnNames="photo_uuid"
                                  constraintName="fk_photos_photo_coord"
-                                 referencedTableName="photo_coord" referencedColumnNames="photo_uuid"
+                                 referencedTableName="photos" referencedColumnNames="uuid"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
@@ -361,16 +352,16 @@
     <changeSet id="create-plan-table" author="admin">
         <createTable tableName="plan">
             <column name="id" type="int" autoIncrement="true">
-                <constraints unique="true" primaryKey="true"/>
+                <constraints primaryKey="true"/>
             </column>
             <column name="plan_url" type="text"/>
         </createTable>
     </changeSet>
 
     <changeSet id="fk-plan-photos" author="admin">
-        <addForeignKeyConstraint baseTableName="plan" baseColumnNames="id"
+        <addForeignKeyConstraint baseTableName="photos" baseColumnNames="plan_id"
                                  constraintName="fk_plan_photos"
-                                 referencedTableName="photos" referencedColumnNames="plan_id"
+                                 referencedTableName="plan" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
@@ -378,31 +369,37 @@
     <changeSet id="create-employers-table" author="admin">
         <createTable tableName="employers">
             <column name="id" type="int" autoIncrement="true">
-                <constraints unique="true" primaryKey="true"/>
+                <constraints primaryKey="true"/>
             </column>
             <column name="name" type="text"/>
             <column name="position_name" type="text"/>
             <column name="signature_url" type="status">
                 <constraints nullable="false"/>
             </column>
-            <column name="company_id" type="int">
-                <constraints unique="true"/>
-            </column>
+            <column name="company_id" type="int"/>
         </createTable>
     </changeSet>
 
     <changeSet id="fk-companies-employers" author="admin">
-        <addForeignKeyConstraint baseTableName="companies" baseColumnNames="id"
+        <addForeignKeyConstraint baseTableName="employers" baseColumnNames="company_id"
                                  constraintName="fk_companies_employers"
-                                 referencedTableName="employers" referencedColumnNames="company_id"
+                                 referencedTableName="companies" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
 
     <changeSet id="fk-inspections-categories" author="admin">
-        <addForeignKeyConstraint baseTableName="inspection" baseColumnNames="id"
+        <addForeignKeyConstraint baseTableName="categories" baseColumnNames="inspection_id"
                                  constraintName="fk_inspections_categories"
-                                 referencedTableName="categories" referencedColumnNames="inspection_id"
+                                 referencedTableName="inspection" referencedColumnNames="id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="fk-inspections-engineers" author="admin">
+        <addForeignKeyConstraint baseTableName="engineers_inspection" baseColumnNames="inspection_id"
+                                 constraintName="fk_inspections_categories"
+                                 referencedTableName="inspection" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
