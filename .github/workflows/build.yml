@@ -27,5 +27,5 @@ jobs:
           docker-compose up -d
         continue-on-error: true
 
-      - name: Maven Package
-        run: mvn -B clean package -DskipTests
+      - name: Maven Verify
+        run: mvn -B clean verify

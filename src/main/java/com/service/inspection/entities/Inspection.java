@@ -30,7 +30,7 @@ public class Inspection {
     @Column(name = "end_date")
     private OffsetDateTime endDate;
 
-    @Column(name="tor_url")
+    @Column(name = "tor_url")
     private String torUrl;
 
     @Column(name = "work_plan_url")

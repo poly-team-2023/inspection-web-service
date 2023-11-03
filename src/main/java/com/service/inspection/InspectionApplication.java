@@ -9,16 +9,14 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class InspectionApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(InspectionApplication.class, args);
-		SpringApplication.run(CommandLineRunner.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(InspectionApplication.class, args);
+        SpringApplication.run(CommandLineRunner.class, args);
+    }
 
-	@Bean
-	public CommandLineRunner commandLineRunner(ApplicationContext context) {
-		return args -> {
-			System.out.printf("Check App runner");
-		};
-	}
+    @Bean
+    public CommandLineRunner commandLineRunner(ApplicationContext context) {
+        return args -> System.out.print("Check App runner");
+    }
 
 }

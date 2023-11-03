@@ -23,8 +23,8 @@ public class Engineer {
     @JoinTable(
             name = "engineer_inspector",
             joinColumns = {
-                    @JoinColumn(name="user_id", referencedColumnName="user_id"),
-                    @JoinColumn(name="company_id", referencedColumnName="company_id")
+                    @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+                    @JoinColumn(name = "company_id", referencedColumnName = "company_id")
             },
             inverseJoinColumns = @JoinColumn(name = "inspection_id")
     )
