@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
+@Table(name = "user")
 @Data
 @NoArgsConstructor
 public class User {
@@ -32,13 +32,15 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @OneToMany(mappedBy = "engineerId.user")
-    private Set<Engineer> engineers;
+    @Column(name = "email")
+    private String email;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Employer> employers;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
-
 }

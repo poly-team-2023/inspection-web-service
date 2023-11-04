@@ -28,4 +28,3 @@ public class Plan {
     @OneToMany(mappedBy = "plan")
     private Set<Photo> photos;
 }
-

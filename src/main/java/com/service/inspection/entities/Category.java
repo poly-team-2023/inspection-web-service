@@ -1,5 +1,6 @@
 package com.service.inspection.entities;
 
+import com.service.inspection.entities.enums.Condition;
 import com.service.inspection.entities.enums.ProgressingStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 import java.util.Set;
 
 @Entity
-@Table(name = "categories")
+@Table(name = "category")
 @Data
 @NoArgsConstructor
 public class Category {
@@ -35,14 +36,18 @@ public class Category {
     @JoinColumn(name = "inspection_id")
     private Inspection inspection;
 
-    @Column(name = "reccomandation", columnDefinition = "TEXT")
+    @Column(name = "recommendation", columnDefinition = "TEXT")
     private String recommendation;
+
+    @Column(name = "condition")
+    @Enumerated(EnumType.STRING)
+    private Condition condition;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private ProgressingStatus inspectionStatus;
 
-    @Column(name = "inspected_photos_count")
+    @Column(name = "photos_count")
     private int inspectedPhotosCount;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
