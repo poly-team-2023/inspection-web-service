@@ -24,16 +24,13 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "photos")
+@Table(name = "photo")
 @Data
 @NoArgsConstructor
 public class Photo {
 
     @Id
     private UUID uuid;
-
-    @Column(name = "name", columnDefinition = "TEXT")
-    private String name;
 
     @JoinColumn(name = "plan_id")
     @ManyToOne

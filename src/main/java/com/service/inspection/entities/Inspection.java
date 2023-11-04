@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -58,15 +59,20 @@ public class Inspection {
     @Column(name = "status")
     private ProgressingStatus status;
 
-    @Column(name = "inspected_categories_count")
+    @Column(name = "inspected_category_count")
     private int inspectedCategoriesCount;
+
+    @ManyToMany()
+    @JoinTable(
+            name = "employer_inspection",
+            joinColumns = @JoinColumn(name = "inspection_id"),
+            inverseJoinColumns = @JoinColumn(name = "employer_id")
+    )
+    private Set<Employer> inspections;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "building_id", referencedColumnName = "id")
     private Building building;
-
-    @ManyToMany(mappedBy = "inspections")
-    private Set<Engineer> engineer;
 
     @OneToMany(mappedBy = "inspection")
     private Set<Category> categories;
