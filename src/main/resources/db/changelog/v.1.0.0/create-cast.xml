@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet id="create-cast-status" author="admin">
+        <sql>
+            CREATE CAST (character varying as status) WITH INOUT AS IMPLICIT
+        </sql>
+    </changeSet>
+
+    <changeSet id="create-cast-condition" author="admin">
+        <sql>
+            CREATE CAST (character varying as condition) WITH INOUT AS IMPLICIT
+        </sql>
+    </changeSet>
+
+    <changeSet id="create-cast-building-type" author="admin">
+        <sql>
+            CREATE CAST (character varying as building_type) WITH INOUT AS IMPLICIT
+        </sql>
+    </changeSet>
+</databaseChangeLog>
