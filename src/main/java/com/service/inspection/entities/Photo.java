@@ -1,7 +1,18 @@
 package com.service.inspection.entities;
 
 import com.service.inspection.entities.enums.ProgressingStatus;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -24,7 +35,7 @@ public class Photo {
     @Column(name = "name", columnDefinition = "TEXT")
     private String name;
 
-    @JoinColumn(name="plan_id")
+    @JoinColumn(name = "plan_id")
     @ManyToOne
     private Plan plan;
 

@@ -1,7 +1,16 @@
 package com.service.inspection.entities;
 
 import com.service.inspection.entities.enums.BuildingType;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -23,11 +32,11 @@ public class Building {
     @Column(name = "address", columnDefinition = "TEXT")
     private String address;
 
-    @Column(name="photo_url")
+    @Column(name = "photo_url")
     private String url;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="building_type")
+    @Column(name = "building_type")
     private BuildingType buildingType;
 
     @OneToMany(mappedBy = "building", fetch = FetchType.LAZY)
