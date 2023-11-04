@@ -1,6 +1,14 @@
 package com.service.inspection.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -23,8 +31,8 @@ public class Engineer {
     @JoinTable(
             name = "engineer_inspector",
             joinColumns = {
-                    @JoinColumn(name="user_id", referencedColumnName="user_id"),
-                    @JoinColumn(name="company_id", referencedColumnName="company_id")
+                    @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+                    @JoinColumn(name = "company_id", referencedColumnName = "company_id")
             },
             inverseJoinColumns = @JoinColumn(name = "inspection_id")
     )
@@ -33,7 +41,7 @@ public class Engineer {
     @Embeddable
     @Data
     @NoArgsConstructor
-    class EngineerId implements Serializable {
+    static class EngineerId implements Serializable {
 
         @ManyToOne
         @JoinColumn(name = "user_id")
