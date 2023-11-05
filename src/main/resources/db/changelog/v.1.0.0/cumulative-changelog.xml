@@ -8,6 +8,8 @@
         <tagDatabase tag="v.1.0.0"/>
     </changeSet>
 
+    <include file="create-enum.xml" relativeToChangelogFile="true"/>
     <include file="create-table.xml" relativeToChangelogFile="true"/>
+    <include file="create-cast.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

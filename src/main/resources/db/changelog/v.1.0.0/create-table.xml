@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
 
     <changeSet id="create-users-table" author="admin">
-        <createTable tableName="user">
+        <createTable tableName="users">
             <column name="id" type="int" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
@@ -111,10 +111,6 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="create-building-type" author="admin">
-        <sql> CREATE TYPE building_type AS ENUM ('CULTURE','NOT_CULTURE'); </sql>
-    </changeSet>
-
     <changeSet id="create-building-table" author="admin">
         <createTable tableName="building">
             <column name="id" type="int" autoIncrement="true">
@@ -127,17 +123,6 @@
             <column name="photo_url" type="text"/>
             <column name="building_type" type="building_type"/>
         </createTable>
-    </changeSet>
-
-    <changeSet id="create-status-type" author="admin">
-        <sql> CREATE TYPE status AS ENUM ('READY','WAIT_ANALYZE', 'WAIT_FILLING'); </sql>
-    </changeSet>
-
-    <changeSet id="create-condition-type" author="admin" >
-        <sql> CREATE TYPE condition AS ENUM (
-                            'SERVICEABLE', 'OPERABLE', 'LIMITED_OPERABLE', 'UNACCEPTABLE',
-                            'EMERGENCY', 'SATISFACTORY', 'UNSATISFACTORY');
-        </sql>
     </changeSet>
 
     <changeSet id="create-category-table" author="admin">
@@ -165,7 +150,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="plan_id" type="int"/>
-            <column name="place" type="text"/>
+            <column name="location" type="text"/>
             <column name="date" type="timestamptz"/>
             <column name="url" type="text">
                 <constraints nullable="false"/>
@@ -238,7 +223,7 @@
 
     <changeSet id="create-fk-user-user-roles" author="admin">
         <addForeignKeyConstraint baseTableName="user_roles" baseColumnNames="user_id"
-                                 constraintName="fk_user_user_roles" referencedTableName="user"
+                                 constraintName="fk_user_user_roles" referencedTableName="users"
                                  referencedColumnNames="id"  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
@@ -309,7 +294,7 @@
     <changeSet id="fk-employer-user" author="admin">
         <addForeignKeyConstraint baseTableName="employer" baseColumnNames="user_id"
                                  constraintName="fk-employer-user"
-                                 referencedTableName="user" referencedColumnNames="id"
+                                 referencedTableName="users" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>

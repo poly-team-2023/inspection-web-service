@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet id="create-building-type" author="admin">
+        <sql> CREATE TYPE building_type AS ENUM ('CULTURE','NOT_CULTURE'); </sql>
+    </changeSet>
+
+    <changeSet id="create-status-type" author="admin">
+        <sql> CREATE TYPE status AS ENUM ('READY','WAIT_ANALYZE', 'WAIT_FILLING'); </sql>
+    </changeSet>
+
+    <changeSet id="create-condition-type" author="admin" >
+        <sql> CREATE TYPE condition AS ENUM (
+                            'SERVICEABLE', 'OPERABLE', 'LIMITED_OPERABLE', 'UNACCEPTABLE',
+                            'EMERGENCY', 'SATISFACTORY', 'UNSATISFACTORY');
+        </sql>
+    </changeSet>
+</databaseChangeLog>

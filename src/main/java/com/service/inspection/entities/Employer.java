@@ -31,7 +31,7 @@ public class Employer {
     @Column(name = "position_name", columnDefinition = "TEXT")
     private String positionName;
 
-    @Column(name = "signature_url", columnDefinition = "TEXT")
+    @Column(name = "signature_url", nullable = false, columnDefinition = "TEXT")
     private String signatureUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
