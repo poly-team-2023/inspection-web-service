@@ -36,14 +36,14 @@ public class Photo {
     @ManyToOne
     private Plan plan;
 
-    @Column(name = "place")
+    @Column(name = "location")
     private String location;
 
-    @Column(name = "url", columnDefinition = "TEXT")
+    @Column(name = "url", nullable = false, columnDefinition = "TEXT")
     private String url;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @Column(name = "recommendation", columnDefinition = "TEXT")
@@ -57,9 +57,11 @@ public class Photo {
     private OffsetDateTime date;
 
     @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "defects_coord")
     private Set<Defect> defectsCoords;
 
     @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "defects_eliminations")
     private Set<DefectsElimination> defectsEliminations;
 
     @OneToOne(mappedBy = "photo")

@@ -30,7 +30,7 @@ public class Equipment {
     @Column(name = "serial_number", nullable = false)
     private String serialNumber;
 
-    @Column(name = "verification_date")
+    @Column(name = "verification_date", nullable = false)
     private OffsetDateTime verificationDate;
 
     @Column(name = "verification_scan_url", columnDefinition = "TEXT")

@@ -26,7 +26,7 @@ public class Company {
     @Column(name = "name", nullable = false, columnDefinition = "TEXT")
     private String name;
 
-    @Column(name = "legal_address", columnDefinition = "TEXT")
+    @Column(name = "legal_address", nullable = false, columnDefinition = "TEXT")
     private String legalAddress;
 
     @Column(name = "sro")
