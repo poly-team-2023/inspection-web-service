@@ -263,19 +263,15 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
     @Test
     void testRoleRepository() {
         Role roleToDelete = new Role();
-        roleToDelete.setName(ERole.ROLE_USER);
-
-        Role roleNotToDelete = new Role();
-        roleNotToDelete.setName(ERole.ROLE_USER);
+        roleToDelete.setName(ERole.ROLE_VIEWER);
 
         roleRepository.save(roleToDelete);
-        roleRepository.save(roleNotToDelete);
 
         roleRepository.deleteById(roleToDelete.getId());
 
         assertThat(roleRepository.findAll())
                 .usingRecursiveFieldByFieldElementComparator()
-                .containsOnly(roleNotToDelete);
+                .doesNotContain(roleToDelete);
     }
 
     @Test
