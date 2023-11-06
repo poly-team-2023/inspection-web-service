@@ -1,7 +1,10 @@
 package com.service.inspection.entities;
 
+import com.service.inspection.entities.enums.BuildingType;
 import com.service.inspection.entities.enums.ProgressingStatus;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -10,13 +13,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.OffsetDateTime;
 import java.util.Set;
@@ -29,7 +33,7 @@ public class Inspection {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     @Column(name = "name", columnDefinition = "TEXT")
     private String name;
@@ -43,11 +47,11 @@ public class Inspection {
     @Column(name = "end_date")
     private OffsetDateTime endDate;
 
+    @Embedded
+    private Building building;
+
     @Column(name = "tor_url")
     private String torUrl;
-
-    @Column(name = "work_plan_url")
-    private String workPlan;
 
     @Column(name = "result")
     private String result;
@@ -62,21 +66,66 @@ public class Inspection {
     @Column(name = "inspected_category_count")
     private int inspectedCategoriesCount;
 
-    @ManyToMany()
-    @JoinTable(
-            name = "employer_inspection",
-            joinColumns = @JoinColumn(name = "inspection_id"),
-            inverseJoinColumns = @JoinColumn(name = "employer_id")
-    )
-    private Set<Employer> inspections;
+    @OneToMany(mappedBy = "inspection")
+    private Set<WorkPlan> workPlans;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "building_id", referencedColumnName = "id")
-    private Building building;
+    @ManyToMany(mappedBy = "inspections")
+    private Set<User> users;
 
     @OneToMany(mappedBy = "inspection")
     private Set<Category> categories;
 
     @OneToMany(mappedBy = "inspection", fetch = FetchType.LAZY)
     private Set<Audio> audios;
+
+    @Embeddable
+    @Data
+    public static class Building {
+
+        @Column(name = "address", columnDefinition = "TEXT")
+        private String address;
+
+        @Enumerated(EnumType.STRING)
+        @Column(name = "building_type")
+        private BuildingType buildingType;
+
+        @OneToMany(mappedBy = "inspection")
+        private Set<BuildingPhoto> photos;
+    }
+
+    @Entity
+    @Table(name = "work_plan")
+    @Data
+    @NoArgsConstructor
+    public static class WorkPlan {
+
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private long id;
+        private String url;
+
+        @ManyToOne
+        @JoinColumn(name = "inspection_id")
+        @ToString.Exclude
+        @EqualsAndHashCode.Exclude
+        private Inspection inspection;
+    }
+
+    @Entity
+    @Table(name = "building_photo")
+    @Data
+    @NoArgsConstructor
+    public static class BuildingPhoto {
+
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private long id;
+        private String url;
+
+        @ManyToOne
+        @JoinColumn(name = "inspection_id")
+        @ToString.Exclude
+        @EqualsAndHashCode.Exclude
+        private Inspection inspection;
+    }
 }
