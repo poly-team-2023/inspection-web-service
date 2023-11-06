@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -29,7 +30,7 @@ public class User {
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "secondName", nullable = false)
+    @Column(name = "second_name", nullable = false)
     private String secondName;
 
     @Column(name = "password", nullable = false)
@@ -51,7 +52,7 @@ public class User {
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles;
+    private List<Role> roles;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_inspection",

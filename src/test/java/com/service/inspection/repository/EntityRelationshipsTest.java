@@ -3,6 +3,7 @@ package com.service.inspection.repository;
 import com.service.inspection.entities.*;
 import com.service.inspection.entities.enums.BuildingType;
 import com.service.inspection.entities.enums.Condition;
+import com.service.inspection.entities.enums.ERole;
 import com.service.inspection.entities.enums.ProgressingStatus;
 import com.service.inspection.repositories.*;
 import com.service.inspection.service.AbstractTestContainerStartUp;
@@ -262,10 +263,10 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
     @Test
     void testRoleRepository() {
         Role roleToDelete = new Role();
-        roleToDelete.setName("1");
+        roleToDelete.setName(ERole.ROLE_USER);
 
         Role roleNotToDelete = new Role();
-        roleNotToDelete.setName("2");
+        roleNotToDelete.setName(ERole.ROLE_USER);
 
         roleRepository.save(roleToDelete);
         roleRepository.save(roleNotToDelete);
