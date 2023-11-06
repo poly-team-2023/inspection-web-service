@@ -3,6 +3,7 @@ package com.service.inspection.advice;
 import lombok.Data;
 
 import java.util.List;
+
 @Data
 public class ValidationErrorResponse {
 

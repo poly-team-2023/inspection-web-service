@@ -28,13 +28,14 @@ public abstract class UserMapper {
     public abstract UserDetailsImpl mapToUserDetailsImpl(User user);
 
     @Mapping(target = "password", qualifiedByName = "createCryptPassword")
-    @Mapping(target = "roles", source = "email", qualifiedByName="userRole")
+    @Mapping(target = "roles", source = "email", qualifiedByName = "userRole")
     public abstract User mapToUser(UserSignUpDto userSignUpDto);
 
     @IterableMapping
     SimpleGrantedAuthority mapToGrantedAuthority(Role r) {
         return new SimpleGrantedAuthority(r.getName().name());
     }
+
     @Named("createCryptPassword")
     String mapToCryptPassword(String password) {
         return passwordEncoder.encode(password);

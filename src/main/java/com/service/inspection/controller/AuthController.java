@@ -1,6 +1,5 @@
 package com.service.inspection.controller;
 
-
 import com.service.inspection.dto.UserSignInDto;
 import com.service.inspection.dto.UserSignUpDto;
 import com.service.inspection.mapper.UserMapper;
@@ -27,7 +26,8 @@ public class AuthController {
     private final ControllerUtils controllerUtils;
 
     @PostMapping("/sign-in")
-    public ResponseEntity<Void> authUser(@RequestBody @Valid UserSignInDto log, HttpServletResponse httpServletResponse) {
+    public ResponseEntity<Void> authUser(@RequestBody @Valid UserSignInDto log,
+                                         HttpServletResponse httpServletResponse) {
         String jwt = authService.auth(log.getEmail(), log.getPassword());
         httpServletResponse.addCookie(controllerUtils.createJwtCookie(jwt));
         return ResponseEntity.ok().build();
