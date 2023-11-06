@@ -26,14 +26,26 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "secondName", nullable = false)
+    private String secondName;
+
     @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "patronymic")
+    private String patronymic;
 
     @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "number", unique = true)
     private String number;
+
+    @Column(name = "logo_url")
+    private String logoUrl;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",

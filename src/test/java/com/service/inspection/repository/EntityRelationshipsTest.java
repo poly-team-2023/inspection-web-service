@@ -141,6 +141,8 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
         User user = new User();
         user.setEmail("1@1.ru");
         user.setPassword("1");
+        user.setFirstName("qwe");
+        user.setSecondName("qwe");
         userRepository.save(user);
 
         Equipment equipmentToDelete = new Equipment();
@@ -238,10 +240,14 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
         User userToDelete = new User();
         userToDelete.setEmail("1@1.ru");
         userToDelete.setPassword("1");
+        userToDelete.setFirstName("qwe");
+        userToDelete.setSecondName("qwe");
 
         User userNotToDelete = new User();
         userNotToDelete.setEmail("2@2.ru");
         userNotToDelete.setPassword("2");
+        userNotToDelete.setFirstName("qwe");
+        userNotToDelete.setSecondName("qwe");
 
         userRepository.save(userToDelete);
         userRepository.save(userNotToDelete);
