@@ -20,7 +20,7 @@ public class Plan {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private int id;
 
     @Column(name = "url", columnDefinition = "TEXT")
     private String url;

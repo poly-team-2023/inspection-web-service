@@ -1,14 +1,15 @@
 package com.service.inspection.entities;
 
+import com.service.inspection.entities.enums.BuildingType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,10 +17,10 @@ import lombok.NoArgsConstructor;
 import java.util.Set;
 
 @Entity
-@Table(name = "employer")
+@Table(name = "building")
 @Data
 @NoArgsConstructor
-public class Employer {
+public class Building {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,20 +29,16 @@ public class Employer {
     @Column(name = "name", nullable = false, columnDefinition = "TEXT")
     private String name;
 
-    @Column(name = "position_name", columnDefinition = "TEXT")
-    private String positionName;
+    @Column(name = "address", columnDefinition = "TEXT")
+    private String address;
 
-    @Column(name = "signature_url", nullable = false, columnDefinition = "TEXT")
-    private String signatureUrl;
+    @Column(name = "photo_url")
+    private String url;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id")
-    private Company company;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "building_type")
+    private BuildingType buildingType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToMany(mappedBy = "inspections")
+    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY)
     private Set<Inspection> inspections;
 }

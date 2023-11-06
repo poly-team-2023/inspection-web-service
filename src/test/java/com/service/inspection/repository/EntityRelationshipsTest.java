@@ -11,16 +11,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.OffsetDateTime;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @DataJpaTest
-class EntityRelationshipsTest extends AbstractTestContainerStartUp {
+public class EntityRelationshipsTest extends AbstractTestContainerStartUp {
 
     @Autowired
     AudioRepository audioRepository;
+
+    @Autowired
+    BuildingRepository buildingRepository;
 
     @Autowired
     CategoryRepository categoryRepository;
@@ -49,12 +51,6 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    WorkPlanRepository workPlanRepository;
-
-    @Autowired
-    BuildingPhotosRepository buildingPhotosRepository;
-
     @Test
     void testAudioRepository() {
         Audio audioToDelete = new Audio();
@@ -75,6 +71,25 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
                 .containsOnly(audioNotToDelete);
     }
 
+    @Test
+    void testBuildingRepository() {
+        Building buildingToDelete = new Building();
+        buildingToDelete.setName("1");
+        buildingToDelete.setBuildingType(BuildingType.CULTURE);
+
+        Building buildingNotToDelete = new Building();
+        buildingNotToDelete.setName("2");
+        buildingNotToDelete.setBuildingType(BuildingType.CULTURE);
+
+        buildingRepository.save(buildingToDelete);
+        buildingRepository.save(buildingNotToDelete);
+
+        buildingRepository.deleteById(buildingToDelete.getId());
+
+        assertThat(buildingRepository.findAll())
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsOnly(buildingNotToDelete);
+    }
 
     @Test
     void testCategoryRepository() {
@@ -138,22 +153,22 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
 
     @Test
     void testEquipmentRepository() {
-        User user = new User();
-        user.setEmail("1@1.ru");
-        user.setPassword("1");
-        userRepository.save(user);
+        Company company = new Company();
+        company.setName("test");
+        company.setLegalAddress("test");
+        companyRepository.save(company);
 
         Equipment equipmentToDelete = new Equipment();
         equipmentToDelete.setSerialNumber("1");
         equipmentToDelete.setVerificationDate(OffsetDateTime.now());
         equipmentToDelete.setVerificationScanUrl("1");
-        equipmentToDelete.setUser(user);
+        equipmentToDelete.setCompany(company);
 
         Equipment equipmentNotToDelete = new Equipment();
         equipmentNotToDelete.setSerialNumber("2");
         equipmentNotToDelete.setVerificationDate(OffsetDateTime.now());
         equipmentNotToDelete.setVerificationScanUrl("2");
-        equipmentNotToDelete.setUser(user);
+        equipmentNotToDelete.setCompany(company);
 
         equipmentRepository.save(equipmentToDelete);
         equipmentRepository.save(equipmentNotToDelete);
@@ -170,7 +185,6 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
         Inspection inspectionToDelete = new Inspection();
         inspectionToDelete.setName("1");
         inspectionToDelete.setStatus(ProgressingStatus.READY);
-        inspectionToDelete.setBuilding(new Inspection.Building());
 
         Inspection inspectionNotToDelete = new Inspection();
         inspectionNotToDelete.setName("2");
@@ -236,10 +250,12 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
     @Test
     void testUserRepository() {
         User userToDelete = new User();
+        userToDelete.setUsername("1");
         userToDelete.setEmail("1@1.ru");
         userToDelete.setPassword("1");
 
         User userNotToDelete = new User();
+        userNotToDelete.setUsername("2");
         userNotToDelete.setEmail("2@2.ru");
         userNotToDelete.setPassword("2");
 
@@ -270,58 +286,4 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
                 .usingRecursiveFieldByFieldElementComparator()
                 .containsOnly(roleNotToDelete);
     }
-
-    @Test
-    void testInspectionWithBuilding() {
-        Inspection inspection = new Inspection();
-        inspection.setName("1");
-        inspection.setStatus(ProgressingStatus.READY);
-        inspectionRepository.save(inspection);
-
-        Inspection.Building building = new Inspection.Building();
-        building.setBuildingType(BuildingType.CULTURE);
-        building.setAddress("test addres");
-
-        Inspection.BuildingPhoto buildingPhoto = new Inspection.BuildingPhoto();
-        buildingPhoto.setUrl("test url");
-        building.setPhotos(Set.of(buildingPhoto));
-
-        inspection.setBuilding(building);
-        buildingPhoto.setInspection(inspection);
-        buildingPhotosRepository.save(buildingPhoto);
-
-        assertThat(inspectionRepository.findAll())
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsOnly(inspection);
-
-        assertThat(buildingPhotosRepository.findAll())
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsOnly(buildingPhoto);
-
-    }
-
-    @Test
-    void testInspectionWithWorkPlan() {
-        Inspection inspection = new Inspection();
-        inspection.setName("1");
-        inspection.setStatus(ProgressingStatus.READY);
-        inspectionRepository.save(inspection);
-
-        Inspection.WorkPlan workPlan = new Inspection.WorkPlan();
-        workPlan.setUrl("123");
-        workPlan.setInspection(inspection);
-        inspection.setWorkPlans(Set.of(workPlan));
-
-        workPlanRepository.save(workPlan);
-
-
-        assertThat(inspectionRepository.findAll())
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsOnly(inspection);
-
-        assertThat(workPlanRepository.findAll())
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsOnly(workPlan);
-    }
-
 }
