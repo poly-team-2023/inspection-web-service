@@ -25,7 +25,7 @@ public class Audio {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     @Column(name = "url", columnDefinition = "TEXT")
     private String url;

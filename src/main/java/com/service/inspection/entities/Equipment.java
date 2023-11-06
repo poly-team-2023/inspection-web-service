@@ -22,7 +22,7 @@ public class Equipment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     @Column(name = "name")
     private String name;
@@ -37,6 +37,6 @@ public class Equipment {
     private String verificationScanUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id")
-    private Company company;
+    @JoinColumn(name = "user_id")
+    private User user;
 }

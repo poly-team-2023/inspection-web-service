@@ -21,7 +21,7 @@ public class Company {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     @Column(name = "name", nullable = false, columnDefinition = "TEXT")
     private String name;
@@ -49,7 +49,4 @@ public class Company {
 
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     private Set<Employer> employers;
-
-    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
-    private Set<Equipment> equipments;
 }

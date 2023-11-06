@@ -24,10 +24,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    @Column(name = "username", nullable = false, unique = true)
-    private String username;
+    private long id;
 
     @Column(name = "password", nullable = false)
     private String password;
@@ -35,12 +32,22 @@ public class User {
     @Column(name = "email", unique = true)
     private String email;
 
-    @OneToMany(mappedBy = "user")
-    private Set<Employer> employers;
+    @Column(name = "number", unique = true)
+    private String number;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_inspection",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name="inspection_id")
+    )
+    private Set<Inspection> inspections;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Equipment> equipment;
 }
