@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ControllerUtils {
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.expirationMs}")
     private int jwtExpirationMs;
 
     public Cookie createJwtCookie(String jwt) {
