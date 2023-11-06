@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -26,8 +27,17 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "second_name", nullable = false)
+    private String secondName;
+
     @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "patronymic")
+    private String patronymic;
 
     @Column(name = "email", unique = true)
     private String email;
@@ -35,11 +45,14 @@ public class User {
     @Column(name = "number", unique = true)
     private String number;
 
+    @Column(name = "logo_url")
+    private String logoUrl;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles;
+    private List<Role> roles;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_inspection",

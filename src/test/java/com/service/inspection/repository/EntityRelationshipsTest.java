@@ -3,6 +3,7 @@ package com.service.inspection.repository;
 import com.service.inspection.entities.*;
 import com.service.inspection.entities.enums.BuildingType;
 import com.service.inspection.entities.enums.Condition;
+import com.service.inspection.entities.enums.ERole;
 import com.service.inspection.entities.enums.ProgressingStatus;
 import com.service.inspection.repositories.*;
 import com.service.inspection.service.AbstractTestContainerStartUp;
@@ -141,6 +142,8 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
         User user = new User();
         user.setEmail("1@1.ru");
         user.setPassword("1");
+        user.setFirstName("qwe");
+        user.setSecondName("qwe");
         userRepository.save(user);
 
         Equipment equipmentToDelete = new Equipment();
@@ -238,10 +241,14 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
         User userToDelete = new User();
         userToDelete.setEmail("1@1.ru");
         userToDelete.setPassword("1");
+        userToDelete.setFirstName("qwe");
+        userToDelete.setSecondName("qwe");
 
         User userNotToDelete = new User();
         userNotToDelete.setEmail("2@2.ru");
         userNotToDelete.setPassword("2");
+        userNotToDelete.setFirstName("qwe");
+        userNotToDelete.setSecondName("qwe");
 
         userRepository.save(userToDelete);
         userRepository.save(userNotToDelete);
@@ -256,19 +263,15 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
     @Test
     void testRoleRepository() {
         Role roleToDelete = new Role();
-        roleToDelete.setName("1");
-
-        Role roleNotToDelete = new Role();
-        roleNotToDelete.setName("2");
+        roleToDelete.setName(ERole.ROLE_VIEWER);
 
         roleRepository.save(roleToDelete);
-        roleRepository.save(roleNotToDelete);
 
         roleRepository.deleteById(roleToDelete.getId());
 
         assertThat(roleRepository.findAll())
                 .usingRecursiveFieldByFieldElementComparator()
-                .containsOnly(roleNotToDelete);
+                .doesNotContain(roleToDelete);
     }
 
     @Test

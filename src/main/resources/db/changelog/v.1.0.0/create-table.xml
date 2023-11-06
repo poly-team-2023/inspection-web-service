@@ -16,6 +16,14 @@
                     <constraints nullable="false"/>
             </column>
             <column name="number" type="varchar(255)"/>
+            <column name="first_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="second_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="patronymic" type="varchar(255)"/>
+            <column name="logo_url" type="text"/>
         </createTable>
     </changeSet>
 
