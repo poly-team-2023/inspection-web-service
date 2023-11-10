@@ -13,9 +13,13 @@
     </changeSet>
 
     <changeSet id="create-condition-type" author="admin" >
-        <sql> CREATE TYPE condition AS ENUM (
+        <sql> CREATE TYPE cond AS ENUM (
                             'SERVICEABLE', 'OPERABLE', 'LIMITED_OPERABLE', 'UNACCEPTABLE',
                             'EMERGENCY', 'SATISFACTORY', 'UNSATISFACTORY');
         </sql>
+    </changeSet>
+
+    <changeSet id="file_type" author="admin" >
+        <sql> CREATE TYPE file_type AS ENUM ('WORK_PLAN', 'BUILDING_PHOTO', 'TOR'); </sql>
     </changeSet>
 </databaseChangeLog>

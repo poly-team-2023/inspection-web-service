@@ -27,16 +27,16 @@ public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    @Column(name = "name", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "name", nullable = false)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inspection_id")
     private Inspection inspection;
 
-    @Column(name = "recommendation", columnDefinition = "TEXT")
+    @Column(name = "recommendation")
     private String recommendation;
 
     @Column(name = "condition")

@@ -12,7 +12,7 @@
 
     <changeSet id="create-cast-condition" author="admin">
         <sql>
-            CREATE CAST (character varying as condition) WITH INOUT AS IMPLICIT
+            CREATE CAST (character varying as cond) WITH INOUT AS IMPLICIT
         </sql>
     </changeSet>
 

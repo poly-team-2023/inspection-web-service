@@ -1,6 +1,7 @@
 package com.service.inspection.entities;
 
 import com.service.inspection.entities.enums.ProgressingStatus;
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
@@ -8,6 +9,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -21,16 +24,18 @@ import org.hibernate.type.SqlTypes;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "photo")
 @Data
 @NoArgsConstructor
-public class Photo {
+@AttributeOverride(name = "fileUuid", column = @Column(name = "uuid"))
+@AttributeOverride(name = "fileName", column = @Column(name = "name"))
+public class Photo extends FileEntity {
 
     @Id
-    private UUID uuid;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @JoinColumn(name = "plan_id")
     @ManyToOne
@@ -38,9 +43,6 @@ public class Photo {
 
     @Column(name = "location")
     private String location;
-
-    @Column(name = "url", nullable = false, columnDefinition = "TEXT")
-    private String url;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
@@ -93,7 +95,7 @@ public class Photo {
 
         @Id
         @OneToOne
-        @JoinColumn(name = "photo_uuid")
+        @JoinColumn(name = "photo_id", referencedColumnName = "id")
         private Photo photo;
 
         @Embedded

@@ -23,7 +23,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="patronymic" type="varchar(255)"/>
-            <column name="logo_url" type="text"/>
+
+            <column name="logo_name" type="varchar(255)"/>
+            <column name="logo_uuid" type="uuid"/>
         </createTable>
     </changeSet>
 
@@ -55,10 +57,11 @@
                 <constraints primaryKey="true"/>
             </column>
             <column name="name" type="text"/>
-            <column name="position_name" type="text"/>
-            <column name="signature_url" type="text">
-                <constraints nullable="false"/>
-            </column>
+            <column name="position_name" type="varchar(500)"/>
+
+            <column name="signature_name" type="varchar(255)"/>
+            <column name="signature_uuid" type="uuid"/>
+
             <column name="company_id" type="bigint"/>
         </createTable>
     </changeSet>
@@ -68,19 +71,39 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="name" type="text">
+
+            <column name="name" type="varchar(500)">
                 <constraints nullable="false"/>
             </column>
-            <column name="legal_address" type="text">
+
+            <column name="legal_address" type="varchar(500)">
                 <constraints nullable="false"/>
             </column>
-            <column name="sro" type="text"/>
-            <column name="license" type="text"/>
-            <column name="cipher" type="text"/>
-            <column name="logo_url" type="text"/>
-            <column name="sro_scan_url" type="text"/>
-            <column name="license_scan_url" type="text"/>
+
+            <column name="city" type="varchar(255)"/>
+
+            <column name="logo_name" type="varchar(255)"/>
+            <column name="logo_uuid" type="uuid"/>
+
+            <column name="sro_scan_name" type="varchar(255)"/>
+            <column name="sro_scan_uuid" type="uuid"/>
+
             <column name="user_id" type="bigint"/>
+        </createTable>
+    </changeSet>
+
+
+    <changeSet id="create-license-table" author="admin">
+        <createTable tableName="license">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)"/>
+            <column name="uuid" type="uuid"/>
+            <column name="order" type="int"/>
+            <column name="company_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
@@ -107,39 +130,14 @@
             <column name="verification_date" type="date">
                 <constraints nullable="false"/>
             </column>
-            <column name="verification_number" type="text"/>
-            <column name="verification_scan_url" type="text">
-                <constraints nullable="false"/>
-            </column>
-            <column name="user_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-    </changeSet>
+            <column name="verification_number" type="varchar(255)"/>
 
-    <changeSet id="create-building_photo-table" author="admin">
-        <createTable tableName="building_photo">
-            <column name="id" type="bigint" autoIncrement="true">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="inspection_id" type="bigint">
+            <column name="verification_scan_name" type="varchar(255)"/>
+            <column name="verification_scan_uuid" type="text">
                 <constraints nullable="false"/>
             </column>
-            <column name="url" type="text">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-    </changeSet>
-    
-    <changeSet id="create-work-plan-table" author="admin">
-        <createTable tableName="work_plan">
-            <column name="id" type="bigint" autoIncrement="true">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="inspection_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="url" type="text">
+
+            <column name="user_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -150,11 +148,11 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="name" type="text">
+            <column name="name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="inspection_id" type="bigint"/>
-            <column name="condition" type="condition"/>
+            <column name="condition" type="cond"/>
             <column name="recommendation" type="text"/>
             <column name="photos_count" type="int"/>
             <column name="status" type="status"/>
@@ -163,7 +161,7 @@
     
     <changeSet id="create-photo-table" author="admin">
         <createTable tableName="photo">
-            <column name="uuid" type="uuid">
+            <column name="id" type="bigint">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="category_id" type="bigint">
@@ -172,9 +170,12 @@
             <column name="plan_id" type="bigint"/>
             <column name="location" type="text"/>
             <column name="date" type="timestamptz"/>
-            <column name="url" type="text">
+
+            <column name="name" type="varchar(255)"/>
+            <column name="uuid" type="uuid">
                 <constraints nullable="false"/>
             </column>
+
             <column name="recommendation" type="text"/>
             <column name="defects_coord" type="json"/>
             <column name="defects_eliminations" type="json"/>
@@ -187,22 +188,41 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="name" type="text"/>
+            <column name="name" type="varchar(255)"/>
             <column name="start_date" type="timestamptz"/>
             <column name="end_date" type="timestamptz"/>
 
-            <column name="main_photo_url" type="text"/>
+            <column name="main_photo_name" type="uuid"/>
+            <column name="main_photo_uuid" type="varchar(255)"/>
+
             <column name="address" type="text"/>
             <column name="building_type" type="building_type"/>
 
             <column name="company_id" type="bigint"/>
 
-            <column name="tor_url" type="text"/>
             <column name="status" type="status"/>
-            <column name="report_name" type="text"/>
-            <column name="script" type="text"/>
+            <column name="report_name" type="varchar(500)"/>
+            <column name="script" type="varchar(255)"/>
             <column name="result" type="text"/>
             <column name="inspected_category_count" type="int"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-files-table" author="admin">
+        <createTable tableName="file_inspection">
+
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+
+            <column name="uuid" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="name" type="varchar(255)"/>
+            <column name="type" type="file_type"/>
+            <column name="inspection_id" type="bigint"/>
+            <column name="creation_date" type="timestamptz"/>
         </createTable>
     </changeSet>
 
@@ -211,7 +231,8 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="url" type="text"/>
+            <column name="name" type="varchar(255)"/>
+            <column name="uuid" type="uuid"/>
             <column name="text" type="text"/>
             <column name="status" type="status"/>
             <column name="inspection_id_fk" type="bigint"/>
@@ -221,7 +242,7 @@
 
     <changeSet id="create-photo-coord-table" author="admin">
         <createTable tableName="photo_coord">
-            <column name="photo_uuid" type="uuid">
+            <column name="photo_id" type="bigint">
                 <constraints unique="true" primaryKey="true"/>
             </column>
             <column name="x" type="double"/>
@@ -234,7 +255,11 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="url" type="text"/>
+            <column name="uuid" type="uuid"/>
+            <column name="name" type="varchar(255)"/>
+            <column name="inspection_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
@@ -245,6 +270,7 @@
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
 
+    
     <changeSet id="create-fk-roles-user-roles" author="admin">
         <addForeignKeyConstraint baseTableName="user_roles" baseColumnNames="role_id"
                                  constraintName="fk_roles_user_roles" referencedTableName="roles"
@@ -269,9 +295,9 @@
     </changeSet>
 
     <changeSet id="fk-photo-photo-coord" author="admin">
-        <addForeignKeyConstraint baseTableName="photo_coord" baseColumnNames="photo_uuid"
+        <addForeignKeyConstraint baseTableName="photo_coord" baseColumnNames="photo_id"
                                  constraintName="fk_photo_photo_coord"
-                                 referencedTableName="photo" referencedColumnNames="uuid"
+                                 referencedTableName="photo" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
@@ -284,26 +310,27 @@
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
 
-    <changeSet id="fk-building-photo-inspection" author="admin">
-        <addForeignKeyConstraint baseTableName="building_photo" baseColumnNames="inspection_id"
-                                 constraintName="fk-building-photo-inspection"
-                                 referencedTableName="inspection" referencedColumnNames="id"
-                                 deferrable="false" initiallyDeferred="false"
-                                 onDelete="NO ACTION" onUpdate="CASCADE"/>
-    </changeSet>
-
-    <changeSet id="fk-work-plan-inspection" author="admin">
-        <addForeignKeyConstraint baseTableName="work_plan" baseColumnNames="inspection_id"
-                                 constraintName="fk-work-plan-inspection"
-                                 referencedTableName="inspection" referencedColumnNames="id"
-                                 deferrable="false" initiallyDeferred="false"
-                                 onDelete="NO ACTION" onUpdate="CASCADE"/>
-    </changeSet>
-
     <changeSet id="fk-plan-photo" author="admin">
         <addForeignKeyConstraint baseTableName="photo" baseColumnNames="plan_id"
                                  constraintName="fk_plan_photo"
                                  referencedTableName="plan" referencedColumnNames="id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="fk-plan-file_inspection" author="admin">
+        <addForeignKeyConstraint baseTableName="plan" baseColumnNames="inspection_id"
+                                 constraintName="inspection_id"
+                                 referencedTableName="inspection" referencedColumnNames="id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="fk-file-inspection-inspection" author="admin">
+
+        <addForeignKeyConstraint baseTableName="file_inspection" baseColumnNames="inspection_id"
+                                 constraintName="inspection_id-fk"
+                                 referencedTableName="inspection" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>

@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -25,7 +26,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -45,8 +46,8 @@ public class User {
     @Column(name = "number", unique = true)
     private String number;
 
-    @Column(name = "logo_url")
-    private String logoUrl;
+    @Column(name = "logo_uuid")
+    private UUID logoUuid;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
@@ -60,6 +61,9 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "inspection_id")
     )
     private Set<Inspection> inspections;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Company> companies;
 
     @OneToMany(mappedBy = "user")
     private Set<Equipment> equipment;

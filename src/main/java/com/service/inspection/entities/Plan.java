@@ -1,10 +1,13 @@
 package com.service.inspection.entities;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -16,15 +19,18 @@ import java.util.Set;
 @Table(name = "plan")
 @Data
 @NoArgsConstructor
-public class Plan {
+@AttributeOverride(name = "fileUuid", column = @Column(name = "uuid"))
+@AttributeOverride(name = "fileName", column = @Column(name = "name"))
+public class Plan extends FileEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @Column(name = "url", columnDefinition = "TEXT")
-    private String url;
+    private Long id;
 
     @OneToMany(mappedBy = "plan")
     private Set<Photo> photos;
+
+    @ManyToOne
+    @JoinColumn(name = "inspection_id", referencedColumnName = "id")
+    private Inspection inspection;
 }

@@ -22,7 +22,7 @@ public class Equipment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "name")
     private String name;
@@ -33,7 +33,10 @@ public class Equipment {
     @Column(name = "verification_date", nullable = false)
     private OffsetDateTime verificationDate;
 
-    @Column(name = "verification_scan_url", columnDefinition = "TEXT")
+    @Column(name = "verification_scan_name")
+    private String verificationScanName;
+
+    @Column(name = "verification_scan_uuid")
     private String verificationScanUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)

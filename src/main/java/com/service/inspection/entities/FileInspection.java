@@ -1,12 +1,10 @@
 package com.service.inspection.entities;
 
-import com.service.inspection.entities.enums.ProgressingStatus;
-import jakarta.persistence.AttributeOverride;
+import com.service.inspection.entities.enums.FileTypes;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,28 +17,22 @@ import lombok.NoArgsConstructor;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "audio")
+@Table(name = "file_inspection")
 @Data
 @NoArgsConstructor
-@AttributeOverride(name = "fileUuid", column = @Column(name = "uuid"))
-@AttributeOverride(name = "fileName", column = @Column(name = "name"))
-public class Audio extends FileEntity {
-
+public class FileInspection extends FileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "text")
-    private String text;
-
+    @Column(name = "type")
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private ProgressingStatus status;
+    private FileTypes type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inspection_id_fk")
+    @Column(name = "creation_date")
+    private OffsetDateTime creationDate;
+
+    @ManyToOne
+    @JoinColumn(name = "inspection_id", referencedColumnName = "id")
     private Inspection inspection;
-
-    @Column(name = "date")
-    private OffsetDateTime date;
 }

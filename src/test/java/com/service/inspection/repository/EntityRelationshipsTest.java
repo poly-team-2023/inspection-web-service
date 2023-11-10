@@ -50,12 +50,6 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    WorkPlanRepository workPlanRepository;
-
-    @Autowired
-    BuildingPhotosRepository buildingPhotosRepository;
-
     @Test
     void testAudioRepository() {
         Audio audioToDelete = new Audio();
@@ -173,7 +167,6 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
         Inspection inspectionToDelete = new Inspection();
         inspectionToDelete.setName("1");
         inspectionToDelete.setStatus(ProgressingStatus.READY);
-        inspectionToDelete.setBuilding(new Inspection.Building());
 
         Inspection inspectionNotToDelete = new Inspection();
         inspectionNotToDelete.setName("2");
@@ -197,21 +190,21 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
         categoryRepository.save(category);
 
         Photo photoToDelete = new Photo();
-        photoToDelete.setUuid(UUID.randomUUID());
+        photoToDelete.setId(1L);
         photoToDelete.setLocation("1");
-        photoToDelete.setUrl("1");
+        photoToDelete.setFileUuid(UUID.randomUUID());
         photoToDelete.setCategory(category);
 
         Photo photoNotToDelete = new Photo();
-        photoNotToDelete.setUuid(UUID.randomUUID());
+        photoNotToDelete.setId(2L);
         photoNotToDelete.setLocation("2");
-        photoNotToDelete.setUrl("2");
+        photoNotToDelete.setFileUuid(UUID.randomUUID());
         photoNotToDelete.setCategory(category);
 
         photoRepository.save(photoToDelete);
         photoRepository.save(photoNotToDelete);
 
-        photoRepository.deleteById(photoToDelete.getUuid());
+        photoRepository.deleteById(photoToDelete.getId());
 
         assertThat(photoRepository.findAll())
                 .usingRecursiveFieldByFieldElementComparator()
@@ -221,10 +214,10 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
     @Test
     void testPlanRepository() {
         Plan planToDelete = new Plan();
-        planToDelete.setUrl("1");
+        planToDelete.setFileUuid(UUID.randomUUID());
 
         Plan planNotToDelete = new Plan();
-        planNotToDelete.setUrl("2");
+        planNotToDelete.setFileUuid(UUID.randomUUID());
 
         planRepository.save(planToDelete);
         planRepository.save(planNotToDelete);
@@ -273,58 +266,4 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
                 .usingRecursiveFieldByFieldElementComparator()
                 .doesNotContain(roleToDelete);
     }
-
-    @Test
-    void testInspectionWithBuilding() {
-        Inspection inspection = new Inspection();
-        inspection.setName("1");
-        inspection.setStatus(ProgressingStatus.READY);
-        inspectionRepository.save(inspection);
-
-        Inspection.Building building = new Inspection.Building();
-        building.setBuildingType(BuildingType.CULTURE);
-        building.setAddress("test addres");
-
-        Inspection.BuildingPhoto buildingPhoto = new Inspection.BuildingPhoto();
-        buildingPhoto.setUrl("test url");
-        building.setPhotos(Set.of(buildingPhoto));
-
-        inspection.setBuilding(building);
-        buildingPhoto.setInspection(inspection);
-        buildingPhotosRepository.save(buildingPhoto);
-
-        assertThat(inspectionRepository.findAll())
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsOnly(inspection);
-
-        assertThat(buildingPhotosRepository.findAll())
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsOnly(buildingPhoto);
-
-    }
-
-    @Test
-    void testInspectionWithWorkPlan() {
-        Inspection inspection = new Inspection();
-        inspection.setName("1");
-        inspection.setStatus(ProgressingStatus.READY);
-        inspectionRepository.save(inspection);
-
-        Inspection.WorkPlan workPlan = new Inspection.WorkPlan();
-        workPlan.setUrl("123");
-        workPlan.setInspection(inspection);
-        inspection.setWorkPlans(Set.of(workPlan));
-
-        workPlanRepository.save(workPlan);
-
-
-        assertThat(inspectionRepository.findAll())
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsOnly(inspection);
-
-        assertThat(workPlanRepository.findAll())
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsOnly(workPlan);
-    }
-
 }

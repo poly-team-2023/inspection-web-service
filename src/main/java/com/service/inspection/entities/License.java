@@ -2,7 +2,6 @@ package com.service.inspection.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,28 +14,24 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "employer")
+@Table(name = "license")
 @Data
 @NoArgsConstructor
-public class Employer {
-
+public class License {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "position_name")
-    private String positionName;
+    @Column(name = "uuid")
+    private UUID uuid;
 
-    @Column(name = "signature_uuid", nullable = false)
-    private UUID signatureUuid;
+    @Column(name = "order")
+    private Integer order;
 
-    @Column(name = "signature_name")
-    private String signatureName;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id")
+    @ManyToOne
+    @JoinColumn(name = "company_id", referencedColumnName = "id")
     private Company company;
 }
