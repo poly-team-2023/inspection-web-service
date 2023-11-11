@@ -1,5 +1,6 @@
 package com.service.inspection.advice;
 
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import jakarta.persistence.PersistenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,5 +27,10 @@ public class AdviceController {
                 .map(error -> new ValidationErrorResponse.Violation(error.getField(), error.getDefaultMessage()))
                 .collect(Collectors.toList());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ValidationErrorResponse(violations));
+    }
+
+    @ExceptionHandler(AmazonS3Exception.class) // TODO(Правильная обработка ошибок)
+    public ResponseEntity<Error> resolvePersistenceException(AmazonS3Exception e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new Error(e.getMessage()));
     }
 }

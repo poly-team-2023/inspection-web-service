@@ -53,10 +53,13 @@ public class User {
     @Column(name = "number", unique = true)
     private String number;
 
+    @Column(name = "logo_name")
+    private String logoName;
+
     @Column(name = "logo_uuid")
     private UUID logoUuid;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))

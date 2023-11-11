@@ -1,7 +1,6 @@
 package com.service.inspection.service;
 
 import com.service.inspection.entities.User;
-import com.service.inspection.jwt.JwtUtils;
 import com.service.inspection.repositories.UserRepository;
 import jakarta.persistence.NonUniqueResultException;
 import lombok.AllArgsConstructor;
@@ -16,15 +15,14 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
 
-    public String auth(String email, String password) {
+    public Authentication auth(String email, String password) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, password)
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return jwtUtils.generateJwtToken(authentication);
+        return authentication;
     }
 
     public User createNewUser(User newUser) {
