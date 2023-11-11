@@ -6,14 +6,11 @@ import com.service.inspection.entities.enums.ERole;
 import com.service.inspection.entities.enums.ProgressingStatus;
 import com.service.inspection.repositories.*;
 import com.service.inspection.service.AbstractTestContainerStartUp;
-import jakarta.persistence.EntityManager;
-import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
