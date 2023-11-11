@@ -17,11 +17,11 @@ jobs:
         with:
           java-version: 17
 
-      - name: Prepare release
-        run: mvn release:prepare -B
-
-      - name: Perform release
-        run: mvn release:perform -B
+#      - name: Prepare release
+#        run: mvn release:prepare -B
+#
+#      - name: Perform release
+#        run: mvn release:perform -B
 
       - name: Build and push Docker image
         env:
