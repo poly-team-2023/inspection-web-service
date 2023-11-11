@@ -3,15 +3,14 @@ name: Docker-hub auto-deploy on merge
 on:
   push:
     branches:
-      - deploy-testing
+      - dh-deploy
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v1
 
       - name: set up JDK 17
         uses: actions/setup-java@v1
