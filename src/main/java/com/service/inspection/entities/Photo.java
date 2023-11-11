@@ -1,6 +1,7 @@
 package com.service.inspection.entities;
 
 import com.service.inspection.entities.enums.ProgressingStatus;
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
@@ -8,43 +9,44 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "photo")
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
-public class Photo {
+@AttributeOverride(name = "fileUuid", column = @Column(name = "uuid"))
+@AttributeOverride(name = "fileName", column = @Column(name = "name"))
+public class Photo extends FileEntity {
 
     @Id
-    private UUID uuid;
-
-    @JoinColumn(name = "plan_id")
-    @ManyToOne
-    private Plan plan;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "location")
     private String location;
-
-    @Column(name = "url", nullable = false, columnDefinition = "TEXT")
-    private String url;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
 
     @Column(name = "recommendation", columnDefinition = "TEXT")
     private String recommendation;
@@ -63,6 +65,16 @@ public class Photo {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "defects_eliminations")
     private Set<DefectsElimination> defectsEliminations;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Category category;
+
+    @JoinColumn(name = "plan_id")
+    @ManyToOne
+    private Plan plan;
 
     @OneToOne(mappedBy = "photo")
     private PhotoCoord coords;
@@ -93,11 +105,26 @@ public class Photo {
 
         @Id
         @OneToOne
-        @JoinColumn(name = "photo_uuid")
+        @JoinColumn(name = "photo_id", referencedColumnName = "id")
         private Photo photo;
 
         @Embedded
         private Coord coords;
     }
 
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Photo photo = (Photo) o;
+        return getId() != null && Objects.equals(getId(), photo.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
 }
