@@ -62,7 +62,9 @@
             <column name="signature_name" type="varchar(255)"/>
             <column name="signature_uuid" type="uuid"/>
 
-            <column name="company_id" type="bigint"/>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
@@ -88,7 +90,9 @@
             <column name="sro_scan_name" type="varchar(255)"/>
             <column name="sro_scan_uuid" type="uuid"/>
 
-            <column name="user_id" type="bigint"/>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
@@ -152,6 +156,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="inspection_id" type="bigint"/>
+
             <column name="condition" type="cond"/>
             <column name="recommendation" type="text"/>
             <column name="photos_count" type="int"/>
@@ -161,7 +166,7 @@
     
     <changeSet id="create-photo-table" author="admin">
         <createTable tableName="photo">
-            <column name="id" type="bigint">
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="category_id" type="bigint">
@@ -170,7 +175,6 @@
             <column name="plan_id" type="bigint"/>
             <column name="location" type="text"/>
             <column name="date" type="timestamptz"/>
-
             <column name="name" type="varchar(255)"/>
             <column name="uuid" type="uuid">
                 <constraints nullable="false"/>
@@ -192,8 +196,8 @@
             <column name="start_date" type="timestamptz"/>
             <column name="end_date" type="timestamptz"/>
 
-            <column name="main_photo_name" type="uuid"/>
-            <column name="main_photo_uuid" type="varchar(255)"/>
+            <column name="main_photo_name" type="varchar(255)"/>
+            <column name="main_photo_uuid" type="uuid"/>
 
             <column name="address" type="text"/>
             <column name="building_type" type="building_type"/>
@@ -267,7 +271,7 @@
         <addForeignKeyConstraint baseTableName="user_roles" baseColumnNames="user_id"
                                  constraintName="fk_user_user_roles" referencedTableName="users"
                                  referencedColumnNames="id"  deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+                                 onDelete="NO ACTION" onUpdate="CASCADE"/>
     </changeSet>
 
     
@@ -315,7 +319,7 @@
                                  constraintName="fk_plan_photo"
                                  referencedTableName="plan" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+                                 onDelete="SET NULL" onUpdate="CASCADE"/>
     </changeSet>
 
     <changeSet id="fk-plan-file_inspection" author="admin">
@@ -327,7 +331,6 @@
     </changeSet>
 
     <changeSet id="fk-file-inspection-inspection" author="admin">
-
         <addForeignKeyConstraint baseTableName="file_inspection" baseColumnNames="inspection_id"
                                  constraintName="inspection_id-fk"
                                  referencedTableName="inspection" referencedColumnNames="id"
@@ -372,6 +375,13 @@
                                  constraintName="fk-inspection-company"
                                  referencedTableName="company" referencedColumnNames="id"
                                  deferrable="false" initiallyDeferred="false"
+                                 onDelete="SET NULL" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="fk-company-user" author="admin">
+        <addForeignKeyConstraint baseTableName="company" baseColumnNames="user_id"
+                                 constraintName="fk-company-user" referencedTableName="users"
+                                 referencedColumnNames="id" deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
 </databaseChangeLog>
