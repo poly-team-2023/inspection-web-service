@@ -271,7 +271,7 @@
         <addForeignKeyConstraint baseTableName="user_roles" baseColumnNames="user_id"
                                  constraintName="fk_user_user_roles" referencedTableName="users"
                                  referencedColumnNames="id"  deferrable="false" initiallyDeferred="false"
-                                 onDelete="NO ACTION" onUpdate="CASCADE"/>
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
 
     
