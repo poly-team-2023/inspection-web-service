@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and test on ubuntu and windows
+    name: Build and test
     runs-on: ${{ matrix.os }}
     strategy:
       max-parallel: 2
@@ -29,13 +29,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Deploy with Docker Compose
+      - name: Deploy services with Docker Compose
         run: |
           docker-compose up -d
         continue-on-error: true
 
-      - name: Build with Maven
-        run: mvn clean install -DskipTests=true
-
-      - name: Run Tests with Maven
-        run: mvn test
+      - name: Build and test with Maven
+        run: mvn clean install
