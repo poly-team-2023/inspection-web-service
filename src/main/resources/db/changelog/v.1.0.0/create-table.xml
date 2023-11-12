@@ -114,10 +114,10 @@
     <changeSet id="create-user-inspection-table" author="admin">
         <createTable tableName="user_inspection">
             <column name="user_id" type="bigint">
-                <constraints nullable="false" unique="true"/>
+                <constraints nullable="false"/>
             </column>
             <column name="inspection_id" type="bigint">
-                <constraints nullable="false" unique="true"/>
+                <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>

@@ -6,7 +6,7 @@ import com.service.inspection.entities.User;
 import com.service.inspection.jwt.JwtUtils;
 import com.service.inspection.service.StorageService;
 import com.service.inspection.service.UserAccountService;
-import com.service.inspection.service.UserDetailsImpl;
+import com.service.inspection.service.security.UserDetailsImpl;
 import com.service.inspection.utils.ControllerUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;

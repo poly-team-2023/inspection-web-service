@@ -4,7 +4,7 @@ import com.service.inspection.dto.account.UserUpdate;
 import com.service.inspection.dto.auth.UserSignUpDto;
 import com.service.inspection.entities.Role;
 import com.service.inspection.entities.User;
-import com.service.inspection.service.UserDetailsImpl;
+import com.service.inspection.service.security.UserDetailsImpl;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.IterableMapping;

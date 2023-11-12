@@ -18,6 +18,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -96,5 +97,13 @@ public class User {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    public void addInspection(Inspection inspection) {
+        Set<Inspection> localInspection = getInspections();
+        if (localInspection == null) {
+            inspections = new HashSet<>();
+        }
+        inspections.add(inspection);
     }
 }
