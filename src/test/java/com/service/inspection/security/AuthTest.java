@@ -2,8 +2,8 @@ package com.service.inspection.security;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.service.inspection.dto.UserSignInDto;
-import com.service.inspection.dto.UserSignUpDto;
+import com.service.inspection.dto.auth.UserSignInDto;
+import com.service.inspection.dto.auth.UserSignUpDto;
 import com.service.inspection.entities.User;
 import com.service.inspection.repositories.RoleRepository;
 import com.service.inspection.repositories.UserRepository;
