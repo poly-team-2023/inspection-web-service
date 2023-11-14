@@ -18,6 +18,7 @@ import org.hibernate.proxy.HibernateProxy;
 
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "equipment")
@@ -44,7 +45,7 @@ public class Equipment {
     private String verificationScanName;
 
     @Column(name = "verification_scan_uuid")
-    private String verificationScanUrl;
+    private UUID verificationScanUuid;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
