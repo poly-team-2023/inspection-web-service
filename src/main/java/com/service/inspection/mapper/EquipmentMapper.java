@@ -5,7 +5,6 @@ import com.service.inspection.dto.equipment.GetEquipmentDto;
 import com.service.inspection.entities.Equipment;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(
