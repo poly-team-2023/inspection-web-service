@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -30,7 +29,7 @@ public class EquipmentService {
     }
 
     public List<Equipment> getEquipment(User user) {
-        return  (List<Equipment>) equipmentRepository.findEquipmentByUserId(user.getId());
+        return (List<Equipment>) equipmentRepository.findEquipmentByUserId(user.getId());
     }
 
     public void addEquipment(User user, Equipment equipment) {
