@@ -205,13 +205,11 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
         Equipment equipmentToDelete = new Equipment();
         equipmentToDelete.setSerialNumber("1");
         equipmentToDelete.setVerificationDate(OffsetDateTime.now());
-        equipmentToDelete.setVerificationScanUrl("1");
         equipmentToDelete.setUser(user);
 
         Equipment equipmentNotToDelete = new Equipment();
         equipmentNotToDelete.setSerialNumber("2");
         equipmentNotToDelete.setVerificationDate(OffsetDateTime.now());
-        equipmentNotToDelete.setVerificationScanUrl("2");
         equipmentNotToDelete.setUser(user);
 
         equipmentRepository.save(equipmentToDelete);
