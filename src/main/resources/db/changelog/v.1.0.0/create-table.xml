@@ -134,12 +134,9 @@
             <column name="verification_date" type="date">
                 <constraints nullable="false"/>
             </column>
-            <column name="verification_number" type="varchar(255)"/>
 
             <column name="verification_scan_name" type="varchar(255)"/>
-            <column name="verification_scan_uuid" type="text">
-                <constraints nullable="false"/>
-            </column>
+            <column name="verification_scan_uuid" type="uuid"/>
 
             <column name="user_id" type="bigint">
                 <constraints nullable="false"/>
