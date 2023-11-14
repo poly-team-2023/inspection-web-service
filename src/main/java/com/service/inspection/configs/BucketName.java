@@ -6,7 +6,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum BucketName {
-    USER_LOGO("images");
+    USER_LOGO("images"),
+    VERIFICATION_SCAN("documents");
 
     private final String bucket;
 }
