@@ -19,9 +19,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class EquipmentService {
 
-    EquipmentRepository equipmentRepository;
-    EquipmentMapper equipmentMapper;
-    StorageService storageService;
+    private final EquipmentRepository equipmentRepository;
+    private final EquipmentMapper equipmentMapper;
+    private final StorageService storageService;
 
     public Equipment get(long id) {
         return equipmentRepository.findById(id)

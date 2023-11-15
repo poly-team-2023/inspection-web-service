@@ -30,15 +30,15 @@ import java.util.List;
 @AllArgsConstructor
 public class EquipmentController {
 
-    EquipmentService equipmentService;
-    EquipmentMapper equipmentMapper;
+    private final EquipmentService equipmentService;
+    private final EquipmentMapper equipmentMapper;
 
     @GetMapping
     @Operation(summary = "Получить список оборудования")
     public ResponseEntity<List<GetEquipmentDto>> getEquipment(Authentication authentication) {
         User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
         return ResponseEntity.ok(equipmentService.getEquipment(user)
-                .stream().map(it -> equipmentMapper.mapToDto(it)).toList());
+                .stream().map(equipmentMapper::mapToDto).toList());
     }
 
     @PostMapping("/add")

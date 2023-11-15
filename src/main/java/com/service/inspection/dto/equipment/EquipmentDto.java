@@ -11,11 +11,9 @@ import java.time.OffsetDateTime;
 @Validated
 public class EquipmentDto {
 
-    @NotBlank
     private String name;
     @NotBlank
     private String serialNumber;
-    @NotBlank
     private String verificationScanName;
     @NotNull
     private OffsetDateTime verificationDate;
