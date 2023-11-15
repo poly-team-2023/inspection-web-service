@@ -2,14 +2,12 @@ package com.service.inspection.service;
 
 import com.service.inspection.dto.company.CompanyDto;
 import com.service.inspection.entities.Company;
-import com.service.inspection.entities.Employer;
 import com.service.inspection.entities.User;
 import com.service.inspection.mapper.CompanyMapper;
 import com.service.inspection.repositories.CompanyRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
