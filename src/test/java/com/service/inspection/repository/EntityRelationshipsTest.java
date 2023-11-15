@@ -335,4 +335,6 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
                 .usingRecursiveFieldByFieldElementComparator()
                 .doesNotContain(roleToDelete);
     }
+
+    // TODO: testLicenseRepository()
 }

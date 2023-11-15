@@ -7,7 +7,9 @@ import lombok.Getter;
 @Getter
 public enum BucketName {
     USER_LOGO("images"),
-    VERIFICATION_SCAN("documents");
+    VERIFICATION_SCAN("documents"),
+    SIGNATURE("documents"),
+    LICENSE_SCAN("documents");
 
     private final String bucket;
 }
