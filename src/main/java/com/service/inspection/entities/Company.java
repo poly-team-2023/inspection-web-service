@@ -35,20 +35,26 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "legal_address", nullable = false)
+    @Column(name = "legal_address")
     private String legalAddress;
 
     @Column(name = "city")
     private String city;
 
     @Column(name = "logo_name")
-    private String logoUrl;
+    private String logoName;
 
     @Column(name = "logo_uuid")
     private UUID logoUuid;
+
+    @Column(name = "sro_scan_name")
+    private String sroScanName;
+
+    @Column(name = "sro_scan_uuid")
+    private UUID sroScanUuid;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")

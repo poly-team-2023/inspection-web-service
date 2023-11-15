@@ -74,13 +74,9 @@
                 <constraints nullable="false" primaryKey="true"/>
             </column>
 
-            <column name="name" type="varchar(500)">
-                <constraints nullable="false"/>
-            </column>
+            <column name="name" type="varchar(500)"/>
 
-            <column name="legal_address" type="varchar(500)">
-                <constraints nullable="false"/>
-            </column>
+            <column name="legal_address" type="varchar(500)"/>
 
             <column name="city" type="varchar(255)"/>
 
