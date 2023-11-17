@@ -30,11 +30,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class User extends Identifiable {
 
     @Column(name = "first_name", nullable = false)
     private String firstName;

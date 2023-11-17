@@ -193,8 +193,8 @@
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="name" type="varchar(255)"/>
-            <column name="start_date" type="timestamptz"/>
-            <column name="end_date" type="timestamptz"/>
+            <column name="start_date" type="date"/>
+            <column name="end_date" type="date"/>
 
             <column name="main_photo_name" type="varchar(255)"/>
             <column name="main_photo_uuid" type="uuid"/>
@@ -203,6 +203,7 @@
             <column name="building_type" type="building_type"/>
 
             <column name="company_id" type="bigint"/>
+            <column name="employer_id" type="bigint"/>
 
             <column name="status" type="status"/>
             <column name="report_name" type="varchar(500)"/>
@@ -383,5 +384,11 @@
                                  constraintName="fk-company-user" referencedTableName="users"
                                  referencedColumnNames="id" deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+    <changeSet id="fk-inspection-employer" author="admin">
+        <addForeignKeyConstraint baseTableName="inspection" baseColumnNames="employer_id"
+                                 constraintName="fk-inspection-employer" referencedTableName="employer"
+                                 referencedColumnNames="id" deferrable="false" initiallyDeferred="false"
+                                 onDelete="SET NULL" onUpdate="CASCADE"/>
     </changeSet>
 </databaseChangeLog>

@@ -29,14 +29,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @NoArgsConstructor
-public class Company {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "name", nullable = false)
-    private String name;
+public class Company extends Named {
 
     @Column(name = "legal_address", nullable = false)
     private String legalAddress;

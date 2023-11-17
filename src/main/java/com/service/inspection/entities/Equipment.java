@@ -25,14 +25,7 @@ import java.util.Objects;
 @Setter
 @ToString
 @NoArgsConstructor
-public class Equipment {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "name")
-    private String name;
+public class Equipment extends Named {
 
     @Column(name = "serial_number", nullable = false)
     private String serialNumber;

@@ -43,7 +43,7 @@ public class UserAccountService {
         UUID logoUuid = user.getLogoUuid();
         if (logoUuid == null) return null;
 
-       return storageService.getFile(BucketName.USER_LOGO, logoUuid.toString());
+        return storageService.getFile(BucketName.USER_LOGO, logoUuid.toString());
     }
 
     public boolean changeUserPassword(User user, PasswordDto passwordDto) {

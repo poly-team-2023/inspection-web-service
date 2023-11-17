@@ -29,13 +29,7 @@ import java.util.Objects;
 @ToString
 @NoArgsConstructor
 @AttributeOverride(name = "fileUuid", column = @Column(name = "uuid"))
-@AttributeOverride(name = "fileName", column = @Column(name = "name"))
 public class Audio extends FileEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "text")
     private String text;
 

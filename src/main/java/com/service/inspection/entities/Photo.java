@@ -38,12 +38,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @AttributeOverride(name = "fileUuid", column = @Column(name = "uuid"))
-@AttributeOverride(name = "fileName", column = @Column(name = "name"))
 public class Photo extends FileEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(name = "location")
     private String location;

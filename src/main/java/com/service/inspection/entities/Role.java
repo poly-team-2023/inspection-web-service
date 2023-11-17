@@ -26,11 +26,7 @@ import java.util.Set;
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class Role {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Role extends Identifiable{
 
     @Column(name = "name", nullable = false, unique = true)
     @Enumerated(EnumType.STRING)

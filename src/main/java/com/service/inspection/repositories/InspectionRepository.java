@@ -10,5 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface InspectionRepository extends JpaRepository<Inspection, Long> {
-    Page<Inspection> findByUsersEmail(String email, Pageable pageable);
+    Page<Inspection> findByUsersId(Long userId, Pageable pageable);
+    Inspection findByUsersIdAndId(Long userId, Long inspectionId);
 }

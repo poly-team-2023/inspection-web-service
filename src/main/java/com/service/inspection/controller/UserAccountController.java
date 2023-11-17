@@ -64,16 +64,7 @@ public class UserAccountController {
     public ResponseEntity<Resource> getUserLogo(Authentication authentication) {
         User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
         StorageService.BytesWithContentType file = userAccountService.getUserLogo(user);
-
-        if (file == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        Resource byteArrayResource = new ByteArrayResource(file.getBytes());
-        return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=logo,png")
-                .contentType(MediaType.valueOf("image/png"))
-                .body(byteArrayResource);
+        return controllerUtils.getResponseEntityFromFile("logo", file);
     }
 
     @PutMapping("/password")

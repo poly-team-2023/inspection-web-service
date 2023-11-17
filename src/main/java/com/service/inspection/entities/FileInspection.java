@@ -1,6 +1,8 @@
 package com.service.inspection.entities;
 
 import com.service.inspection.entities.enums.FileTypes;
+
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,9 +30,6 @@ import java.util.Objects;
 @ToString
 @NoArgsConstructor
 public class FileInspection extends FileEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)

@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PreRemove;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -18,6 +19,7 @@ import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -26,14 +28,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @NoArgsConstructor
-public class Employer {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "name", nullable = false)
-    private String name;
+public class Employer extends Named {
 
     @Column(name = "position_name")
     private String positionName;
@@ -48,6 +43,9 @@ public class Employer {
     @JoinColumn(name = "company_id")
     @ToString.Exclude
     private Company company;
+
+    @OneToMany(mappedBy = "employer")
+    private Set<Inspection> inspections;
 
     @PreRemove
     public void preRemove() {

@@ -27,12 +27,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @AttributeOverride(name = "fileUuid", column = @Column(name = "uuid"))
-@AttributeOverride(name = "fileName", column = @Column(name = "name"))
 public class Plan extends FileEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @OneToMany(mappedBy = "plan")
     @ToString.Exclude

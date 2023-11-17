@@ -32,14 +32,7 @@ import java.util.Set;
 @Setter
 @ToString
 @NoArgsConstructor
-public class Category {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "name", nullable = false)
-    private String name;
+public class Category extends Named {
 
     @Column(name = "recommendation")
     private String recommendation;
