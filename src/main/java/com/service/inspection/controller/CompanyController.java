@@ -122,7 +122,7 @@ public class CompanyController {
     }
 
     @PostMapping("/{comp_id}/license")
-    @Operation(summary = "Добавление лицензии") // TODO : FIX (form order)
+    @Operation(summary = "Добавление лицензии")
     public ResponseEntity<Void> addLicense(@PathVariable("comp_id") long id,
                                            @RequestBody LicenseDto dto,
                                            Authentication authentication) {
