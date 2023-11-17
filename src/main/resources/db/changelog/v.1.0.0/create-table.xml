@@ -100,8 +100,8 @@
             </column>
             <column name="name" type="varchar(255)"/>
             <column name="uuid" type="uuid"/>
-            <column name="order" type="int"/>
-            <column name="company_id" type="varchar(255)">
+            <column name="scan_number" type="int"/>
+            <column name="company_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
         </createTable>

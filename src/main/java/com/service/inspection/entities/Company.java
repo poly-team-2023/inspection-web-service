@@ -64,6 +64,10 @@ public class Company {
     @ToString.Exclude
     private Set<Employer> employers;
 
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private Set<License> licenses;
+
     @PreRemove
     private void preRemove() {
         Optional.ofNullable(user)

@@ -1,13 +1,6 @@
 package com.service.inspection.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -34,11 +27,12 @@ public class License {
     @Column(name = "uuid")
     private UUID uuid;
 
-    @Column(name = "order")
-    private Integer order;
+    @Column(name = "scan_number")
+    private Integer number;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", referencedColumnName = "id")
+    @ToString.Exclude
     private Company company;
 
     @Override
