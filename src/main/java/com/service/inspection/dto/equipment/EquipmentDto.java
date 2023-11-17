@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
 @Data
@@ -15,6 +16,6 @@ public class EquipmentDto {
     @NotBlank
     private String serialNumber;
     @NotNull
-    private OffsetDateTime verificationDate;
+    private LocalDate verificationDate;
 
 }
