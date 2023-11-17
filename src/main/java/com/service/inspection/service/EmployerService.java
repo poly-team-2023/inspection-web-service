@@ -53,7 +53,7 @@ public class EmployerService {
      }
 
     private void checkUser(Company company, User user) {
-        if (!company.getUser().getId().equals(user.getId())) {
+        if (!company.getUser().equals(user)) {
             throw new RuntimeException("No access");
         }
     }

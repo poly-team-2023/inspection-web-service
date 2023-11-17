@@ -64,7 +64,7 @@ public class EquipmentService {
     }
 
     private void checkUser(Equipment equipment, User user) {
-        if (!equipment.getUser().getId().equals(user.getId())) {
+        if (!equipment.getUser().equals(user)) {
             throw new RuntimeException("No access");
         }
     }
