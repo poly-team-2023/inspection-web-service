@@ -16,7 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -39,7 +39,7 @@ public class Equipment {
     private String serialNumber;
 
     @Column(name = "verification_date", nullable = false)
-    private OffsetDateTime verificationDate;
+    private LocalDate verificationDate;
 
     @Column(name = "verification_scan_name")
     private String verificationScanName;
