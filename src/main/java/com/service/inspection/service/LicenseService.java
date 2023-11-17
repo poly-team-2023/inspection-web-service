@@ -1,16 +1,17 @@
 package com.service.inspection.service;
 
 import com.service.inspection.configs.BucketName;
+import com.service.inspection.dto.license.LicenseDto;
 import com.service.inspection.entities.Company;
 import com.service.inspection.entities.License;
 import com.service.inspection.entities.User;
+import com.service.inspection.mapper.LicenseMapper;
 import com.service.inspection.repositories.LicenseRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ public class LicenseService {
 
     private final StorageService storageService;
     private final LicenseRepository licenseRepository;
+    private final LicenseMapper licenseMapper;
 
     public License get(long id) {
         return licenseRepository.findById(id)
@@ -37,15 +39,22 @@ public class LicenseService {
         checkUser(company, user);
         UUID scanUuid = UUID.randomUUID();
 
+        storageService.saveFile(BucketName.LICENSE_SCAN, scanUuid.toString(), scan);
         License license = get(id);
         license.setUuid(scanUuid);
-        storageService.saveFile(BucketName.LICENSE_SCAN, scanUuid.toString(), scan);
         licenseRepository.save(license);
     }
 
-    public List<License> getLicensesByCompany(User user, Company company) {
+    public void updateLicense(User user, Company company, long id, LicenseDto dto) {
         checkUser(company, user);
-        return (List<License>) licenseRepository.findLicensesByCompanyId(company.getId());
+        License license = get(id);
+        licenseMapper.mapToUpdateLicense(license, dto);
+        licenseRepository.save(license);
+    }
+
+    public void deleteLicense(User user, Company company, long id) {
+        checkUser(company, user);
+        licenseRepository.deleteById(id);
     }
 
     private void checkUser(Company company, User user) {

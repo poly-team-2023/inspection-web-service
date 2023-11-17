@@ -5,6 +5,7 @@ import com.service.inspection.dto.license.LicenseDto;
 import com.service.inspection.entities.License;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 
 @Mapper(
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
@@ -15,4 +16,6 @@ public interface LicenseMapper {
     License mapToLicense(LicenseDto dto);
 
     GetLicenseDto mapToDto(License license);
+
+    void mapToUpdateLicense(@MappingTarget License toUpdate, LicenseDto source);
 }

@@ -19,13 +19,20 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-
 @RestController
-@RequestMapping( "/api/v1/company")
+@RequestMapping("/api/v1/company")
 @CrossOrigin(allowCredentials = "true", originPatterns = "*")
 @AllArgsConstructor
 public class CompanyController {
@@ -37,7 +44,7 @@ public class CompanyController {
     private final EmployerMapper employerMapper;
     private final LicenseMapper licenseMapper;
 
-    @PostMapping("/create")
+    @PostMapping
     @Operation(summary = "Создать компанию")
     public ResponseEntity<Void> createCompany(Authentication authentication) {
         User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
@@ -45,7 +52,7 @@ public class CompanyController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{comp_id}/update")
+    @PutMapping("/{comp_id}")
     @Operation(summary = "Обновление текстовых полей")
     public ResponseEntity<Void> updateCompany(@PathVariable("comp_id") long id,
                                               @RequestBody @Valid CompanyDto dto,
@@ -55,7 +62,7 @@ public class CompanyController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{comp_id}/delete")
+    @DeleteMapping("/{comp_id}")
     @Operation(summary = "Удаление компании")
     public ResponseEntity<Void> deleteCompany(@PathVariable("comp_id") long id,
                                               Authentication authentication) {
@@ -65,44 +72,57 @@ public class CompanyController {
     }
 
     @GetMapping("/{comp_id}")
-    public ResponseEntity<GetCompanyDto> getCompany(@PathVariable("comp_id") long id,
-                                                    Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+    @Operation(summary = "Получить информацию о компании")
+    public ResponseEntity<GetCompanyDto> getCompany(@PathVariable("comp_id") long id) {
         Company company = companyService.get(id);
-        return ResponseEntity.ok(companyMapper.mapToDto(
-                company,
-                employerService.getEmployersByCompany(user, company).stream().map(employerMapper::mapToDto).toList(),
-                new ArrayList<>()//licenseService.getLicensesByCompany(user, company).stream().map(licenseMapper::mapToDto).toList()
-        ));
+        return ResponseEntity.ok(companyMapper.mapToDto(company));
     }
 
-    // TODO : setLogo
+    @PostMapping(path = "/{comp_id}/logo")
+    @Operation(summary = "Добавить лого компапнии")
+    public ResponseEntity<Void> setLogo(@PathVariable("comp_id") long id,
+                                        MultipartFile picture,
+                                        Authentication authentication) {
+        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+        companyService.addLogo(user, id, picture);
+        return ResponseEntity.ok().build();
+    }
 
-    @PostMapping(path = "/{comp_id}/employer/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    // TODO : RequestParam красиво сделай лееее
+    @PostMapping(path = "/{comp_id}/employer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Добавление работника со всеми полями и подписью")
     public ResponseEntity<Void> addEmployer(@PathVariable("comp_id") long id,
-                                          @RequestPart("employerDto") @Valid EmployerDto dto,
-                                          @RequestPart("signature") MultipartFile signature,
+                                            @RequestPart("employerDto") @Valid EmployerDto dto,
+                                            @RequestPart("signature") MultipartFile signature,
                                           Authentication authentication) {
         User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
         employerService.addEmployer(user, employerMapper.mapToEmployer(dto), companyService.get(id), signature);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{comp_id}/employer/{emp_id}/delete")
+    @DeleteMapping("/{comp_id}/employer/{emp_id}")
     @Operation(summary = "Удаление работника")
     public ResponseEntity<Void> deleteEmployer(@PathVariable("comp_id") long compId,
-                                             @PathVariable("emp_id") long empId,
-                                             Authentication authentication) {
+                                               @PathVariable("emp_id") long empId,
+                                               Authentication authentication) {
         User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
         employerService.deleteEmployer(user, companyService.get(compId), empId);
         return ResponseEntity.ok().build();
     }
 
-    // TODO: updateEmployer
+    @PutMapping("/{comp_id}/employer/{emp_id}")
+    @Operation(summary = "Обновление работника")
+    public ResponseEntity<Void> updateEmployer(@PathVariable("comp_id") long compId,
+                                               @PathVariable("emp_id") long empId,
+                                               @RequestBody @Valid EmployerDto dto,
+                                               Authentication authentication) {
+        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+        employerService.updateEmployer(user, companyService.get(compId), empId, dto);
+        return ResponseEntity.ok().build();
+    }
 
-    @PostMapping("/{comp_id}/license/add")
-    @Operation(summary = "Добавление лицензии") // TODO : FIX!
+    @PostMapping("/{comp_id}/license")
+    @Operation(summary = "Добавление лицензии") // TODO : FIX (form order)
     public ResponseEntity<Void> addLicense(@PathVariable("comp_id") long id,
                                            @RequestBody LicenseDto dto,
                                            Authentication authentication) {
@@ -111,7 +131,8 @@ public class CompanyController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{comp_id}/license/{lic_id}/pic/add")
+    @PostMapping("/{comp_id}/license/{lic_id}/pic")
+    @Operation(summary = "Добавление картинки к лицензии")
     public ResponseEntity<Void> addLicensePicture(@PathVariable("comp_id") long compId,
                                                   @PathVariable("lic_id") long licId,
                                                   MultipartFile scan,
@@ -121,6 +142,43 @@ public class CompanyController {
         return ResponseEntity.ok().build();
     }
 
-    // TODO : deleteLicense; updateLicense
-    // TODO : Все, что связано с СРО
+    @PutMapping("/{comp_id}/license/{lic_id}")
+    @Operation(summary = "Обновить лицензию")
+    public ResponseEntity<Void> updateLicense(@PathVariable("comp_id") long compId,
+                                              @PathVariable("lic_id") long licId,
+                                              LicenseDto dto,
+                                              Authentication authentication) {
+        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+        licenseService.updateLicense(user, companyService.get(compId), licId, dto);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{comp_id}/license/{lic_id}")
+    @Operation(summary = "Удалить лицензии")
+    public ResponseEntity<Void> deleteLicense(@PathVariable("comp_id") long compId,
+                                              @PathVariable("lic_id") long licId,
+                                              Authentication authentication) {
+        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+        licenseService.deleteLicense(user, companyService.get(compId), licId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{comp_id}/sro")
+    @Operation(summary = "Добавить сро")
+    public ResponseEntity<Void> addSro(@PathVariable("comp_id") long compId,
+                                       MultipartFile picture,
+                                       Authentication authentication) {
+        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+        companyService.addSro(user, compId, picture);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{comp_id}/sro")
+    @Operation(summary = "Удалить сро")
+    public ResponseEntity<Void> deleteSro(@PathVariable("comp_id") long compId,
+                                          Authentication authentication) {
+        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+        companyService.deleteSro(user, compId);
+        return ResponseEntity.ok().build();
+    }
 }

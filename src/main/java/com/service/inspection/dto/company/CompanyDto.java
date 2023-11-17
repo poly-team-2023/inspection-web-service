@@ -13,6 +13,5 @@ public class CompanyDto {
     @NotBlank
     private String legalAddress;
     private String city;
-    private String logoName;
 
 }

@@ -14,7 +14,6 @@ public class EquipmentDto {
     private String name;
     @NotBlank
     private String serialNumber;
-    private String verificationScanName;
     @NotNull
     private OffsetDateTime verificationDate;
 

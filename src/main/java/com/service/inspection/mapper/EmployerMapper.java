@@ -5,6 +5,7 @@ import com.service.inspection.dto.employer.GetEmployerDto;
 import com.service.inspection.entities.Employer;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 
 @Mapper(
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
@@ -15,4 +16,6 @@ public interface EmployerMapper {
     Employer mapToEmployer(EmployerDto dto);
 
     GetEmployerDto mapToDto(Employer employer);
+
+    void mapToUpdateEmployer(@MappingTarget Employer toUpdate, EmployerDto source);
 }

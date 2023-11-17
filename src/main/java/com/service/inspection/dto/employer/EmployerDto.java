@@ -12,6 +12,5 @@ public class EmployerDto {
     private String name;
     @NotBlank
     private String positionName;
-    private String signatureName;
 
 }

@@ -6,10 +6,12 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum BucketName {
-    USER_LOGO("images"),
-    VERIFICATION_SCAN("documents"),
-    SIGNATURE("documents"),
-    LICENSE_SCAN("documents");
+    USER_LOGO("mages"),
+    VERIFICATION_SCAN("verification"),
+    SIGNATURE("signature"),
+    LICENSE_SCAN("license"),
+    SRO("sro"),
+    COMPANY_LOGO("images");
 
     private final String bucket;
 }

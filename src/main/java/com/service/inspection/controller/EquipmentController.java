@@ -41,7 +41,7 @@ public class EquipmentController {
                 .stream().map(equipmentMapper::mapToDto).toList());
     }
 
-    @PostMapping("/add")
+    @PostMapping
     @Operation(summary = "Добавить оборудование")
     public ResponseEntity<Void> addEquipment(@RequestBody @Valid EquipmentDto dto,
                                              Authentication authentication) {
@@ -50,7 +50,7 @@ public class EquipmentController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{equip_id}/update")
+    @PutMapping("/{equip_id}")
     @Operation(summary = "Обновить сведения об оборудовании")
     public ResponseEntity<Void> updateEquipment(@PathVariable("equip_id") long id,
                                                 @RequestBody @Valid EquipmentDto dto,
@@ -60,7 +60,7 @@ public class EquipmentController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{equip_id}/delete")
+    @DeleteMapping("/{equip_id}")
     @Operation(summary = "Удаление оборудования")
     public ResponseEntity<Void> deleteEquipment(@PathVariable("equip_id") long id,
                                                 Authentication authentication) {
@@ -69,7 +69,7 @@ public class EquipmentController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{equip_id}/pic/add")
+    @PostMapping("/{equip_id}/pic")
     @Operation(summary = "Добавить скан к оборудованию")
     public ResponseEntity<Void> addPicture(@PathVariable("equip_id") long id,
                                            MultipartFile picture,

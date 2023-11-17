@@ -10,6 +10,6 @@ public class GetLicenseDto {
     private Long id;
     private String name;
     private UUID uuid;
-    private Integer order;
+    private Integer number;
 
 }
