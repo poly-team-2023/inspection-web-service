@@ -12,20 +12,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -36,7 +27,8 @@ public class UserAccountController {
 
     private final UserAccountService userAccountService;
     private final ControllerUtils controllerUtils;
-    private final JwtUtils  jwtUtils;
+    private final JwtUtils jwtUtils;
+
     @PutMapping("/update-user")
     @Operation(summary = "Обновить данные пользователя", description = "Null поля также обновляются")
     public ResponseEntity<Void> updateUserInfo(
@@ -69,7 +61,7 @@ public class UserAccountController {
 
     @PutMapping("/password")
     @Operation(summary = "Изменение пароля пользователя")
-    public ResponseEntity<Void> changePassword(@RequestBody PasswordDto passwordDto,  Authentication authentication) {
+    public ResponseEntity<Void> changePassword(@RequestBody PasswordDto passwordDto, Authentication authentication) {
         User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
         boolean wasUpdated = userAccountService.changeUserPassword(user, passwordDto);
         if (!wasUpdated) {

@@ -1,13 +1,11 @@
 package com.service.inspection.dto.inspection;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import com.service.inspection.dto.NamedDto;
+import lombok.Getter;
+import lombok.Setter;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
-public class InspectionWithName extends InspectionWithIdOnly {
+@Getter
+@Setter
+public class InspectionWithName extends NamedDto {
 
-    @JsonProperty("inspectionName")
-    private String name;
 }
