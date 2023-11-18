@@ -98,6 +98,7 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
                 .usingRecursiveFieldByFieldElementComparator()
                 .contains(inspection);
 
+        inspection.getCategories().remove(categoryToDelete);
         categoryRepository.deleteById(categoryToDelete.getId());
 
         assertThat(categoryRepository.findAll())

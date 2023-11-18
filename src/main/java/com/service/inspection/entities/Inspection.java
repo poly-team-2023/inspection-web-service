@@ -1,27 +1,16 @@
 package com.service.inspection.entities;
 
 import com.service.inspection.entities.enums.ProgressingStatus;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -32,23 +21,17 @@ import java.util.UUID;
 @Setter
 @ToString
 @NoArgsConstructor
-public class Inspection {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "name")
-    private String name;
+public class Inspection extends Named {
 
     @Column(name = "report_name")
     private String reportName;
 
+    // TODO:  разобраться как правильно хранить дату
     @Column(name = "start_date")
-    private OffsetDateTime startDate;
+    private LocalDate startDate;
 
     @Column(name = "end_date")
-    private OffsetDateTime endDate;
+    private LocalDate endDate;
 
     @Column(name = "address")
     private String address;
@@ -72,30 +55,46 @@ public class Inspection {
     @Column(name = "inspected_category_count")
     private int inspectedCategoriesCount;
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "employer_id")
+    @ToString.Exclude
+    private Employer employer;
+
     @ManyToMany(mappedBy = "inspections")
     @ToString.Exclude
     private Set<User> users;
 
     @OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @ToString.Exclude
+    @BatchSize(size = 50)
     private Set<Category> categories;
 
-    @OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL,  fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
+    @BatchSize(size = 50)
     private Set<Audio> audios;
 
     @OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
+    @BatchSize(size = 50)
     private Set<FileInspection> fileInspections;
 
     @OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
+    @BatchSize(size = 50)
     private Set<Plan> plans;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "company_id")
     @ToString.Exclude
     private Company company;
+
+    public void addCategory(Category category) {
+        if (categories == null) {
+            categories = new HashSet<>();
+        }
+        categories.add(category);
+    }
 
     @Override
     public final boolean equals(Object o) {
