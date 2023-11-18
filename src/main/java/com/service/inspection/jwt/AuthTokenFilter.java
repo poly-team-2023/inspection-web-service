@@ -13,11 +13,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -31,7 +32,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return new AntPathMatcher().match("/api/v1/auth/**", request.getServletPath());
+        return PatternMatchUtils.simpleMatch(
+                List.of("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs**").toArray(String[]::new),
+                request.getServletPath()
+        );
     }
 
     @Override

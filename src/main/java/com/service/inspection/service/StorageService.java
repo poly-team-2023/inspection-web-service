@@ -34,6 +34,10 @@ public class StorageService {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());
         objectMetadata.setContentLength(multipartFile.getSize());
+
+        if (!amazonS3.doesBucketExist(bucketName.getBucket())) {
+            amazonS3.createBucket(bucketName.getBucket());
+        }
         amazonS3.putObject(bucketName.getBucket(), key, inputStream, objectMetadata);
     }
 

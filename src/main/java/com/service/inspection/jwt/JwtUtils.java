@@ -1,6 +1,6 @@
 package com.service.inspection.jwt;
 
-import com.service.inspection.service.UserDetailsImpl;
+import com.service.inspection.service.security.UserDetailsImpl;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

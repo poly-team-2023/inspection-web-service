@@ -116,9 +116,6 @@ class AuthTest extends AbstractTestContainerStartUp {
                                 .content(objectMapper.writeValueAsString(userSignUpDto))
                 )
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
-
         assertThat(userRepo.findAll()).hasSize(1);
-
     }
-
 }
