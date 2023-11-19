@@ -1,7 +1,6 @@
 package com.service.inspection.utils;
 
 import com.service.inspection.entities.Identifiable;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,9 +12,6 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class ServiceUtils {
-
-    private final EntityManager entityManager;
-
 
     // TODO реализовать поиск репозитория по классу сущности
     public <T extends Identifiable> T tryToFindByID(JpaRepository<T, Long> repository, Long id) {

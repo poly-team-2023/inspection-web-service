@@ -12,23 +12,14 @@ import com.service.inspection.mapper.LicenseMapper;
 import com.service.inspection.service.CompanyService;
 import com.service.inspection.service.EmployerService;
 import com.service.inspection.service.LicenseService;
-import com.service.inspection.service.UserDetailsImpl;
+import com.service.inspection.service.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -81,7 +72,7 @@ public class CompanyController {
     @PostMapping(path = "/{comp_id}/logo")
     @Operation(summary = "Добавить лого компапнии")
     public ResponseEntity<Void> setLogo(@PathVariable("comp_id") long id,
-                                        MultipartFile picture,
+                                        @RequestParam("file") MultipartFile picture,
                                         Authentication authentication) {
         User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
         companyService.addLogo(user, id, picture);
@@ -94,7 +85,7 @@ public class CompanyController {
     public ResponseEntity<Void> addEmployer(@PathVariable("comp_id") long id,
                                             @RequestPart("employerDto") @Valid EmployerDto dto,
                                             @RequestPart("signature") MultipartFile signature,
-                                          Authentication authentication) {
+                                            Authentication authentication) {
         User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
         employerService.addEmployer(user, employerMapper.mapToEmployer(dto), companyService.get(id), signature);
         return ResponseEntity.ok().build();
