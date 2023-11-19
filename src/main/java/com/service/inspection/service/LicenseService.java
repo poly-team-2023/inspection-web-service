@@ -24,10 +24,6 @@ public class LicenseService {
     private final LicenseMapper licenseMapper;
     private final ServiceUtils serviceUtils;
 
-    public License get(long id) {
-        return licenseRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Equipment with id " + id + " not found"));
-    }
 
     public void addLicense(long userId, long companyId, License license) {
         Company company = serviceUtils.getCompanyIfExistForUser(companyId, userId);
