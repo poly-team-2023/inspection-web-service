@@ -6,6 +6,7 @@ import com.service.inspection.entities.User;
 import com.service.inspection.mapper.EquipmentMapper;
 import com.service.inspection.service.EquipmentService;
 import com.service.inspection.service.security.UserDetailsImpl;
+import com.service.inspection.utils.ControllerUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -24,12 +25,12 @@ public class EquipmentController {
 
     private final EquipmentService equipmentService;
     private final EquipmentMapper equipmentMapper;
+    private final ControllerUtils controllerUtils;
 
     @GetMapping
     @Operation(summary = "Получить список оборудования")
     public ResponseEntity<List<GetEquipmentDto>> getEquipment(Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        return ResponseEntity.ok(equipmentService.getEquipment(user)
+        return ResponseEntity.ok(equipmentService.getEquipment(controllerUtils.getUserId(authentication))
                 .stream().map(equipmentMapper::mapToDto).toList());
     }
 
@@ -47,8 +48,7 @@ public class EquipmentController {
     public ResponseEntity<Void> updateEquipment(@PathVariable("equip_id") long id,
                                                 @RequestBody @Valid EquipmentDto dto,
                                                 Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        equipmentService.updateEquipment(user, id, dto);
+        equipmentService.updateEquipment(controllerUtils.getUserId(authentication), id, dto);
         return ResponseEntity.ok().build();
     }
 
@@ -56,8 +56,7 @@ public class EquipmentController {
     @Operation(summary = "Удаление оборудования")
     public ResponseEntity<Void> deleteEquipment(@PathVariable("equip_id") long id,
                                                 Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        equipmentService.deleteEquipment(user, id);
+        equipmentService.deleteEquipment(controllerUtils.getUserId(authentication), id);
         return ResponseEntity.ok().build();
     }
 
@@ -66,8 +65,7 @@ public class EquipmentController {
     public ResponseEntity<Void> addPicture(@PathVariable("equip_id") long id,
                                            MultipartFile picture,
                                            Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        equipmentService.addPicture(user, id, picture);
+        equipmentService.addPicture(controllerUtils.getUserId(authentication), id, picture);
         return ResponseEntity.ok().build();
     }
 }

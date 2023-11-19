@@ -36,6 +36,6 @@ public class ServiceUtils {
 
     public Company getCompanyIfExistForUser(Long companyId, Long userId) {
         return companyRepository.findByUserIdAndId(userId, companyId).orElseThrow(() ->
-                new EntityNotFoundException(String.format("No such inspection with id %s for this user", companyId)));
+                new EntityNotFoundException(String.format("No such company with id %s for this user", companyId)));
     }
 }

@@ -6,13 +6,13 @@ import com.service.inspection.entities.Equipment;
 import com.service.inspection.entities.User;
 import com.service.inspection.mapper.EquipmentMapper;
 import com.service.inspection.repositories.EquipmentRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -23,13 +23,9 @@ public class EquipmentService {
     private final EquipmentMapper equipmentMapper;
     private final StorageService storageService;
 
-    public Equipment get(long id) {
-        return equipmentRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Equipment with id " + id + " not found"));
-    }
 
-    public List<Equipment> getEquipment(User user) {
-        return (List<Equipment>) equipmentRepository.findEquipmentByUserId(user.getId());
+    public List<Equipment> getEquipment(long userId) {
+        return (List<Equipment>) equipmentRepository.findEquipmentByUserId(userId);
     }
 
     public void addEquipment(User user, Equipment equipment) {
@@ -37,24 +33,22 @@ public class EquipmentService {
         equipmentRepository.save(equipment);
     }
 
-    public void updateEquipment(User user, long id, EquipmentDto dto) {
-        Equipment equipment = get(id);
-        checkUser(equipment, user);
+    public void updateEquipment(long userId, long equipmentId, EquipmentDto dto) {
+        Equipment equipment = getEquipmentIfExistForUser(equipmentId, userId);
 
         equipmentMapper.mapToUpdateEquipment(equipment, dto);
         equipmentRepository.save(equipment);
     }
 
-    public void deleteEquipment(User user, long id) {
-        checkUser(get(id), user);
-        equipmentRepository.deleteById(id);
+    public void deleteEquipment(long userId, long equipmentId) {
+        getEquipmentIfExistForUser(equipmentId, userId);
+        equipmentRepository.deleteById(equipmentId);
         // TODO : deletePicture()
     }
 
     @Transactional
-    public void addPicture(User user, long id, MultipartFile picture) {
-        Equipment equipment = get(id);
-        checkUser(equipment, user);
+    public void addPicture(long userId, long equipmentId, MultipartFile picture) {
+        Equipment equipment = getEquipmentIfExistForUser(equipmentId, userId);
         UUID pictureUuid = UUID.randomUUID();
 
         equipment.setVerificationScanUuid(pictureUuid);
@@ -64,9 +58,8 @@ public class EquipmentService {
         storageService.saveFile(BucketName.VERIFICATION_SCAN, pictureUuid.toString(), picture);
     }
 
-    private void checkUser(Equipment equipment, User user) {
-        if (!equipment.getUser().equals(user)) {
-            throw new RuntimeException("No access");
-        }
+    public Equipment getEquipmentIfExistForUser(Long equipmentId, Long userId) {
+        return equipmentRepository.findByUserIdAndId(userId, equipmentId).orElseThrow(() ->
+                new EntityNotFoundException(String.format("No such equipment with id %s for this user", equipmentId)));
     }
 }
