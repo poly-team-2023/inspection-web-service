@@ -16,6 +16,7 @@ import com.service.inspection.service.security.UserDetailsImpl;
 import com.service.inspection.utils.ControllerUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -82,12 +83,13 @@ public class CompanyController {
     @PostMapping(path = "/{comp_id}/employer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Добавление работника со всеми полями и подписью")
     public ResponseEntity<Void> addEmployer(@PathVariable("comp_id") long id,
-                                            @RequestPart("employerDto") @Valid EmployerDto dto,
-                                            @RequestPart("signature") MultipartFile signature,
+                                            @RequestParam("name") @NotBlank String name,
+                                            @RequestParam("position") @NotBlank String position,
+                                            MultipartFile signature,
                                             Authentication authentication) {
         employerService.addEmployer(
                 controllerUtils.getUserId(authentication),
-                employerMapper.mapToEmployer(dto),
+                employerMapper.mapToEmployer(name, position),
                 id,
                 signature
         );

@@ -13,7 +13,7 @@ import org.mapstruct.MappingTarget;
 )
 public interface EmployerMapper {
 
-    Employer mapToEmployer(EmployerDto dto);
+    Employer mapToEmployer(String name, String positionName);
 
     GetEmployerDto mapToDto(Employer employer);
 
