@@ -136,7 +136,7 @@ public class CompanyController {
     @Operation(summary = "Обновить лицензию")
     public ResponseEntity<Void> updateLicense(@PathVariable("comp_id") long compId,
                                               @PathVariable("lic_id") long licId,
-                                              LicenseDto dto,
+                                              @RequestBody LicenseDto dto,
                                               Authentication authentication) {
         licenseService.updateLicense(controllerUtils.getUserId(authentication), compId, licId, dto);
         return ResponseEntity.ok().build();
