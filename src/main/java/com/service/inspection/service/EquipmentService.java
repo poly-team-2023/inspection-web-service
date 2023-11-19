@@ -55,12 +55,13 @@ public class EquipmentService {
     public void addPicture(User user, long id, MultipartFile picture) {
         Equipment equipment = get(id);
         checkUser(equipment, user);
-
         UUID pictureUuid = UUID.randomUUID();
-        storageService.saveFile(BucketName.VERIFICATION_SCAN, pictureUuid.toString(), picture);
+
         equipment.setVerificationScanUuid(pictureUuid);
         equipment.setVerificationScanName(picture.getOriginalFilename());
         equipmentRepository.save(equipment);
+
+        storageService.saveFile(BucketName.VERIFICATION_SCAN, pictureUuid.toString(), picture);
     }
 
     private void checkUser(Equipment equipment, User user) {

@@ -73,10 +73,11 @@ public class CompanyService {
         checkUser(company, user);
 
         UUID logoUuid = UUID.randomUUID();
-        storageService.saveFile(BucketName.COMPANY_LOGO, logoUuid.toString(), logo);
         company.setLogoName(logo.getOriginalFilename());
         company.setLogoUuid(logoUuid);
         companyRepository.save(company);
+
+        storageService.saveFile(BucketName.COMPANY_LOGO, logoUuid.toString(), logo);
     }
 
     private void checkUser(Company company, User user) {

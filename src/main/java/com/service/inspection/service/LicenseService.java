@@ -39,10 +39,11 @@ public class LicenseService {
         checkUser(company, user);
         UUID scanUuid = UUID.randomUUID();
 
-        storageService.saveFile(BucketName.LICENSE_SCAN, scanUuid.toString(), scan);
         License license = get(id);
         license.setUuid(scanUuid);
         licenseRepository.save(license);
+
+        storageService.saveFile(BucketName.LICENSE_SCAN, scanUuid.toString(), scan);
     }
 
     public void updateLicense(User user, Company company, long id, LicenseDto dto) {
