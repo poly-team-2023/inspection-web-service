@@ -4,9 +4,9 @@ import com.service.inspection.configs.BucketName;
 import com.service.inspection.dto.license.LicenseDto;
 import com.service.inspection.entities.Company;
 import com.service.inspection.entities.License;
-import com.service.inspection.entities.User;
 import com.service.inspection.mapper.LicenseMapper;
 import com.service.inspection.repositories.LicenseRepository;
+import com.service.inspection.utils.ServiceUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,45 +22,43 @@ public class LicenseService {
     private final StorageService storageService;
     private final LicenseRepository licenseRepository;
     private final LicenseMapper licenseMapper;
+    private final ServiceUtils serviceUtils;
 
     public License get(long id) {
         return licenseRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Equipment with id " + id + " not found"));
     }
 
-    public void addLicense(User user, Company company, License license) {
-        checkUser(company, user);
+    public void addLicense(long userId, long companyId, License license) {
+        Company company = serviceUtils.getCompanyIfExistForUser(companyId, userId);
+
         license.setCompany(company);
         licenseRepository.save(license);
     }
 
     @Transactional
-    public void addLicensePicture(User user, Company company, long id, MultipartFile scan) {
-        checkUser(company, user);
+    public void addLicensePicture(long userId, long companyId, long licenseId, MultipartFile scan) {
+        License license = serviceUtils.tryToFindByID(
+                serviceUtils.getCompanyIfExistForUser(companyId, userId).getLicenses(), licenseId);
         UUID scanUuid = UUID.randomUUID();
 
-        License license = get(id);
         license.setUuid(scanUuid);
         licenseRepository.save(license);
 
         storageService.saveFile(BucketName.LICENSE_SCAN, scanUuid.toString(), scan);
     }
 
-    public void updateLicense(User user, Company company, long id, LicenseDto dto) {
-        checkUser(company, user);
-        License license = get(id);
+    public void updateLicense(long userId, long companyId, long licenseId, LicenseDto dto) {
+        License license = serviceUtils.tryToFindByID(
+                serviceUtils.getCompanyIfExistForUser(companyId, userId).getLicenses(), licenseId);
+
         licenseMapper.mapToUpdateLicense(license, dto);
         licenseRepository.save(license);
     }
 
-    public void deleteLicense(User user, Company company, long id) {
-        checkUser(company, user);
-        licenseRepository.deleteById(id);
-    }
-
-    private void checkUser(Company company, User user) {
-        if (!company.getUser().equals(user)) {
-            throw new RuntimeException("No access");
-        }
+    public void deleteLicense(long userId, long companyId, long licenseId) {
+        serviceUtils.tryToFindByID(
+                serviceUtils.getCompanyIfExistForUser(companyId, userId).getEmployers(), licenseId);
+        licenseRepository.deleteById(licenseId);
     }
 }

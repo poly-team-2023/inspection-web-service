@@ -13,6 +13,7 @@ import com.service.inspection.service.CompanyService;
 import com.service.inspection.service.EmployerService;
 import com.service.inspection.service.LicenseService;
 import com.service.inspection.service.security.UserDetailsImpl;
+import com.service.inspection.utils.ControllerUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -34,6 +35,7 @@ public class CompanyController {
     private final CompanyMapper companyMapper;
     private final EmployerMapper employerMapper;
     private final LicenseMapper licenseMapper;
+    private final ControllerUtils controllerUtils;
 
     @PostMapping
     @Operation(summary = "Создать компанию")
@@ -48,8 +50,7 @@ public class CompanyController {
     public ResponseEntity<Void> updateCompany(@PathVariable("comp_id") long id,
                                               @RequestBody @Valid CompanyDto dto,
                                               Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        companyService.updateCompany(user, id, dto);
+        companyService.updateCompany(controllerUtils.getUserId(authentication), id, dto);
         return ResponseEntity.ok().build();
     }
 
@@ -57,8 +58,7 @@ public class CompanyController {
     @Operation(summary = "Удаление компании")
     public ResponseEntity<Void> deleteCompany(@PathVariable("comp_id") long id,
                                               Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        companyService.deleteCompany(user, id);
+        companyService.deleteCompany(controllerUtils.getUserId(authentication), id);
         return ResponseEntity.ok().build();
     }
 
@@ -74,8 +74,7 @@ public class CompanyController {
     public ResponseEntity<Void> setLogo(@PathVariable("comp_id") long id,
                                         @RequestParam("file") MultipartFile picture,
                                         Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        companyService.addLogo(user, id, picture);
+        companyService.addLogo(controllerUtils.getUserId(authentication), id, picture);
         return ResponseEntity.ok().build();
     }
 
@@ -86,8 +85,12 @@ public class CompanyController {
                                             @RequestPart("employerDto") @Valid EmployerDto dto,
                                             @RequestPart("signature") MultipartFile signature,
                                             Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        employerService.addEmployer(user, employerMapper.mapToEmployer(dto), companyService.get(id), signature);
+        employerService.addEmployer(
+                controllerUtils.getUserId(authentication),
+                employerMapper.mapToEmployer(dto),
+                id,
+                signature
+        );
         return ResponseEntity.ok().build();
     }
 
@@ -96,8 +99,7 @@ public class CompanyController {
     public ResponseEntity<Void> deleteEmployer(@PathVariable("comp_id") long compId,
                                                @PathVariable("emp_id") long empId,
                                                Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        employerService.deleteEmployer(user, companyService.get(compId), empId);
+        employerService.deleteEmployer(controllerUtils.getUserId(authentication), compId, empId);
         return ResponseEntity.ok().build();
     }
 
@@ -107,8 +109,7 @@ public class CompanyController {
                                                @PathVariable("emp_id") long empId,
                                                @RequestBody @Valid EmployerDto dto,
                                                Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        employerService.updateEmployer(user, companyService.get(compId), empId, dto);
+        employerService.updateEmployer(controllerUtils.getUserId(authentication), compId, empId, dto);
         return ResponseEntity.ok().build();
     }
 
@@ -117,8 +118,7 @@ public class CompanyController {
     public ResponseEntity<Void> addLicense(@PathVariable("comp_id") long id,
                                            @RequestBody LicenseDto dto,
                                            Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        licenseService.addLicense(user, companyService.get(id), licenseMapper.mapToLicense(dto));
+        licenseService.addLicense(controllerUtils.getUserId(authentication), id, licenseMapper.mapToLicense(dto));
         return ResponseEntity.ok().build();
     }
 
@@ -128,8 +128,7 @@ public class CompanyController {
                                                   @PathVariable("lic_id") long licId,
                                                   MultipartFile scan,
                                                   Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        licenseService.addLicensePicture(user, companyService.get(compId), licId, scan);
+        licenseService.addLicensePicture(controllerUtils.getUserId(authentication), compId, licId, scan);
         return ResponseEntity.ok().build();
     }
 
@@ -139,8 +138,7 @@ public class CompanyController {
                                               @PathVariable("lic_id") long licId,
                                               LicenseDto dto,
                                               Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        licenseService.updateLicense(user, companyService.get(compId), licId, dto);
+        licenseService.updateLicense(controllerUtils.getUserId(authentication), compId, licId, dto);
         return ResponseEntity.ok().build();
     }
 
@@ -149,8 +147,7 @@ public class CompanyController {
     public ResponseEntity<Void> deleteLicense(@PathVariable("comp_id") long compId,
                                               @PathVariable("lic_id") long licId,
                                               Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        licenseService.deleteLicense(user, companyService.get(compId), licId);
+        licenseService.deleteLicense(controllerUtils.getUserId(authentication), compId, licId);
         return ResponseEntity.ok().build();
     }
 
@@ -159,8 +156,7 @@ public class CompanyController {
     public ResponseEntity<Void> addSro(@PathVariable("comp_id") long compId,
                                        MultipartFile picture,
                                        Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        companyService.addSro(user, compId, picture);
+        companyService.addSro(controllerUtils.getUserId(authentication), compId, picture);
         return ResponseEntity.ok().build();
     }
 
@@ -168,8 +164,7 @@ public class CompanyController {
     @Operation(summary = "Удалить сро")
     public ResponseEntity<Void> deleteSro(@PathVariable("comp_id") long compId,
                                           Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        companyService.deleteSro(user, compId);
+        companyService.deleteSro(controllerUtils.getUserId(authentication), compId);
         return ResponseEntity.ok().build();
     }
 }

@@ -4,15 +4,16 @@ import com.service.inspection.configs.BucketName;
 import com.service.inspection.dto.employer.EmployerDto;
 import com.service.inspection.entities.Company;
 import com.service.inspection.entities.Employer;
-import com.service.inspection.entities.User;
 import com.service.inspection.mapper.EmployerMapper;
+import com.service.inspection.repositories.CompanyRepository;
 import com.service.inspection.repositories.EmployerRepository;
+import com.service.inspection.utils.ServiceUtils;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -20,12 +21,14 @@ import java.util.UUID;
 public class EmployerService {
 
     private final EmployerRepository employerRepository;
+    private final CompanyRepository companyRepository;
     private final StorageService storageService;
     private final EmployerMapper employerMapper;
+    private final ServiceUtils serviceUtils;
 
     @Transactional
-    public void addEmployer(User user, Employer employer, Company company, MultipartFile signature) {
-        checkUser(company, user);
+    public void addEmployer(long userId, Employer employer, long companyId, MultipartFile signature) {
+        Company company = getCompanyIfExistForUser(userId, companyId);
         UUID signatureUuid = UUID.randomUUID();
 
         employer.setSignatureUuid(signatureUuid);
@@ -36,26 +39,22 @@ public class EmployerService {
         storageService.saveFile(BucketName.SIGNATURE, signatureUuid.toString(), signature);
     }
 
-    public void updateEmployer(User user, Company company, long id, EmployerDto dto) {
-        checkUser(company, user);
-        Employer employer = get(id);
+    public void updateEmployer(long userId, long companyId, long employerId, EmployerDto dto) {
+        Employer employer = serviceUtils.tryToFindByID(
+                serviceUtils.getCompanyIfExistForUser(companyId, userId).getEmployers(), employerId);
+
         employerMapper.mapToUpdateEmployer(employer, dto);
         employerRepository.save(employer);
     }
 
-    public void deleteEmployer(User user, Company company, long id) {
-        checkUser(company, user);
-        employerRepository.deleteById(id); // TODO : add deletePic
+    public void deleteEmployer(long userId, long companyId, long employerId) {
+        serviceUtils.tryToFindByID(
+                serviceUtils.getCompanyIfExistForUser(companyId, userId).getEmployers(), employerId);
+        employerRepository.deleteById(employerId); // TODO : add deletePic
     }
 
-    public Employer get(long id) {
-        return employerRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Employer with id " + id + " not found"));
-    }
-
-    private void checkUser(Company company, User user) {
-        if (!company.getUser().equals(user)) {
-            throw new RuntimeException("No access");
-        }
+    private Company getCompanyIfExistForUser(Long companyId, Long userId) {
+        return companyRepository.findByUserIdAndId(userId, companyId).orElseThrow(() ->
+                new EntityNotFoundException(String.format("No such inspection with id %s for this user", companyId)));
     }
 }
