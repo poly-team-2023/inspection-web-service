@@ -6,6 +6,7 @@ import com.service.inspection.entities.Company;
 import com.service.inspection.entities.User;
 import com.service.inspection.mapper.CompanyMapper;
 import com.service.inspection.repositories.CompanyRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,24 +34,22 @@ public class CompanyService {
         companyRepository.save(company);
     }
 
-    public void updateCompany(User user, long id, CompanyDto dto) {
-        Company company = get(id);
-        checkUser(company, user);
+    public void updateCompany(long userId, long companyId, CompanyDto dto) {
+        Company company = getCompanyIfExistForUser(userId, companyId);
 
         companyMapper.mapToUpdateCompany(company, dto);
         companyRepository.save(company);
     }
 
-    public void deleteCompany(User user, long id) {
-        Company company = get(id);
-        checkUser(company, user);
+    public void deleteCompany(long userId, long companyId) {
+        Company company = getCompanyIfExistForUser(userId, companyId);
+
         companyRepository.delete(company); // TODO : add deletePic
     }
 
     @Transactional
-    public void addSro(User user, long id, MultipartFile sro) {
-        Company company = get(id);
-        checkUser(company, user);
+    public void addSro(long userId, long companyId, MultipartFile sro) {
+        Company company = getCompanyIfExistForUser(userId, companyId);
 
         UUID sroUuid = UUID.randomUUID();
         storageService.saveFile(BucketName.SRO, sroUuid.toString(), sro);
@@ -59,18 +58,17 @@ public class CompanyService {
         companyRepository.save(company);
     }
 
-    public void deleteSro(User user, long id) {
-        Company company = get(id);
-        checkUser(company, user);
+    public void deleteSro(long userId, long companyId) {
+        Company company = getCompanyIfExistForUser(userId, companyId);
+
         company.setSroScanUuid(null);
         company.setSroScanName(null);
         companyRepository.save(company); // TODO : add deletePic
     }
 
     @Transactional
-    public void addLogo(User user, long id, MultipartFile logo) {
-        Company company = get(id);
-        checkUser(company, user);
+    public void addLogo(long userId, long companyId, MultipartFile logo) {
+        Company company = getCompanyIfExistForUser(userId, companyId);
 
         UUID logoUuid = UUID.randomUUID();
         company.setLogoName(logo.getOriginalFilename());
@@ -80,9 +78,8 @@ public class CompanyService {
         storageService.saveFile(BucketName.COMPANY_LOGO, logoUuid.toString(), logo);
     }
 
-    private void checkUser(Company company, User user) {
-        if (!company.getUser().equals(user)) {
-            throw new RuntimeException("No access");
-        }
+    private Company getCompanyIfExistForUser(Long companyId, Long userId) {
+        return companyRepository.findByUserIdAndId(userId, companyId).orElseThrow(() ->
+            new EntityNotFoundException(String.format("No such inspection with id %s for this user", companyId)));
     }
 }
