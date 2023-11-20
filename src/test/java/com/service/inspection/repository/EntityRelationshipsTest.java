@@ -1,6 +1,15 @@
 package com.service.inspection.repository;
 
-import com.service.inspection.entities.*;
+import com.service.inspection.entities.Audio;
+import com.service.inspection.entities.Category;
+import com.service.inspection.entities.Company;
+import com.service.inspection.entities.Employer;
+import com.service.inspection.entities.Equipment;
+import com.service.inspection.entities.Inspection;
+import com.service.inspection.entities.Photo;
+import com.service.inspection.entities.Plan;
+import com.service.inspection.entities.Role;
+import com.service.inspection.entities.User;
 import com.service.inspection.entities.enums.Condition;
 import com.service.inspection.entities.enums.ERole;
 import com.service.inspection.entities.enums.ProgressingStatus;
@@ -10,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -205,14 +214,12 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
 
         Equipment equipmentToDelete = new Equipment();
         equipmentToDelete.setSerialNumber("1");
-        equipmentToDelete.setVerificationDate(OffsetDateTime.now());
-        equipmentToDelete.setVerificationScanUrl("1");
+        equipmentToDelete.setVerificationDate(LocalDate.now());
         equipmentToDelete.setUser(user);
 
         Equipment equipmentNotToDelete = new Equipment();
         equipmentNotToDelete.setSerialNumber("2");
-        equipmentNotToDelete.setVerificationDate(OffsetDateTime.now());
-        equipmentNotToDelete.setVerificationScanUrl("2");
+        equipmentNotToDelete.setVerificationDate(LocalDate.now());
         equipmentNotToDelete.setUser(user);
 
         equipmentRepository.save(equipmentToDelete);
@@ -338,4 +345,6 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
                 .usingRecursiveFieldByFieldElementComparator()
                 .doesNotContain(roleToDelete);
     }
+
+    // TODO: testLicenseRepository()
 }

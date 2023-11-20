@@ -74,13 +74,9 @@
                 <constraints nullable="false" primaryKey="true"/>
             </column>
 
-            <column name="name" type="varchar(500)">
-                <constraints nullable="false"/>
-            </column>
+            <column name="name" type="varchar(500)"/>
 
-            <column name="legal_address" type="varchar(500)">
-                <constraints nullable="false"/>
-            </column>
+            <column name="legal_address" type="varchar(500)"/>
 
             <column name="city" type="varchar(255)"/>
 
@@ -104,8 +100,8 @@
             </column>
             <column name="name" type="varchar(255)"/>
             <column name="uuid" type="uuid"/>
-            <column name="order" type="int"/>
-            <column name="company_id" type="varchar(255)">
+            <column name="scan_number" type="int"/>
+            <column name="company_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -134,12 +130,9 @@
             <column name="verification_date" type="date">
                 <constraints nullable="false"/>
             </column>
-            <column name="verification_number" type="varchar(255)"/>
 
             <column name="verification_scan_name" type="varchar(255)"/>
-            <column name="verification_scan_uuid" type="text">
-                <constraints nullable="false"/>
-            </column>
+            <column name="verification_scan_uuid" type="uuid"/>
 
             <column name="user_id" type="bigint">
                 <constraints nullable="false"/>
