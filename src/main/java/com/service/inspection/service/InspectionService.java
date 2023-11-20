@@ -15,13 +15,16 @@ import com.service.inspection.repositories.UserRepository;
 import com.service.inspection.utils.ServiceUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
@@ -168,15 +171,19 @@ public class InspectionService {
 
     // --------------------------------------- create-document -----------------------------------------
     public void createDocument(Long inspectionId) {
-        XWPFTemplate template = XWPFTemplate
-                .compile(new File("test-template2.docx"))
-                .render(
-                        documentMapper.mapToDocumentModel(inspectionRepository.findById(inspectionId).orElse(null))
-                );
+
+        File file;
         try {
+            file = ResourceUtils.getFile("classpath:test-template2.docx");
+        } catch (FileNotFoundException f) {
+            return;
+        }
+
+        try (XWPFTemplate template = XWPFTemplate.compile(file).render(
+                documentMapper.mapToDocumentModel(inspectionRepository.findById(inspectionId).orElse(null)))) {
             template.writeToFile("compile-result.docx");
         } catch (IOException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
