@@ -52,6 +52,8 @@ public class StorageService {
         return new BytesWithContentType(fileBytes, s3Object.getObjectMetadata().getContentType());
     }
 
+    // TODO: deleteFile()
+
 
     @Data
     @AllArgsConstructor

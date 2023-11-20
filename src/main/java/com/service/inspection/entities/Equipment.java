@@ -4,8 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "equipment")
@@ -19,13 +20,13 @@ public class Equipment extends Named {
     private String serialNumber;
 
     @Column(name = "verification_date", nullable = false)
-    private OffsetDateTime verificationDate;
+    private LocalDate verificationDate;
 
     @Column(name = "verification_scan_name")
     private String verificationScanName;
 
     @Column(name = "verification_scan_uuid")
-    private String verificationScanUrl;
+    private UUID verificationScanUuid;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

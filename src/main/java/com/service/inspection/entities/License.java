@@ -21,11 +21,12 @@ public class License extends Named {
     @Column(name = "uuid")
     private UUID uuid;
 
-    @Column(name = "order")
-    private Integer order;
+    @Column(name = "scan_number")
+    private Integer number;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", referencedColumnName = "id")
+    @ToString.Exclude
     private Company company;
 
     @Override
