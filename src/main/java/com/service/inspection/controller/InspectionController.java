@@ -191,4 +191,14 @@ public class InspectionController {
         StorageService.BytesWithContentType file = inspectionService.getCategoryPhoto(userId, id, categoryId, photoId);
         return utils.getResponseEntityFromFile("category-photo", file);
     }
+
+
+    @GetMapping("/{id}/create-docx")
+    @Operation(summary = "Сгенерировать отчет")
+    public ResponseEntity<Resource> getCategoryPhoto(@PathVariable @Min(1) Long id, Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        inspectionService.createDocument(id);
+        return ResponseEntity.ok().build();
+    }
 }

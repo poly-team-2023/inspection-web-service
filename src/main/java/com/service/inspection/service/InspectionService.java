@@ -1,11 +1,13 @@
 package com.service.inspection.service;
 
+import com.deepoove.poi.XWPFTemplate;
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.dto.inspection.InspectionDto;
 import com.service.inspection.entities.*;
 import com.service.inspection.mapper.CategoryMapper;
 import com.service.inspection.mapper.InspectionMapper;
 import com.service.inspection.mapper.PhotoMapper;
+import com.service.inspection.mapper.document.DocumentMapper;
 import com.service.inspection.repositories.CategoryRepository;
 import com.service.inspection.repositories.InspectionRepository;
 import com.service.inspection.repositories.PhotoRepository;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -37,6 +41,7 @@ public class InspectionService {
     private final PhotoMapper photoMapper;
     private final ServiceUtils serviceUtils;
     private final PhotoRepository photoRepository;
+    private final DocumentMapper documentMapper;
 
     @Transactional
     public Long createInspection(Long userId) {
@@ -159,6 +164,20 @@ public class InspectionService {
             return null;
         }
         return storageService.getFile(BucketName.CATEGORY_PHOTOS, photo.getFileUuid().toString());
+    }
+
+    // --------------------------------------- create-document -----------------------------------------
+    public void createDocument(Long inspectionId) {
+        XWPFTemplate template = XWPFTemplate
+                .compile(new File("test-template2.docx"))
+                .render(
+                        documentMapper.mapToDocumentModel(inspectionRepository.findById(inspectionId).orElse(null))
+                );
+        try {
+            template.writeToFile("compile-result.docx");
+        } catch (IOException e) {
+            throw new RuntimeException();
+        }
     }
 
     private Inspection getInspectionIfExistForUser(Long inspectionId, Long userId) {
