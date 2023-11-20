@@ -8,4 +8,5 @@ import lombok.Setter;
 public class CompanyModel {
     private String legalAddress;
     private String city;
+    private ImageModel logo;
 }

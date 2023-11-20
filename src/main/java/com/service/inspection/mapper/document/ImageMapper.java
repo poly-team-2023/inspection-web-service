@@ -39,7 +39,7 @@ abstract class ImageMapper {
             ImageModel imageModel = new ImageModel();
             log.info("Start getting photo from storage");
             StorageService.BytesWithContentType file =
-                    storageService.getFile(BucketName.CATEGORY_PHOTOS, photo.getFileUuid().toString());
+                    storageService.getFile(BucketName.DEFAULT_IMAGE_BUCKET, photo.getFileUuid().toString());
             log.info("End getting photo from storage");
 
             PictureRenderData pictureRenderData = Pictures.ofBytes(file.getBytes(), PictureType.JPEG).create();
@@ -52,21 +52,20 @@ abstract class ImageMapper {
         return null;
     }
 
-    @Named("getPhotoSyncByUuid")
-    @Async("fileAsyncExecutor")// TODO
-    CompletableFuture<ImageModel> mapToImageModel(UUID uuid) {
+    @Named(value = "getPhotoSyncByUuid")
+    public ImageModel mapToImageModel(UUID uuid) {
         if (uuid != null) {
             ImageModel imageModel = new ImageModel();
             log.info("Start getting photo from storage");
-            StorageService.BytesWithContentType file = storageService.getFile(BucketName.CATEGORY_PHOTOS, uuid.toString());
+            StorageService.BytesWithContentType file =
+                storageService.getFile(BucketName.DEFAULT_IMAGE_BUCKET, uuid.toString());
             log.info("End getting photo from storage");
-
             PictureRenderData pictureRenderData = Pictures.ofBytes(file.getBytes(), PictureType.JPEG).create();
 
             imageModel.setImage(pictureRenderData); // TODO
             imageModel.setImageTitle("Стандартное фото");
 
-            return CompletableFuture.completedFuture(imageModel);
+            return imageModel;
         }
         return null;
     }

@@ -12,6 +12,7 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jmx.export.annotation.ManagedOperation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,12 +33,15 @@ public abstract class DocumentMapper {
 
     @Mapping(target = "company", source = "company")
     @Mapping(source = "name", target = "projectName")
-    @Mapping(source = "mainPhotoUuid", target = "mainPhoto", qualifiedByName = "getPhotoSyncByUuid")
+    @Mapping(source = "reportName", target = "reportName", defaultValue = "Технический отчет об обследовании")
+    @Mapping(source = "script", target = "script")
+    @Mapping(source = "mainPhotoUuid", target = "mainPhoto", qualifiedByName = {"getPhotoSyncByUuid"})
     public abstract DocumentModel mapToDocumentModel(Inspection inspection);
 
     @Mapping(source = "photos", target = "photos")
     abstract CategoryModel mapToCategoryModel(Category category);
 
+    @Mapping(source = "logoUuid", target = "logo", qualifiedByName = {"getPhotoSyncByUuid"})
     abstract CompanyModel mapToCompanyModel(Company company);
 
     List<ImageModel> mapToImagesPhotos(Set<Photo> set) {
