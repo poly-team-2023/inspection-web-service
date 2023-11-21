@@ -6,6 +6,8 @@ import com.service.inspection.dto.account.UserUpdate;
 import com.service.inspection.entities.User;
 import com.service.inspection.mapper.UserMapper;
 import com.service.inspection.repositories.UserRepository;
+import com.service.inspection.utils.ServiceUtils;
+
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ public class UserAccountService {
     private final UserMapper userMapper;
     private final StorageService storageService;
     private final PasswordEncoder passwordEncoder; // TODO вынести в отдельный сервис
+    private ServiceUtils serviceUtils;
 
     public void updateUser(User targetUpdate, UserUpdate sourceUpdate) {
         userMapper.mapToUpdateUser(targetUpdate, sourceUpdate);
@@ -53,5 +56,9 @@ public class UserAccountService {
         user.setPassword(userMapper.mapToCryptPassword(passwordDto.getNewPassword()));
         userRepository.save(user);
         return true;
+    }
+
+    public User getUserInfo(Long userId) {
+        return serviceUtils.tryToFindByID(userRepository, userId);
     }
 }
