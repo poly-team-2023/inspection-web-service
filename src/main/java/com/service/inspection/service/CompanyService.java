@@ -8,6 +8,7 @@ import com.service.inspection.mapper.CompanyMapper;
 import com.service.inspection.repositories.CompanyRepository;
 import com.service.inspection.utils.ServiceUtils;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
+
 @AllArgsConstructor
 public class CompanyService {
 
@@ -34,6 +36,7 @@ public class CompanyService {
         company.setUser(user);
         companyRepository.save(company);
     }
+
 
     public void updateCompany(long userId, long companyId, CompanyDto dto) {
         Company company = serviceUtils.getCompanyIfExistForUser(userId, companyId);
@@ -56,6 +59,7 @@ public class CompanyService {
         storageService.saveFile(BucketName.SRO, sroUuid.toString(), sro);
         company.setSroScanName(sro.getOriginalFilename());
         company.setSroScanUuid(sroUuid);
+
         companyRepository.save(company);
     }
 

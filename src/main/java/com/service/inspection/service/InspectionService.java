@@ -12,12 +12,16 @@ import com.service.inspection.repositories.CategoryRepository;
 import com.service.inspection.repositories.InspectionRepository;
 import com.service.inspection.repositories.PhotoRepository;
 import com.service.inspection.repositories.UserRepository;
+import com.service.inspection.service.document.ImageProcessingFacade;
+import com.service.inspection.service.document.TestImageModel;
 import com.service.inspection.utils.ServiceUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
@@ -26,13 +30,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InspectionService {
 
     private final InspectionRepository inspectionRepository;
@@ -45,6 +48,8 @@ public class InspectionService {
     private final ServiceUtils serviceUtils;
     private final PhotoRepository photoRepository;
     private final DocumentMapper documentMapper;
+    private final ImageProcessingFacade imageProcessingFacade;
+    private final DocumentModelService documentModelService;
 
     @Transactional
     public Long createInspection(Long userId) {
@@ -179,13 +184,25 @@ public class InspectionService {
             return;
         }
 
-        try (XWPFTemplate template = XWPFTemplate.compile(file).render(
-                documentMapper.mapToDocumentModel(inspectionRepository.findById(inspectionId).orElse(null)))) {
-            template.writeToFile("compile-result.docx");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        Set<Photo> photos = new HashSet<>();
+        Inspection inspection = inspectionRepository.findById(inspectionId).orElse(null);
+        Set<Category> categories = inspection.getCategories();
+        for (Category category: categories) {
+            photos.addAll(category.getPhotos());
         }
+
+        documentModelService.processAllPhotosAsync(photos);
+        log.info(Thread.currentThread().getName());
+
+
+//        try (XWPFTemplate template = XWPFTemplate.compile(file).render(
+//                documentMapper.mapToDocumentModel(inspectionRepository.findById(inspectionId).orElse(null)))) {
+//            template.writeToFile("compile-result.docx");
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
     }
+
 
     private Inspection getInspectionIfExistForUser(Long inspectionId, Long userId) {
         Inspection inspection = inspectionRepository.findByUsersIdAndId(userId, inspectionId);

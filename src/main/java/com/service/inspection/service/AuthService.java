@@ -2,6 +2,7 @@ package com.service.inspection.service;
 
 import com.service.inspection.entities.User;
 import com.service.inspection.repositories.UserRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.NonUniqueResultException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
