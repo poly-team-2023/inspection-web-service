@@ -51,8 +51,12 @@ public class InspectionService {
         return inspection.getId();
     }
 
-    public Page<Inspection> getUserInspection(Long userId, Integer pageSize, Integer pageNum) {
+    public Page<Inspection> getUserInspections(Long userId, Integer pageSize, Integer pageNum) {
         return inspectionRepository.findByUsersId(userId, PageRequest.of(pageNum, pageSize));
+    }
+
+    public Inspection getUserInspection(Long userId, Long inspectionId) {
+        return getInspectionIfExistForUser(inspectionId, userId);
     }
 
     public void deleteInspection(Long inspectionId, Long userId) {
