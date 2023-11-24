@@ -9,7 +9,7 @@ public class GetEquipmentDto {
 
     private Long id;
     private String name;
-    private String serialNumber;;
+    private String serialNumber;
     private LocalDate verificationDate;
 
 }
