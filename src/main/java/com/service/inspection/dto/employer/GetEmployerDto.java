@@ -10,6 +10,5 @@ public class GetEmployerDto {
     private Long id;
     private String name;
     private String positionName;
-    private String signatureName;
-    private UUID signatureUuid;
+
 }

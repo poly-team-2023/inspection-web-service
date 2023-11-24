@@ -3,15 +3,13 @@ package com.service.inspection.dto.equipment;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Data
 public class GetEquipmentDto {
 
     private Long id;
     private String name;
-    private String serialNumber;
-    private String verificationScanName;
+    private String serialNumber;;
     private LocalDate verificationDate;
-    private UUID verificationScanUuid;
+
 }

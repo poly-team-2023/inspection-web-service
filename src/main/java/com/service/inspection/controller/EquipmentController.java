@@ -1,8 +1,10 @@
 package com.service.inspection.controller;
 
+import com.service.inspection.dto.IdentifiableDto;
 import com.service.inspection.dto.equipment.EquipmentDto;
 import com.service.inspection.dto.equipment.GetEquipmentDto;
 import com.service.inspection.entities.User;
+import com.service.inspection.mapper.CommonMapper;
 import com.service.inspection.mapper.EquipmentMapper;
 import com.service.inspection.service.EquipmentService;
 import com.service.inspection.service.security.UserDetailsImpl;
@@ -26,6 +28,7 @@ public class EquipmentController {
     private final EquipmentService equipmentService;
     private final EquipmentMapper equipmentMapper;
     private final ControllerUtils controllerUtils;
+    private final CommonMapper commonMapper;
 
     @GetMapping
     @Operation(summary = "Получить список оборудования")
@@ -36,11 +39,12 @@ public class EquipmentController {
 
     @PostMapping
     @Operation(summary = "Добавить оборудование")
-    public ResponseEntity<Void> addEquipment(@RequestBody @Valid EquipmentDto dto,
-                                             Authentication authentication) {
+    public ResponseEntity<IdentifiableDto> addEquipment(@RequestBody @Valid EquipmentDto dto,
+                                                        Authentication authentication) {
         User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
         equipmentService.addEquipment(user, equipmentMapper.mapToEquipment(dto));
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(commonMapper.mapToIdentifiableDto(
+                equipmentService.addEquipment(user, equipmentMapper.mapToEquipment(dto))));
     }
 
     @PutMapping("/{equip_id}")

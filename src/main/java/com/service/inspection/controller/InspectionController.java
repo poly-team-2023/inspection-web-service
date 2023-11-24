@@ -45,10 +45,10 @@ public class InspectionController {
     @Operation(summary = "Создание пустой инспекции Без названия")
     public ResponseEntity<InspectionWithIdOnly> createInspection(Authentication authentication) {
         Long userId = utils.getUserId(authentication);
-        Long inspectionId = inspectionService.createInspection(userId);
+        Identifiable inspection = inspectionService.createInspection(userId);
 
         InspectionWithIdOnly inspectionOnlyIdDto = new InspectionWithIdOnly();
-        inspectionOnlyIdDto.setId(inspectionId);
+        inspectionOnlyIdDto.setId(inspection.getId());
 
         return ResponseEntity.ok().body(inspectionOnlyIdDto);
     }
