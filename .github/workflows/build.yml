@@ -36,7 +36,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           docker context ls
-          C:\Program Files\Docker\Docker\DockerCli.exe -SwitchDaemon
+          cd "C:\Program Files\Docker\Docker\DockerCli.exe" -SwitchDaemon
 
       - name: Deploy with Docker Compose
         run: |
