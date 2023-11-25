@@ -32,7 +32,9 @@ jobs:
         with:
           daemon-config: |
             {
-              "experimental": true
+              "features": {
+                  "experimental": true
+              }
             }
 
       - name: Check Docker Version
