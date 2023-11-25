@@ -36,20 +36,26 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           $dockerDaemonConfig = "C:\ProgramData\Docker\config\daemon.json"
+
           if (-not (Test-Path $dockerDaemonConfig)) {
-            Write-Host "Файл конфигурации Docker демона не найден: $dockerDaemonConfig"
+          Write-Host "Файл конфигурации Docker демона не найден: $dockerDaemonConfig"
             exit 1
           }
+        
           Write-Host "Содержимое файла конфигурации Docker демона до обновления:"
           Get-Content $dockerDaemonConfig
           
-          $dockerDaemonConfigContent = Get-Content $dockerDaemonConfig -Raw
-          $dockerDaemonConfigContent = $dockerDaemonConfigContent -replace '"experimental"\s*:\s*false', '"experimental": true'
-          Set-Content -Path $dockerDaemonConfig -Value $dockerDaemonConfigContent
+          $dockerDaemonConfigContent = Get-Content $dockerDaemonConfig | ConvertFrom-Json
+          if (-not $dockerDaemonConfigContent.Experimental) {
+            $dockerDaemonConfigContent | Add-Member -MemberType NoteProperty -Name Experimental -Value @("true")
+          } else {
+            $dockerDaemonConfigContent.Experimental += "true"
+          }
+          $dockerDaemonConfigContent | ConvertTo-Json | Set-Content -Path $dockerDaemonConfig
           
           Write-Host "Содержимое файла конфигурации Docker демона после обновления:"
           Get-Content $dockerDaemonConfig
-          
+        
           Restart-Service -Name Docker
 
       - name: Deploy with Docker Compose
