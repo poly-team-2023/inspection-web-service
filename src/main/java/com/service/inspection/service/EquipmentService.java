@@ -3,6 +3,7 @@ package com.service.inspection.service;
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.dto.equipment.EquipmentDto;
 import com.service.inspection.entities.Equipment;
+import com.service.inspection.entities.Identifiable;
 import com.service.inspection.entities.User;
 import com.service.inspection.mapper.EquipmentMapper;
 import com.service.inspection.repositories.EquipmentRepository;
@@ -25,12 +26,13 @@ public class EquipmentService {
 
 
     public List<Equipment> getEquipment(long userId) {
-        return (List<Equipment>) equipmentRepository.findEquipmentByUserId(userId);
+        return equipmentRepository.findEquipmentByUserId(userId);
     }
 
-    public void addEquipment(User user, Equipment equipment) {
+    public Identifiable addEquipment(User user, Equipment equipment) {
         equipment.setUser(user);
         equipmentRepository.save(equipment);
+        return equipment;
     }
 
     public void updateEquipment(long userId, long equipmentId, EquipmentDto dto) {

@@ -4,6 +4,7 @@ import com.service.inspection.configs.BucketName;
 import com.service.inspection.dto.employer.EmployerDto;
 import com.service.inspection.entities.Company;
 import com.service.inspection.entities.Employer;
+import com.service.inspection.entities.Identifiable;
 import com.service.inspection.mapper.EmployerMapper;
 import com.service.inspection.repositories.CompanyRepository;
 import com.service.inspection.repositories.EmployerRepository;
@@ -27,7 +28,7 @@ public class EmployerService {
     private final ServiceUtils serviceUtils;
 
     @Transactional
-    public void addEmployer(long userId, Employer employer, long companyId, MultipartFile signature) {
+    public Identifiable addEmployer(long userId, Employer employer, long companyId, MultipartFile signature) {
         Company company = getCompanyIfExistForUser(userId, companyId);
         UUID signatureUuid = UUID.randomUUID();
 
@@ -37,6 +38,7 @@ public class EmployerService {
 
         employerRepository.save(employer);
         storageService.saveFile(BucketName.SIGNATURE, signatureUuid.toString(), signature);
+        return employer;
     }
 
     public void updateEmployer(long userId, long companyId, long employerId, EmployerDto dto) {
@@ -51,6 +53,15 @@ public class EmployerService {
         serviceUtils.tryToFindByID(
                 serviceUtils.getCompanyIfExistForUser(companyId, userId).getEmployers(), employerId);
         employerRepository.deleteById(employerId); // TODO : add deletePic
+    }
+
+    public StorageService.BytesWithContentType getSignature(long userId, long companyId, long employerId) {
+        Employer employer = serviceUtils.tryToFindByID(
+                serviceUtils.getCompanyIfExistForUser(companyId, userId).getEmployers(), employerId);
+        if (employer.getSignatureUuid() == null) {
+            return null;
+        }
+        return storageService.getFile(BucketName.SIGNATURE, employer.getSignatureUuid().toString());
     }
 
     private Company getCompanyIfExistForUser(Long companyId, Long userId) {

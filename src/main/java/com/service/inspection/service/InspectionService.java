@@ -39,7 +39,7 @@ public class InspectionService {
     private final PhotoRepository photoRepository;
 
     @Transactional
-    public Long createInspection(Long userId) {
+    public Identifiable createInspection(Long userId) {
         User user = serviceUtils.tryToFindByID(userRepository, userId); // TODO
 
         Inspection inspection = new Inspection();
@@ -48,7 +48,7 @@ public class InspectionService {
         user.addInspection(inspection);
 
         inspectionRepository.save(inspection);
-        return inspection.getId();
+        return inspection;
     }
 
     public Page<Inspection> getUserInspection(Long userId, Integer pageSize, Integer pageNum) {
