@@ -32,32 +32,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Update Docker Config
-        if: matrix.os == 'windows-latest'
-        run: |
-          $dockerDaemonConfig = "C:\ProgramData\Docker\config\daemon.json"
-
-          if (-not (Test-Path $dockerDaemonConfig)) {
-          Write-Host "Файл конфигурации Docker демона не найден: $dockerDaemonConfig"
-            exit 1
-          }
-        
-          Write-Host "Содержимое файла конфигурации Docker демона до обновления:"
-          Get-Content $dockerDaemonConfig
-          
-          $dockerDaemonConfigContent = Get-Content $dockerDaemonConfig | ConvertFrom-Json
-          if (-not $dockerDaemonConfigContent.experimental) {
-            $dockerDaemonConfigContent | Add-Member -MemberType NoteProperty -Name experimental -Value @("true")
-          } else {
-            $dockerDaemonConfigContent.experimental += "true"
-          }
-          $dockerDaemonConfigContent | ConvertTo-Json | Set-Content -Path $dockerDaemonConfig
-          
-          Write-Host "Содержимое файла конфигурации Docker демона после обновления:"
-          Get-Content $dockerDaemonConfig
-        
-          Restart-Service -Name Docker
-
       - name: Deploy with Docker Compose
         run: |
           docker version
