@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.service</groupId>
 	<artifactId>inspection</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>inspection</name>
 	<description>building inspection</description>
 	<properties>
