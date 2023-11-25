@@ -40,16 +40,23 @@ jobs:
             Write-Host "Файл конфигурации Docker демона не найден: $dockerDaemonConfig"
             exit 1
           }
+          Write-Host "Содержимое файла конфигурации Docker демона до обновления:"
+          Get-Content $dockerDaemonConfig
+          
           $dockerDaemonConfigContent = Get-Content $dockerDaemonConfig -Raw
           $dockerDaemonConfigContent = $dockerDaemonConfigContent -replace '"experimental"\s*:\s*false', '"experimental": true'
           Set-Content -Path $dockerDaemonConfig -Value $dockerDaemonConfigContent
+          
+          Write-Host "Содержимое файла конфигурации Docker демона после обновления:"
+          Get-Content $dockerDaemonConfig
+          
           Restart-Service -Name Docker
 
       - name: Deploy with Docker Compose
         run: |
           docker version
           docker-compose up -d
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Build with Maven
         run: mvn clean install -DskipTests=true
