@@ -34,9 +34,11 @@ jobs:
 
       - name: Update Docker Config
         run: |
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+          if [ "${{ matrix.operating-system }}" == "windows-latest" ]; then
             echo '{"experimental": true}' | sudo tee /etc/docker/daemon.json > /dev/null
             sudo systemctl restart docker
+          else
+            echo "This step is only for Windows."
           fi
 
       - name: Deploy with Docker Compose
