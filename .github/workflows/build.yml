@@ -34,12 +34,12 @@ jobs:
 
       - name: Update Docker Config
         run: |
-          if "${{ runner.os }}" -eq "Windows_NT"; then
+          if ($env:OS -eq "Windows_NT") {
             echo '{"experimental": true}' | Out-File -FilePath "C:\ProgramData\Docker\config\daemon.json" -Encoding utf8 -Force
             Restart-Service docker
-          else
-            echo "This step is only for Windows."
-          fi
+          } else {
+            Write-Host "This step is only for Windows."
+          }
 
       - name: Deploy with Docker Compose
         run: |
