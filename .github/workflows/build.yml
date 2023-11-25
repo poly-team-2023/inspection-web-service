@@ -32,18 +32,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Update Docker Config
+      - name: Update Docker Context for Windows
         if: matrix.os == 'windows-latest'
         run: |
-          $dockerDaemonConfig = "C:\ProgramData\Docker\config\daemon.json"
-          if (-not (Test-Path $dockerDaemonConfig)) {
-            Write-Host "Файл конфигурации Docker демона не найден: $dockerDaemonConfig"
-            exit 1
-          }
-          $dockerDaemonConfigContent = Get-Content $dockerDaemonConfig -Raw
-          $dockerDaemonConfigContent = $dockerDaemonConfigContent -replace '"experimental"\s*:\s*false', '"experimental": true'
-          Set-Content -Path $dockerDaemonConfig -Value $dockerDaemonConfigContent
-          Restart-Service -Name Docker
+          docker context use default
+          docker context ls
+          Restart-Service Docker
 
       - name: Deploy with Docker Compose
         run: |
