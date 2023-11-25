@@ -1,9 +1,10 @@
 package com.service.inspection.repositories;
 
-import com.service.inspection.entities.Inspection;
+import com.service.inspection.entities.License;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface BuildingPhotosRepository extends JpaRepository<Inspection.BuildingPhoto, Long> {
+public interface LicenseRepository extends JpaRepository<License, Long> {
+
 }

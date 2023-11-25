@@ -12,13 +12,19 @@
 
     <changeSet id="create-cast-condition" author="admin">
         <sql>
-            CREATE CAST (character varying as condition) WITH INOUT AS IMPLICIT
+            CREATE CAST (character varying as cond) WITH INOUT AS IMPLICIT
         </sql>
     </changeSet>
 
     <changeSet id="create-cast-building-type" author="admin">
         <sql>
             CREATE CAST (character varying as building_type) WITH INOUT AS IMPLICIT
+        </sql>
+    </changeSet>
+
+    <changeSet id="create-cast-file-type" author="admin">
+        <sql>
+            CREATE CAST (character varying as file_type) WITH INOUT AS IMPLICIT
         </sql>
     </changeSet>
 </databaseChangeLog>
