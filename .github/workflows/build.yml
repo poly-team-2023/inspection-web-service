@@ -34,9 +34,9 @@ jobs:
 
       - name: Update Docker Config
         run: |
-          if [ "${{ matrix.operating-system }}" == "windows-latest" ]; then
-            echo '{"experimental": true}' | sudo tee /etc/docker/daemon.json > /dev/null
-            sudo systemctl restart docker
+          if "${{ runner.os }}" -eq "Windows_NT"; then
+            echo '{"experimental": true}' | Out-File -FilePath "C:\ProgramData\Docker\config\daemon.json" -Encoding utf8 -Force
+            Restart-Service docker
           else
             echo "This step is only for Windows."
           fi
