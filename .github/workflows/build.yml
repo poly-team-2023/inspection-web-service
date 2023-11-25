@@ -28,8 +28,8 @@ jobs:
 
       - name: Plain job
         run: |
-          echo $'{"experimental": true}' | sudo dd status=none of=/etc/docker/daemon.json 
-          sudo service docker restart
+          echo $'{"experimental": true}' | dd status=none of=/etc/docker/daemon.json 
+          service docker restart
           docker version -f '{{.Server.Experimental}}' 
 
       - name: In with
