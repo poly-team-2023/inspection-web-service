@@ -49,7 +49,7 @@ jobs:
           if (-not $dockerDaemonConfigContent.Experimental) {
             $dockerDaemonConfigContent | Add-Member -MemberType NoteProperty -Name Experimental -Value @("true")
           } else {
-            $dockerDaemonConfigContent.Experimental += "true"
+            $dockerDaemonConfigContent.experimental += "true"
           }
           $dockerDaemonConfigContent | ConvertTo-Json | Set-Content -Path $dockerDaemonConfig
           
