@@ -35,13 +35,12 @@ jobs:
       - name: Update Docker Context for Windows
         if: matrix.os == 'windows-latest'
         run: |
-          docker context ls
-          cd "C:\Program Files\Docker\Docker\DockerCli.exe" -SwitchDaemon
+          docker version
 
-      - name: Deploy with Docker Compose
+      - name: Load Images with Docker Compose
         run: |
           docker-compose up -d
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Build with Maven
         run: mvn clean install -DskipTests=true
