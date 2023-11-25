@@ -33,13 +33,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Update Docker Config
+        if: matrix.os == 'windows-latest'
         run: |
-          if ($env:OS -eq "Windows_NT") {
-            echo '{"experimental": true}' | Out-File -FilePath "C:\ProgramData\Docker\config\daemon.json" -Encoding utf8 -Force
-            Restart-Service docker
-          } else {
-            Write-Host "This step is only for Windows."
-          }
+          cd "C:\Program Files\Docker\Docker"
+          ./DockerCli.exe -SwitchDaemon
 
       - name: Deploy with Docker Compose
         run: |
