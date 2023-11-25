@@ -1,4 +1,4 @@
-package com.service.inspection.service;
+package com.service.inspection.service.security;
 
 
 import com.service.inspection.entities.User;
@@ -21,8 +21,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepo.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Not found"));
-        UserDetailsImpl userDetails = userMapper.mapToUserDetailsImpl(user);
-        userDetails.setUser(user);
-        return userDetails;
+        return userMapper.mapToUserDetailsImpl(user);
     }
 }

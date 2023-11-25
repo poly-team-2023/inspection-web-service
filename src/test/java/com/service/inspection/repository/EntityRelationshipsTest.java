@@ -1,7 +1,15 @@
 package com.service.inspection.repository;
 
-import com.service.inspection.entities.*;
-import com.service.inspection.entities.enums.BuildingType;
+import com.service.inspection.entities.Audio;
+import com.service.inspection.entities.Category;
+import com.service.inspection.entities.Company;
+import com.service.inspection.entities.Employer;
+import com.service.inspection.entities.Equipment;
+import com.service.inspection.entities.Inspection;
+import com.service.inspection.entities.Photo;
+import com.service.inspection.entities.Plan;
+import com.service.inspection.entities.Role;
+import com.service.inspection.entities.User;
 import com.service.inspection.entities.enums.Condition;
 import com.service.inspection.entities.enums.ERole;
 import com.service.inspection.entities.enums.ProgressingStatus;
@@ -11,7 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -50,12 +59,6 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    WorkPlanRepository workPlanRepository;
-
-    @Autowired
-    BuildingPhotosRepository buildingPhotosRepository;
-
     @Test
     void testAudioRepository() {
         Audio audioToDelete = new Audio();
@@ -79,33 +82,66 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
 
     @Test
     void testCategoryRepository() {
+        Inspection inspection = new Inspection();
+        inspection.setName("1");
+        inspection.setStatus(ProgressingStatus.READY);
+
         Category categoryToDelete = new Category();
         categoryToDelete.setName("1");
         categoryToDelete.setCondition(Condition.OPERABLE);
+        categoryToDelete.setInspection(inspection);
 
         Category categoryNotToDelete = new Category();
         categoryNotToDelete.setName("2");
         categoryNotToDelete.setCondition(Condition.OPERABLE);
+        categoryNotToDelete.setInspection(inspection);
+        inspection.setCategories(new HashSet<>(Set.of(categoryToDelete, categoryNotToDelete)));
 
-        categoryRepository.save(categoryToDelete);
-        categoryRepository.save(categoryNotToDelete);
+        inspectionRepository.save(inspection);
 
+        assertThat(categoryRepository.findAll())
+                .usingRecursiveFieldByFieldElementComparator()
+                .contains(categoryNotToDelete, categoryToDelete);
+
+        assertThat(inspectionRepository.findAll())
+                .usingRecursiveFieldByFieldElementComparator()
+                .contains(inspection);
+
+        inspection.getCategories().remove(categoryToDelete);
         categoryRepository.deleteById(categoryToDelete.getId());
 
         assertThat(categoryRepository.findAll())
                 .usingRecursiveFieldByFieldElementComparator()
                 .containsOnly(categoryNotToDelete);
+
+        assertThat(inspectionRepository.findAll())
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsOnly(inspection);
+
+        inspectionRepository.delete(inspection);
+
+        assertThat(inspectionRepository.findAll()).isEmpty();
+        assertThat(categoryRepository.findAll()).isEmpty();
     }
 
     @Test
     void testCompanyRepository() {
+        User user = new User();
+        user.setEmail("1@1.ru");
+        user.setPassword("1");
+        user.setFirstName("qwe");
+        user.setSecondName("qwe");
+        userRepository.save(user);
+
         Company companyToDelete = new Company();
         companyToDelete.setName("1");
         companyToDelete.setLegalAddress("1");
+        companyToDelete.setUser(user);
 
         Company companyNotToDelete = new Company();
         companyNotToDelete.setName("2");
         companyNotToDelete.setLegalAddress("2");
+        companyNotToDelete.setUser(user);
 
         companyRepository.save(companyToDelete);
         companyRepository.save(companyNotToDelete);
@@ -115,26 +151,56 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
         assertThat(companyRepository.findAll())
                 .usingRecursiveFieldByFieldElementComparator()
                 .containsOnly(companyNotToDelete);
+
+        assertThat(userRepository.findAll())
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsOnly(user);
+
+        userRepository.deleteById(user.getId());
+
+        assertThat(userRepository.findAll()).isEmpty();
+        assertThat(companyRepository.findAll()).isEmpty();
     }
 
     @Test
     void testEmployerRepository() {
+        User user = new User();
+        user.setEmail("1@1.ru");
+        user.setPassword("1");
+        user.setFirstName("qwe");
+        user.setSecondName("qwe");
+
+        Company company = new Company();
+        company.setName("1");
+        company.setLegalAddress("1");
+        company.setUser(user);
+        user.setCompanies(new HashSet<>(Set.of(company)));
+
         Employer employerToDelete = new Employer();
         employerToDelete.setName("1");
-        employerToDelete.setSignatureUrl("1");
+        employerToDelete.setSignatureUuid(UUID.randomUUID());
+        employerToDelete.setCompany(company);
 
         Employer employerNotToDelete = new Employer();
         employerNotToDelete.setName("2");
-        employerNotToDelete.setSignatureUrl("2");
+        employerNotToDelete.setSignatureUuid(UUID.randomUUID());
+        employerNotToDelete.setCompany(company);
 
-        employerRepository.save(employerToDelete);
-        employerRepository.save(employerNotToDelete);
+        company.setEmployers(new HashSet<>(Set.of(employerToDelete, employerNotToDelete)));
+
+        userRepository.save(user);
 
         employerRepository.deleteById(employerToDelete.getId());
 
         assertThat(employerRepository.findAll())
                 .usingRecursiveFieldByFieldElementComparator()
                 .containsOnly(employerNotToDelete);
+
+        companyRepository.deleteById(company.getId());
+
+        assertThat(userRepository.findAll()).containsOnly(user);
+        assertThat(companyRepository.findAll()).isEmpty();
+        assertThat(employerRepository.findAll()).isEmpty();
     }
 
     @Test
@@ -148,14 +214,12 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
 
         Equipment equipmentToDelete = new Equipment();
         equipmentToDelete.setSerialNumber("1");
-        equipmentToDelete.setVerificationDate(OffsetDateTime.now());
-        equipmentToDelete.setVerificationScanUrl("1");
+        equipmentToDelete.setVerificationDate(LocalDate.now());
         equipmentToDelete.setUser(user);
 
         Equipment equipmentNotToDelete = new Equipment();
         equipmentNotToDelete.setSerialNumber("2");
-        equipmentNotToDelete.setVerificationDate(OffsetDateTime.now());
-        equipmentNotToDelete.setVerificationScanUrl("2");
+        equipmentNotToDelete.setVerificationDate(LocalDate.now());
         equipmentNotToDelete.setUser(user);
 
         equipmentRepository.save(equipmentToDelete);
@@ -173,7 +237,6 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
         Inspection inspectionToDelete = new Inspection();
         inspectionToDelete.setName("1");
         inspectionToDelete.setStatus(ProgressingStatus.READY);
-        inspectionToDelete.setBuilding(new Inspection.Building());
 
         Inspection inspectionNotToDelete = new Inspection();
         inspectionNotToDelete.setName("2");
@@ -191,27 +254,27 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
 
     @Test
     void testPhotoRepository() {
+
         Category category = new Category();
-        category.setName("test");
+        category.setName("1");
+        category.setCondition(Condition.OPERABLE);
 
         categoryRepository.save(category);
 
         Photo photoToDelete = new Photo();
-        photoToDelete.setUuid(UUID.randomUUID());
         photoToDelete.setLocation("1");
-        photoToDelete.setUrl("1");
+        photoToDelete.setFileUuid(UUID.randomUUID());
         photoToDelete.setCategory(category);
 
         Photo photoNotToDelete = new Photo();
-        photoNotToDelete.setUuid(UUID.randomUUID());
         photoNotToDelete.setLocation("2");
-        photoNotToDelete.setUrl("2");
+        photoNotToDelete.setFileUuid(UUID.randomUUID());
         photoNotToDelete.setCategory(category);
 
         photoRepository.save(photoToDelete);
         photoRepository.save(photoNotToDelete);
 
-        photoRepository.deleteById(photoToDelete.getUuid());
+        photoRepository.deleteById(photoToDelete.getId());
 
         assertThat(photoRepository.findAll())
                 .usingRecursiveFieldByFieldElementComparator()
@@ -220,11 +283,20 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
 
     @Test
     void testPlanRepository() {
+
+        Inspection inspection = new Inspection();
+        inspection.setName("1");
+        inspection.setStatus(ProgressingStatus.READY);
+
+        inspectionRepository.save(inspection);
+
         Plan planToDelete = new Plan();
-        planToDelete.setUrl("1");
+        planToDelete.setFileUuid(UUID.randomUUID());
+        planToDelete.setInspection(inspection);
 
         Plan planNotToDelete = new Plan();
-        planNotToDelete.setUrl("2");
+        planNotToDelete.setFileUuid(UUID.randomUUID());
+        planNotToDelete.setInspection(inspection);
 
         planRepository.save(planToDelete);
         planRepository.save(planNotToDelete);
@@ -274,57 +346,5 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
                 .doesNotContain(roleToDelete);
     }
 
-    @Test
-    void testInspectionWithBuilding() {
-        Inspection inspection = new Inspection();
-        inspection.setName("1");
-        inspection.setStatus(ProgressingStatus.READY);
-        inspectionRepository.save(inspection);
-
-        Inspection.Building building = new Inspection.Building();
-        building.setBuildingType(BuildingType.CULTURE);
-        building.setAddress("test addres");
-
-        Inspection.BuildingPhoto buildingPhoto = new Inspection.BuildingPhoto();
-        buildingPhoto.setUrl("test url");
-        building.setPhotos(Set.of(buildingPhoto));
-
-        inspection.setBuilding(building);
-        buildingPhoto.setInspection(inspection);
-        buildingPhotosRepository.save(buildingPhoto);
-
-        assertThat(inspectionRepository.findAll())
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsOnly(inspection);
-
-        assertThat(buildingPhotosRepository.findAll())
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsOnly(buildingPhoto);
-
-    }
-
-    @Test
-    void testInspectionWithWorkPlan() {
-        Inspection inspection = new Inspection();
-        inspection.setName("1");
-        inspection.setStatus(ProgressingStatus.READY);
-        inspectionRepository.save(inspection);
-
-        Inspection.WorkPlan workPlan = new Inspection.WorkPlan();
-        workPlan.setUrl("123");
-        workPlan.setInspection(inspection);
-        inspection.setWorkPlans(Set.of(workPlan));
-
-        workPlanRepository.save(workPlan);
-
-
-        assertThat(inspectionRepository.findAll())
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsOnly(inspection);
-
-        assertThat(workPlanRepository.findAll())
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsOnly(workPlan);
-    }
-
+    // TODO: testLicenseRepository()
 }

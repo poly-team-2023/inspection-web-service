@@ -2,8 +2,8 @@ package com.service.inspection.security;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.service.inspection.dto.UserSignInDto;
-import com.service.inspection.dto.UserSignUpDto;
+import com.service.inspection.dto.auth.UserSignInDto;
+import com.service.inspection.dto.auth.UserSignUpDto;
 import com.service.inspection.entities.User;
 import com.service.inspection.repositories.RoleRepository;
 import com.service.inspection.repositories.UserRepository;
@@ -116,9 +116,6 @@ class AuthTest extends AbstractTestContainerStartUp {
                                 .content(objectMapper.writeValueAsString(userSignUpDto))
                 )
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
-
         assertThat(userRepo.findAll()).hasSize(1);
-
     }
-
 }
