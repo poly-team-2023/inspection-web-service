@@ -32,6 +32,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Update Docker Config
+        run: |
+          if [ "${{ matrix.operating-system }}" == "windows-latest" ]; then
+            echo '{"experimental": true}' | sudo tee /etc/docker/daemon.json > /dev/null
+            sudo systemctl restart docker
+          fi
+
       - name: Deploy with Docker Compose
         run: |
           docker-compose up -d

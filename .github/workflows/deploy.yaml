@@ -3,7 +3,7 @@ name: Docker-hub auto-deploy on merge
 on:
   push:
     branches:
-      - dh-deploy
+      - main
 
 jobs:
   build-and-deploy:
