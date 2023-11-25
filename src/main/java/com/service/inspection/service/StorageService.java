@@ -2,6 +2,7 @@ package com.service.inspection.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.service.inspection.configs.BucketName;
 import lombok.AllArgsConstructor;
@@ -24,21 +25,25 @@ public class StorageService {
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void saveFile(BucketName bucketName, String key, MultipartFile multipartFile) {
-        InputStream inputStream;
-        try {
-            inputStream = multipartFile.getInputStream();
+        try (InputStream inputStream = multipartFile.getInputStream()) {
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentType(multipartFile.getContentType());
+            objectMetadata.setContentLength(multipartFile.getSize());
+
+            PutObjectRequest putObjectRequest =
+                    new PutObjectRequest(bucketName.getBucket(), key, inputStream, objectMetadata);
+
+            int newRightReadLimit = putObjectRequest.getRequestClientOptions().getReadLimit() * 100;
+
+            putObjectRequest.getRequestClientOptions().setReadLimit(newRightReadLimit);
+
+            if (!amazonS3.doesBucketExist(bucketName.getBucket())) {
+                amazonS3.createBucket(bucketName.getBucket());
+            }
+            amazonS3.putObject(putObjectRequest);
         } catch (IOException e) {
             throw new RuntimeException();
         }
-
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(multipartFile.getContentType());
-        objectMetadata.setContentLength(multipartFile.getSize());
-
-        if (!amazonS3.doesBucketExist(bucketName.getBucket())) {
-            amazonS3.createBucket(bucketName.getBucket());
-        }
-        amazonS3.putObject(bucketName.getBucket(), key, inputStream, objectMetadata);
     }
 
     public BytesWithContentType getFile(BucketName bucketName, String key) {
