@@ -46,8 +46,8 @@ jobs:
           Get-Content $dockerDaemonConfig
           
           $dockerDaemonConfigContent = Get-Content $dockerDaemonConfig | ConvertFrom-Json
-          if (-not $dockerDaemonConfigContent.Experimental) {
-            $dockerDaemonConfigContent | Add-Member -MemberType NoteProperty -Name Experimental -Value @("true")
+          if (-not $dockerDaemonConfigContent.experimental) {
+            $dockerDaemonConfigContent | Add-Member -MemberType NoteProperty -Name experimental -Value @("true")
           } else {
             $dockerDaemonConfigContent.experimental += "true"
           }
