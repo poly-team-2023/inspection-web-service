@@ -15,7 +15,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        os: [ ubuntu-latest, windows-2019 ]
+        os: [ ubuntu-latest ]
 
     steps:
       - name: Checkout
@@ -25,17 +25,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 17
-
-      - name: Setup Windows for Docker
-        if: matrix.os == 'windows-2019'
-        run: |
-          Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart
-          Restart-Computer -Force
-          Install-WindowsFeature -Name Containers -IncludeManagementTools -Restart
-          Restart-Computer -Force
-          Install-Module "DockerMsftProvider" -Force
-          Restart-Service docker
-          docker version
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
