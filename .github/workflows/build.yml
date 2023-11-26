@@ -30,6 +30,7 @@ jobs:
         if: matrix.os == 'windows-2019'
         run: |
           Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart
+          Restart-Computer -Force
           Install-WindowsFeature -Name Containers -IncludeManagementTools -Restart
           Restart-Computer -Force
           Install-Module "DockerMsftProvider" -Force
