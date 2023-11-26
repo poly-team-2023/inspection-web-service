@@ -29,9 +29,10 @@ jobs:
       - name: Setup Windows for Docker
         if: matrix.os == 'windows-2019'
         run: |
+          Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart
+          Install-WindowsFeature -Name Containers -IncludeManagementTools -Restart
+          Restart-Computer -Force
           Install-Module "DockerMsftProvider" -Force
-          Update-Module "DockerMsftProvider"
-          Install-Package Docker -ProviderName "DockerMsftProvider" -Update -Force
           Restart-Service docker
           docker version
 
