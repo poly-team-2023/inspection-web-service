@@ -26,6 +26,31 @@ jobs:
         with:
           java-version: 17
 
+      - name: Setup Windows for Docker
+        if: matrix.os == 'windows-latest'
+        run: |
+          Enable-WindowsOptionalFeature -Online -FeatureName Containers
+          Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/microsoft/Windows-Containers/Main/helpful_tools/Install-DockerCE/install-docker-ce.ps1" -o install-docker-ce.ps1
+          .\install-docker-ce.ps1
+          Restart-Computer -Force
+          Start-Service Docker
+          docker run --rm mcr.microsoft.com/dotnet/samples
+          docker run -it --rm -p 8000:8080 --name aspnetcore_sample mcr.microsoft.com/dotnet/samples:aspnetapp
+          docker pull mcr.microsoft.com/windows/nanoserver:ltsc2022
+          Get-VM WinContainerHost | Set-VMProcessor -ExposeVirtualizationExtensions $true
+          [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
+          Restart-Service docker
+          $configfile = @”
+          {
+            “experimental”: true
+          }
+          “@
+          $configfile|Out-File -FilePath C:\ProgramData\docker\config\daemon.json -Encoding ascii -Force
+          Invoke-WebRequest -Uri "https://github.com/linuxkit/lcow/releases/download/v4.14.35-v0.3.9/release.zip" -UseBasicParsing -OutFile release.zip
+          Expand-Archive release.zip -DestinationPath "$Env:ProgramFiles\Linux Containers\."
+          Restart-Service docker
+          docker version
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
