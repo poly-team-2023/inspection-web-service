@@ -9,6 +9,7 @@ import com.service.inspection.entities.Company;
 import com.service.inspection.entities.Inspection;
 import com.service.inspection.entities.Photo;
 import com.service.inspection.service.document.ProcessingImageDto;
+import org.apache.logging.log4j.util.Strings;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -39,19 +40,20 @@ public abstract class DocumentMapper {
     @Mapping(source = "name", target = "projectName")
     @Mapping(source = "reportName", target = "reportName", defaultValue = "Технический отчет об обследовании")
     @Mapping(source = "script", target = "script")
-//    @Mapping(source = "mainPhotoUuid", target = "mainPhoto", qualifiedByName = {"getPhotoSyncByUuid"})
     @Mapping(target = "categories", ignore = true)
     public abstract DocumentModel mapToDocumentModel(Inspection inspection);
 
     @Mapping(source = "processedPhotos", target = "photos")
     public abstract CategoryModel mapToCategoryModel(Category category, Collection<ImageModel> processedPhotos);
 
-//    @Mapping(source = "logoUuid", target = "logo", qualifiedByName = {"getPhotoSyncByUuid"})
-//    abstract CompanyModel mapToCompanyModel(Company company);
-
     @Mapping(source = "photoBytes", target = "image", qualifiedByName = "mapToModelPicture")
+    @Mapping(source = "defects", target = "imageTitle")
     public abstract ImageModel mapToImageModel(ProcessingImageDto processingImageDto);
 
-//    @Mapping(source = "images", target = "model.categories.photos")
-//    public abstract void addProcessedPhotos(@MappingTarget DocumentModel model, List<ImageModel> images);
+    public String mapToImageTitle(Set<Photo.Defect> defects) {
+        if (defects != null) {
+            return Strings.join(defects.stream().map(Photo.Defect::getName).toList(), ' ');
+        }
+        return "Без названия";
+    }
 }

@@ -15,10 +15,15 @@ public class ImageStoringStep extends AbstractImageProcessingStep {
 
     @Override
     public void executeProcess(ProcessingImageDto processingImageDto) {
-        StorageService.BytesWithContentType file =
-                storageService.getFile(BucketName.DEFAULT_IMAGE_BUCKET, processingImageDto.getUuid().toString());
 
-        processingImageDto.setPhotoBytes(file.getBytes());
+        try {
+            StorageService.BytesWithContentType file =
+                    storageService.getFile(BucketName.DEFAULT_IMAGE_BUCKET, processingImageDto.getUuid().toString());
+            processingImageDto.setPhotoBytes(file.getBytes());
+        } catch (Exception e) {
+            return;
+        }
+//        processingImageDto.setPhotoBytes(file.getBytes());
 
         nextStep.executeProcess(processingImageDto);
     }

@@ -7,7 +7,10 @@ import com.deepoove.poi.data.style.PictureStyle;
 import com.service.inspection.entities.Photo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.ResourceUtils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -35,5 +38,16 @@ public class DocumentEngineConfig {
     @Bean
     public Map<Long, Optional<Set<Photo.Defect>>> getInnerMapStorage() {
         return new ConcurrentHashMap<>(100);
+    }
+
+    @Bean
+    public File getMainTemplate() {
+        File file;
+        try {
+            file = ResourceUtils.getFile("classpath:test-template2.docx");
+        } catch (FileNotFoundException f) {
+            throw new RuntimeException(); // TODO
+        }
+        return file;
     }
 }

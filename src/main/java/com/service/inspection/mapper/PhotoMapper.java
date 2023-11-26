@@ -28,8 +28,10 @@ public interface PhotoMapper {
     @Mapping(source = "uuid", target = "fileUuid")
     Photo mapToPhoto(String name, UUID uuid, Category category, Plan plan);
 
-    @Mapping(source = "name", target = "name")
     Set<Photo.Defect> mapToPhotos(Set<PhotoDefectsDto.DefectDto> dto);
+
+    @Mapping(source = "defectName", target = "name")
+    Photo.Defect mapToPhotos(PhotoDefectsDto.DefectDto dto);
 
     @Mapping(source = "fileUuid", target = "uuid")
     @Mapping(source = "id", target = "id")

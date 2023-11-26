@@ -3,8 +3,6 @@ package com.service.inspection.service;
 import com.deepoove.poi.XWPFTemplate;
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.document.DocumentModel;
-import com.service.inspection.document.model.CategoryModel;
-import com.service.inspection.document.model.ImageModel;
 import com.service.inspection.dto.inspection.InspectionDto;
 import com.service.inspection.entities.*;
 import com.service.inspection.entities.enums.ProgressingStatus;
@@ -21,17 +19,15 @@ import com.service.inspection.utils.ServiceUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -50,8 +46,8 @@ public class InspectionService {
     private final ServiceUtils serviceUtils;
     private final PhotoRepository photoRepository;
     private final DocumentMapper documentMapper;
-    private final ImageProcessingFacade imageProcessingFacade;
     private final DocumentModelService documentModelService;
+    private final File mainTemplate;
 
     @Transactional
     public Long createInspection(Long userId) {
@@ -186,27 +182,32 @@ public class InspectionService {
         List<CompletableFuture<Void>> completableFutures = new ArrayList<>();
         Set<Category> categories = inspection.getCategories();
         for (Category category: categories) {
+            Hibernate.initialize(category.getPhotos());
+
             completableFutures.add(
                 documentModelService.processAllPhotosAsync(category.getPhotos()).thenAccept(x -> {
+                    log.info("Добавление категории к модели" + category.getName());
                     documentModel.addCategory(documentMapper.mapToCategoryModel(category, x));
+                    log.info("Окончание добавления категории к модели" + category.getName());
                 })
             );
-        }
 
-        File file;
-        try {
-            file = ResourceUtils.getFile("classpath:test-template2.docx");
-        } catch (FileNotFoundException f) {
-            return;
         }
 
         CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[0])).thenAccept(x -> {
 
-            try (XWPFTemplate template = XWPFTemplate.compile(file).render(documentModel)) {
-                template.writeToFile("compile-result.docx");
-            } catch (IOException e) {
+            try (
+                    XWPFTemplate template = XWPFTemplate.compile(mainTemplate).render(documentModel);
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    ) {
+                    template.write(byteArrayOutputStream);
+                    InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+
+                    saveDocxFileFile(inspection, inputStream);
+                } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
         });
     }
 
@@ -217,6 +218,17 @@ public class InspectionService {
             throw new EntityNotFoundException(String.format("No such inspection with id %s for this user", inspectionId));
         }
         return inspection;
+    }
+
+
+    private void saveDocxFileFile(Inspection inspection, InputStream inputStream) {
+        UUID uuid = UUID.randomUUID();
+
+        inspection.setStatus(ProgressingStatus.READY);
+        inspection.setReportUuid(uuid);
+        inspectionRepository.save(inspection);
+
+        storageService.saveFile(BucketName.DOCUMENT, uuid.toString(), inputStream);
     }
 
     public void moveInspectionStatus(Inspection inspection, ProgressingStatus targetStatus) {

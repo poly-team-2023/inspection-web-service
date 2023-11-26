@@ -18,7 +18,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ListenerPhotoStage extends AbstractImageProcessingStep {
 
-    private static final Integer COUNT_TRIES = 5;
+    private static final Integer COUNT_TRIES = 10;
     private final PhotoRepository photoRepository;
     private final Map<Long, Optional<Set<Photo.Defect>>> photosUpdatingStorage;
 
@@ -45,15 +45,15 @@ public class ListenerPhotoStage extends AbstractImageProcessingStep {
                 }
                 tries += 1;
 
-
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(2000);
                 } catch (Exception e) {
                     log.error(e.toString());
                 }
             }
-
             log.info("End listen photos changing" + Thread.currentThread().getName() + ". Not found");
+        } else {
+            imageModel.setDefects(defects);
         }
     }
 }

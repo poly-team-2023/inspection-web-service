@@ -40,6 +40,20 @@ public class StorageService {
         }
     }
 
+    public void saveFile(BucketName bucketName, String key, InputStream inputStream) {
+        try {
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentLength(inputStream.available());
+
+            if (!amazonS3.doesBucketExist(bucketName.getBucket())) {
+                amazonS3.createBucket(bucketName.getBucket());
+            }
+            amazonS3.putObject(bucketName.getBucket(), key, inputStream, objectMetadata);
+        } catch (IOException e){
+            throw new RuntimeException();
+        }
+    }
+
     public BytesWithContentType getFile(BucketName bucketName, String key) {
         S3Object s3Object = amazonS3.getObject(bucketName.getBucket(), key);
         byte[] fileBytes;

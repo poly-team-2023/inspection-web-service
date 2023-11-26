@@ -192,6 +192,8 @@
             <column name="main_photo_name" type="varchar(255)"/>
             <column name="main_photo_uuid" type="uuid"/>
 
+            <column name="report_uuid" type="uuid"/>
+
             <column name="address" type="text"/>
             <column name="building_type" type="building_type"/>
 

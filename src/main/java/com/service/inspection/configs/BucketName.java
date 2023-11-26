@@ -16,7 +16,9 @@ public enum BucketName {
     INSPECTION_MAIN_PHOTO("images"),
     CATEGORY_PHOTOS("images"),
 
-    DEFAULT_IMAGE_BUCKET("images");
+    DEFAULT_IMAGE_BUCKET("images"),
+
+    DOCUMENT("documents");
 
     private final String bucket;
 }

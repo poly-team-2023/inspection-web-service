@@ -55,6 +55,9 @@ public class Inspection extends Named {
     @Column(name = "inspected_category_count")
     private int inspectedCategoriesCount;
 
+    @Column(name = "report_uuid")
+    private UUID reportUuid;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "employer_id")
     @ToString.Exclude

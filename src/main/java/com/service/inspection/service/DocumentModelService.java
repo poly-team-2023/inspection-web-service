@@ -30,7 +30,6 @@ public class DocumentModelService {
     @Async
     public CompletableFuture<List<ImageModel>> processAllPhotosAsync(Set<Photo> photos) {
         log.info("Start all photos processing" + Thread.currentThread().getName());
-
         List<CompletableFuture<ImageModel>> futures = Collections.synchronizedList(new ArrayList<>());
         for (Photo photo: photos) {
             ProcessingImageDto processingImageDto = photoMapper.mapToProcessingImage(photo);
