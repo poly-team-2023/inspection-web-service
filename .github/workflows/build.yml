@@ -29,7 +29,9 @@ jobs:
       - name: Setup Windows for Docker
         if: matrix.os == 'windows-2019'
         run: |
-          [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
+          Install-Module "DockerMsftProvider" -Force
+          Update-Module "DockerMsftProvider"
+          Install-Package Docker -ProviderName "DockerMsftProvider" -Update -Force)
           Restart-Service docker
           docker version
 
@@ -41,7 +43,6 @@ jobs:
 
       - name: Deploy with Docker Compose
         run: |
-          docker version
           docker-compose up -d
         continue-on-error: false
 
