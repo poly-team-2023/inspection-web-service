@@ -31,7 +31,7 @@ jobs:
         run: |
           Install-Module "DockerMsftProvider" -Force
           Update-Module "DockerMsftProvider"
-          Install-Package Docker -ProviderName "DockerMsftProvider" -Update -Force)
+          Install-Package Docker -ProviderName "DockerMsftProvider" -Update -Force
           Restart-Service docker
           docker version
 
