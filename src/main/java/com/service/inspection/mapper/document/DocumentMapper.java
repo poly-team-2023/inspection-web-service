@@ -8,13 +8,17 @@ import com.service.inspection.entities.Category;
 import com.service.inspection.entities.Company;
 import com.service.inspection.entities.Inspection;
 import com.service.inspection.entities.Photo;
+import com.service.inspection.service.document.ProcessingImageDto;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.scheduling.annotation.Async;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -35,25 +39,19 @@ public abstract class DocumentMapper {
     @Mapping(source = "name", target = "projectName")
     @Mapping(source = "reportName", target = "reportName", defaultValue = "Технический отчет об обследовании")
     @Mapping(source = "script", target = "script")
-    @Mapping(source = "mainPhotoUuid", target = "mainPhoto", qualifiedByName = {"getPhotoSyncByUuid"})
+//    @Mapping(source = "mainPhotoUuid", target = "mainPhoto", qualifiedByName = {"getPhotoSyncByUuid"})
+    @Mapping(target = "categories", ignore = true)
     public abstract DocumentModel mapToDocumentModel(Inspection inspection);
 
-    @Mapping(source = "photos", target = "photos")
-    abstract CategoryModel mapToCategoryModel(Category category);
+    @Mapping(source = "processedPhotos", target = "photos")
+    public abstract CategoryModel mapToCategoryModel(Category category, Collection<ImageModel> processedPhotos);
 
-    @Mapping(source = "logoUuid", target = "logo", qualifiedByName = {"getPhotoSyncByUuid"})
-    abstract CompanyModel mapToCompanyModel(Company company);
+//    @Mapping(source = "logoUuid", target = "logo", qualifiedByName = {"getPhotoSyncByUuid"})
+//    abstract CompanyModel mapToCompanyModel(Company company);
 
-    List<ImageModel> mapToImagesPhotos(Set<Photo> set) {
-        List<CompletableFuture<ImageModel>> futureResult = new ArrayList<>();
-        for (Photo photo: set) {
-            futureResult.add(imageMapper.mapToImageModel(photo));
-        }
+    @Mapping(source = "photoBytes", target = "image", qualifiedByName = "mapToModelPicture")
+    public abstract ImageModel mapToImageModel(ProcessingImageDto processingImageDto);
 
-        CompletableFuture.allOf(futureResult.toArray(new CompletableFuture[0])).join();
-
-        return futureResult.stream()
-                .map(x -> x.getNow(null))
-                .collect(Collectors.toList());
-    }
+//    @Mapping(source = "images", target = "model.categories.photos")
+//    public abstract void addProcessedPhotos(@MappingTarget DocumentModel model, List<ImageModel> images);
 }

@@ -2,7 +2,7 @@ package com.service.inspection.service.document.steps;
 
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.service.StorageService;
-import com.service.inspection.service.document.TestImageModel;
+import com.service.inspection.service.document.ProcessingImageDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
@@ -14,13 +14,12 @@ public class ImageStoringStep extends AbstractImageProcessingStep {
     private final StorageService storageService;
 
     @Override
-    public void executeProcess(TestImageModel testImageModel) {
-
+    public void executeProcess(ProcessingImageDto processingImageDto) {
         StorageService.BytesWithContentType file =
-                storageService.getFile(BucketName.DEFAULT_IMAGE_BUCKET, testImageModel.getPhoto().getFileUuid().toString());
+                storageService.getFile(BucketName.DEFAULT_IMAGE_BUCKET, processingImageDto.getUuid().toString());
 
-        testImageModel.setPhotoBytes(file.getBytes());
+        processingImageDto.setPhotoBytes(file.getBytes());
 
-        nextStep.executeProcess(testImageModel);
+        nextStep.executeProcess(processingImageDto);
     }
 }

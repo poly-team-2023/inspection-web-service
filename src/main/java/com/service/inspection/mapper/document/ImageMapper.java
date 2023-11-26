@@ -33,40 +33,8 @@ abstract class ImageMapper {
     @Autowired
     private DocumentEngineConfig documentEngineConfig;
 
-    @Async("fileAsyncExecutor")
-    <T extends FileEntity> CompletableFuture<ImageModel> mapToImageModel(T photo) {
-        if (photo.getFileUuid() != null) {
-            ImageModel imageModel = new ImageModel();
-            log.info("Start getting photo from storage");
-            StorageService.BytesWithContentType file =
-                    storageService.getFile(BucketName.DEFAULT_IMAGE_BUCKET, photo.getFileUuid().toString());
-            log.info("End getting photo from storage");
-
-            PictureRenderData pictureRenderData = Pictures.ofBytes(file.getBytes(), PictureType.JPEG).create();
-
-            imageModel.setImage(pictureRenderData); // TODO
-            imageModel.setImageTitle("Стандартное фото");
-
-            return CompletableFuture.completedFuture(imageModel);
-        }
-        return null;
-    }
-
-    @Named(value = "getPhotoSyncByUuid")
-    public ImageModel mapToImageModel(UUID uuid) {
-        if (uuid != null) {
-            ImageModel imageModel = new ImageModel();
-            log.info("Start getting photo from storage");
-            StorageService.BytesWithContentType file =
-                storageService.getFile(BucketName.DEFAULT_IMAGE_BUCKET, uuid.toString());
-            log.info("End getting photo from storage");
-            PictureRenderData pictureRenderData = Pictures.ofBytes(file.getBytes(), PictureType.JPEG).create();
-
-            imageModel.setImage(pictureRenderData); // TODO
-            imageModel.setImageTitle("Стандартное фото");
-
-            return imageModel;
-        }
-        return null;
+    @Named(value = "mapToModelPicture")
+    public PictureRenderData mapToImageModel(byte[] bytes) {
+        return Pictures.ofBytes(bytes, PictureType.JPEG).create();
     }
 }

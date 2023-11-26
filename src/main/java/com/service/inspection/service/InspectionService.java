@@ -2,8 +2,12 @@ package com.service.inspection.service;
 
 import com.deepoove.poi.XWPFTemplate;
 import com.service.inspection.configs.BucketName;
+import com.service.inspection.document.DocumentModel;
+import com.service.inspection.document.model.CategoryModel;
+import com.service.inspection.document.model.ImageModel;
 import com.service.inspection.dto.inspection.InspectionDto;
 import com.service.inspection.entities.*;
+import com.service.inspection.entities.enums.ProgressingStatus;
 import com.service.inspection.mapper.CategoryMapper;
 import com.service.inspection.mapper.InspectionMapper;
 import com.service.inspection.mapper.PhotoMapper;
@@ -13,12 +17,10 @@ import com.service.inspection.repositories.InspectionRepository;
 import com.service.inspection.repositories.PhotoRepository;
 import com.service.inspection.repositories.UserRepository;
 import com.service.inspection.service.document.ImageProcessingFacade;
-import com.service.inspection.service.document.TestImageModel;
 import com.service.inspection.utils.ServiceUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
@@ -175,7 +177,21 @@ public class InspectionService {
     }
 
     // --------------------------------------- create-document -----------------------------------------
-    public void createDocument(Long inspectionId) {
+    public void createDocument(Long inspectionId, Long userId) {
+        Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
+        moveInspectionStatus(inspection, ProgressingStatus.WAIT_ANALYZE);
+
+        DocumentModel documentModel = documentMapper.mapToDocumentModel(inspection);
+
+        List<CompletableFuture<Void>> completableFutures = new ArrayList<>();
+        Set<Category> categories = inspection.getCategories();
+        for (Category category: categories) {
+            completableFutures.add(
+                documentModelService.processAllPhotosAsync(category.getPhotos()).thenAccept(x -> {
+                    documentModel.addCategory(documentMapper.mapToCategoryModel(category, x));
+                })
+            );
+        }
 
         File file;
         try {
@@ -184,23 +200,14 @@ public class InspectionService {
             return;
         }
 
-        Set<Photo> photos = new HashSet<>();
-        Inspection inspection = inspectionRepository.findById(inspectionId).orElse(null);
-        Set<Category> categories = inspection.getCategories();
-        for (Category category: categories) {
-            photos.addAll(category.getPhotos());
-        }
+        CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[0])).thenAccept(x -> {
 
-        documentModelService.processAllPhotosAsync(photos);
-        log.info(Thread.currentThread().getName());
-
-
-//        try (XWPFTemplate template = XWPFTemplate.compile(file).render(
-//                documentMapper.mapToDocumentModel(inspectionRepository.findById(inspectionId).orElse(null)))) {
-//            template.writeToFile("compile-result.docx");
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
+            try (XWPFTemplate template = XWPFTemplate.compile(file).render(documentModel)) {
+                template.writeToFile("compile-result.docx");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
 
@@ -210,5 +217,14 @@ public class InspectionService {
             throw new EntityNotFoundException(String.format("No such inspection with id %s for this user", inspectionId));
         }
         return inspection;
+    }
+
+    public void moveInspectionStatus(Inspection inspection, ProgressingStatus targetStatus) {
+        ProgressingStatus status = inspection.getStatus();
+//        if (status == targetStatus) {
+//            throw new RuntimeException();
+//        }
+        inspection.setStatus(targetStatus);
+        inspectionRepository.save(inspection);
     }
 }

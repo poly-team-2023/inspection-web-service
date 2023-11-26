@@ -198,7 +198,7 @@ public class InspectionController {
     public ResponseEntity<Resource> getCategoryPhoto(@PathVariable @Min(1) Long id, Authentication authentication
     ) {
         Long userId = utils.getUserId(authentication);
-        inspectionService.createDocument(id);
+        inspectionService.createDocument(id, userId);
         return ResponseEntity.ok().build();
     }
 }
