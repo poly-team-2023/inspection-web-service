@@ -1,6 +1,7 @@
 package com.service.inspection.mapper;
 
 import com.service.inspection.dto.account.UserUpdate;
+import com.service.inspection.dto.account.UserWithCompanyDto;
 import com.service.inspection.dto.auth.UserSignUpDto;
 import com.service.inspection.entities.Role;
 import com.service.inspection.entities.User;
@@ -29,6 +30,9 @@ public abstract class UserMapper {
     @Mapping(target = "password", source = "password", qualifiedByName = "createCryptPassword")
     @Mapping(target = "roles", source = "email", qualifiedByName = "userRole") // email just for mapping
     public abstract User mapToUser(UserSignUpDto userSignUpDto);
+
+    @Mapping(source = "companies", target = "companies")
+    public abstract UserWithCompanyDto mapToUserWithCompany(User user);
 
     @IterableMapping
     SimpleGrantedAuthority mapToGrantedAuthority(Role r) {

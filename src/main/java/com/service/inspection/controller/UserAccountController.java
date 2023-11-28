@@ -2,8 +2,11 @@ package com.service.inspection.controller;
 
 import com.service.inspection.dto.account.PasswordDto;
 import com.service.inspection.dto.account.UserUpdate;
+import com.service.inspection.dto.account.UserWithCompanyDto;
 import com.service.inspection.entities.User;
 import com.service.inspection.jwt.JwtUtils;
+import com.service.inspection.mapper.UserMapper;
+import com.service.inspection.repositories.UserRepository;
 import com.service.inspection.service.StorageService;
 import com.service.inspection.service.UserAccountService;
 import com.service.inspection.service.security.UserDetailsImpl;
@@ -37,6 +40,7 @@ public class UserAccountController {
     private final UserAccountService userAccountService;
     private final ControllerUtils controllerUtils;
     private final JwtUtils jwtUtils;
+    private final UserMapper userMapper;
 
     @PutMapping("/update-user")
     @Operation(summary = "Обновить данные пользователя", description = "Null поля также обновляются")
@@ -78,5 +82,13 @@ public class UserAccountController {
             // TODO обработка неправильно введенного пароля
         }
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    @Operation(summary = "Информация о пользователе c информацией об имеющихся компаниях")
+    public ResponseEntity<UserWithCompanyDto> getUserInfo(Authentication authentication) {
+        Long userId = controllerUtils.getUserId(authentication);
+        User user = userAccountService.getUserInfo(userId);
+        return ResponseEntity.ok(userMapper.mapToUserWithCompany(user));
     }
 }

@@ -3,10 +3,7 @@ package com.service.inspection.controller;
 import java.util.Set;
 
 import com.service.inspection.dto.IdentifiableDto;
-import com.service.inspection.dto.inspection.CategoryWithFile;
-import com.service.inspection.dto.inspection.InspectionDto;
-import com.service.inspection.dto.inspection.InspectionWithIdOnly;
-import com.service.inspection.dto.inspection.InspectionWithName;
+import com.service.inspection.dto.inspection.*;
 import com.service.inspection.entities.Category;
 import com.service.inspection.entities.Identifiable;
 import com.service.inspection.entities.Inspection;
@@ -56,10 +53,10 @@ public class InspectionController {
     @Operation(summary = "Создание пустой инспекции Без названия")
     public ResponseEntity<InspectionWithIdOnly> createInspection(Authentication authentication) {
         Long userId = utils.getUserId(authentication);
-        Long inspectionId = inspectionService.createInspection(userId);
+        Identifiable inspection = inspectionService.createInspection(userId);
 
         InspectionWithIdOnly inspectionOnlyIdDto = new InspectionWithIdOnly();
-        inspectionOnlyIdDto.setId(inspectionId);
+        inspectionOnlyIdDto.setId(inspection.getId());
 
         return ResponseEntity.ok().body(inspectionOnlyIdDto);
     }
@@ -72,7 +69,7 @@ public class InspectionController {
             Authentication authentication
     ) {
         Long id = utils.getUserId(authentication);
-        Page<Inspection> page = inspectionService.getUserInspection(id, pageSize, pageNum);
+        Page<Inspection> page = inspectionService.getUserInspections(id, pageSize, pageNum);
 
         return ResponseEntity.ok().body(
                 page.map(inspectionMapper::mapToInspectionWithName)
@@ -193,7 +190,7 @@ public class InspectionController {
     }
 
     @GetMapping("/{id}/categories/{categoryId}/photos/{photoId}")
-    @Operation(summary = "Удаление фотографий")
+    @Operation(summary = "Получение фотографии")
     public ResponseEntity<Resource> getCategoryPhoto(
             @PathVariable @Min(1) Long categoryId, @PathVariable @Min(1) Long id,
             @PathVariable @Min(1) Long photoId, Authentication authentication
@@ -201,5 +198,16 @@ public class InspectionController {
         Long userId = utils.getUserId(authentication);
         StorageService.BytesWithContentType file = inspectionService.getCategoryPhoto(userId, id, categoryId, photoId);
         return utils.getResponseEntityFromFile("category-photo", file);
+    }
+
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Получение информации об инспекции")
+    public ResponseEntity<GetInspectionDto> getInspectionInfo(
+            @PathVariable @Min(1) Long id,  Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        return ResponseEntity
+                .ok(inspectionMapper.mapToGetInspectionDto(inspectionService.getUserInspection(userId, id)));
     }
 }

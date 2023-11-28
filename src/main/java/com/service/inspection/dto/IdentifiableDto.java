@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class IdentifiableDto {
-    private String id;
+    private Long id;
 }

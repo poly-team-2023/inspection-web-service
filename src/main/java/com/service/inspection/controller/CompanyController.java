@@ -1,11 +1,14 @@
 package com.service.inspection.controller;
 
+import com.service.inspection.dto.IdentifiableDto;
 import com.service.inspection.dto.company.CompanyDto;
 import com.service.inspection.dto.company.GetCompanyDto;
 import com.service.inspection.dto.employer.EmployerDto;
 import com.service.inspection.dto.license.LicenseDto;
 import com.service.inspection.entities.Company;
+import com.service.inspection.entities.Identifiable;
 import com.service.inspection.entities.User;
+import com.service.inspection.mapper.CommonMapper;
 import com.service.inspection.mapper.CompanyMapper;
 import com.service.inspection.mapper.EmployerMapper;
 import com.service.inspection.mapper.LicenseMapper;
@@ -35,6 +38,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/company")
 @CrossOrigin(allowCredentials = "true", originPatterns = "*")
@@ -48,13 +53,21 @@ public class CompanyController {
     private final EmployerMapper employerMapper;
     private final LicenseMapper licenseMapper;
     private final ControllerUtils controllerUtils;
+    private final CommonMapper commonMapper;
 
     @PostMapping
     @Operation(summary = "Создать компанию")
-    public ResponseEntity<Void> createCompany(Authentication authentication) {
+    public ResponseEntity<IdentifiableDto> createCompany(Authentication authentication) {
         User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        companyService.createCompany(user);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(commonMapper.mapToIdentifiableDto(companyService.createCompany(user)));
+    }
+
+    @GetMapping
+    @Operation(summary = "Получить компании")
+    public ResponseEntity<List<GetCompanyDto>> getCompanies(Authentication authentication) {
+        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+        return ResponseEntity.ok(companyService.getCompanies(user.getId())
+                .stream().map(companyMapper::mapToDto).toList());
     }
 
     @PutMapping("/{comp_id}")
@@ -90,21 +103,20 @@ public class CompanyController {
         return ResponseEntity.ok().build();
     }
 
-    // TODO : RequestParam красиво сделай лееее
     @PostMapping(path = "/{comp_id}/employer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Добавление работника со всеми полями и подписью")
-    public ResponseEntity<Void> addEmployer(@PathVariable("comp_id") long id,
+    public ResponseEntity<IdentifiableDto> addEmployer(@PathVariable("comp_id") long id,
                                             @RequestParam("name") @NotBlank String name,
                                             @RequestParam("position") @NotBlank String position,
                                             MultipartFile signature,
                                             Authentication authentication) {
-        employerService.addEmployer(
+        Identifiable employer = employerService.addEmployer(
                 controllerUtils.getUserId(authentication),
                 employerMapper.mapToEmployer(name, position),
                 id,
                 signature
         );
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(commonMapper.mapToIdentifiableDto(employer));
     }
 
     @DeleteMapping("/{comp_id}/employer/{emp_id}")
@@ -128,11 +140,11 @@ public class CompanyController {
 
     @PostMapping("/{comp_id}/license")
     @Operation(summary = "Добавление лицензии")
-    public ResponseEntity<Void> addLicense(@PathVariable("comp_id") long id,
+    public ResponseEntity<IdentifiableDto> addLicense(@PathVariable("comp_id") long id,
                                            @RequestBody LicenseDto dto,
                                            Authentication authentication) {
-        licenseService.addLicense(controllerUtils.getUserId(authentication), id, licenseMapper.mapToLicense(dto));
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(commonMapper.mapToIdentifiableDto(licenseService.addLicense(
+                controllerUtils.getUserId(authentication), id, licenseMapper.mapToLicense(dto))));
     }
 
     @PostMapping("/{comp_id}/license/{lic_id}/pic")
