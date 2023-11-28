@@ -6,7 +6,13 @@ import com.service.inspection.dto.auth.UserSignUpDto;
 import com.service.inspection.entities.Role;
 import com.service.inspection.entities.User;
 import com.service.inspection.service.security.UserDetailsImpl;
-import org.mapstruct.*;
+
+import org.mapstruct.InjectionStrategy;
+import org.mapstruct.IterableMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;

@@ -2,6 +2,7 @@ package com.service.inspection.configs;
 
 import com.service.inspection.jwt.AuthEntryPointJwt;
 import com.service.inspection.jwt.AuthTokenFilter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -65,6 +66,7 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/api/v1/feedback**").permitAll()
                 .requestMatchers("/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
         );
