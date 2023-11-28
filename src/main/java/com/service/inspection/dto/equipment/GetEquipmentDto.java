@@ -1,9 +1,9 @@
 package com.service.inspection.dto.equipment;
 
-import lombok.Data;
-
 import java.time.LocalDate;
 import java.util.UUID;
+
+import lombok.Data;
 
 @Data
 public class GetEquipmentDto {

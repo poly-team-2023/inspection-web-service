@@ -1,8 +1,8 @@
 package com.service.inspection.advice;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class ValidationErrorResponse {

@@ -1,7 +1,9 @@
 package com.service.inspection.controller;
 
 
-import com.service.inspection.email.EmailMessagePOJO;
+import com.service.inspection.email.UserFeedbackRequestDto;
+import com.service.inspection.mapper.EmailMapper;
+import com.service.inspection.service.CommonService;
 import com.service.inspection.service.EmailService;
 
 import org.springframework.http.ResponseEntity;
@@ -14,16 +16,19 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/notify")
+@RequestMapping("/api/v1/feedback")
 @CrossOrigin(allowCredentials = "true", originPatterns = "*")
 @RequiredArgsConstructor
-public class StartController {
+public class FeedbackController {
 
     private final EmailService emailService;
+    private final EmailMapper emailMapper;
+    private final CommonService commonService;
 
-    @PostMapping("/send")
-    public ResponseEntity<Void> notifyAdmin(@RequestBody EmailMessagePOJO emailMessagePOJO){
-        emailService.sendSimpleMail(emailMessagePOJO);
+    @PostMapping
+    public ResponseEntity<Void> notifyAdmin(@RequestBody UserFeedbackRequestDto feedbackDto){
+        emailService.sendSimpleMail(emailMapper.mapToEmailMessage(feedbackDto));
+        commonService.saveFeedback(emailMapper.mapToFeedbackRequest(feedbackDto));
         return ResponseEntity.ok().build();
     }
 }

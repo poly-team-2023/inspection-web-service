@@ -1,8 +1,8 @@
 package com.service.inspection.dto.employer;
 
-import lombok.Data;
-
 import java.util.UUID;
+
+import lombok.Data;
 
 @Data
 public class GetEmployerDto {

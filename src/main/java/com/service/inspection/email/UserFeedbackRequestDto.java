@@ -1,5 +1,6 @@
 package com.service.inspection.email;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,8 +8,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmailMessagePOJO {
+public class UserFeedbackRequestDto {
+    @NotBlank
     private String fullName;
+    @NotBlank
     private String email;
     private String number;
     private String companyName;
