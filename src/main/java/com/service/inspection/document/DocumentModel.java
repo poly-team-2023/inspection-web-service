@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 public class DocumentModel {
     private String projectName;
-    private String reportName = "Технический отчет об обследовании";
+    private String reportName;
     private String script;
 
     private ImageModel mainPhoto;

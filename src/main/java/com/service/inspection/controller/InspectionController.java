@@ -25,6 +25,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -221,17 +224,19 @@ public class InspectionController {
     public ResponseEntity<Resource> getInspectionReport(@PathVariable @Min(1) Long id, Authentication authentication) {
         Long userId = utils.getUserId(authentication);
         StorageService.BytesWithContentType file = inspectionService.getUserInspectionReport(id, userId);
-        String fileName = Joiner.on('_').join(
-                Optional.of(file.getName()).orElse("Отчет"),
-                LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
-        );
-        return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=" + fileName)
+        String fileName =
+                Joiner.on('_').join(
+                        Optional.ofNullable(file.getName()).orElse("Отчет").replace(' ', '_'),
+                        LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+                );
+        return ResponseEntity.ok().header(
+                        "Content-Disposition",
+                        "attachment; filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + ".docx")
                 .contentType(new MediaType("application", "vnd.openxmlformats-officedocument.wordprocessingml.document"))
                 .body(new ByteArrayResource(file.getBytes()));
     }
 
-    @GetMapping("/{id}/docx/check")
+    @GetMapping("/{id}/docx/status")
     @Operation(summary = "Проверка статуса отчета")
     public ResponseEntity<DocumentStatusDto> getInspectionReportStatus(@PathVariable @Min(1) Long id, Authentication authentication) {
         Long userId = utils.getUserId(authentication);

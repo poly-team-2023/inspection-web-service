@@ -23,7 +23,7 @@ public class NNController {
     private final PhotoMapper photoMapper;
 
     @PostMapping("/photos/{photoId}")
-    @Operation(summary = "Добавить дефекты к фото")
+    @Operation(summary = "Добавить дефекты к фото", hidden = true)
     public ResponseEntity<Resource> getCategoryPhoto(
             @PathVariable @Min(1) Long photoId, Authentication authentication,
             @RequestBody PhotoDefectsDto photoDefectsDto

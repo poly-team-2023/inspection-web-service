@@ -42,6 +42,6 @@ public class AdviceController {
 
     @ExceptionHandler(MessageException.class)
     public ResponseEntity<Error> resolveMessageException(MessageException e) {
-        return ResponseEntity.status(e.getStatus()).body(new Error(e.getMessage()));
+        return ResponseEntity.status(e.getStatus()).body(new Error(e.getLocalizedMessage()));
     }
 }
