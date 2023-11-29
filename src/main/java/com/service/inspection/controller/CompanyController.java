@@ -17,26 +17,15 @@ import com.service.inspection.service.EmployerService;
 import com.service.inspection.service.LicenseService;
 import com.service.inspection.service.security.UserDetailsImpl;
 import com.service.inspection.utils.ControllerUtils;
-
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -106,10 +95,10 @@ public class CompanyController {
     @PostMapping(path = "/{comp_id}/employer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Добавление работника со всеми полями и подписью")
     public ResponseEntity<IdentifiableDto> addEmployer(@PathVariable("comp_id") long id,
-                                            @RequestParam("name") @NotBlank String name,
-                                            @RequestParam("position") @NotBlank String position,
-                                            MultipartFile signature,
-                                            Authentication authentication) {
+                                                       @RequestParam("name") @NotBlank String name,
+                                                       @RequestParam("position") @NotBlank String position,
+                                                       MultipartFile signature,
+                                                       Authentication authentication) {
         Identifiable employer = employerService.addEmployer(
                 controllerUtils.getUserId(authentication),
                 employerMapper.mapToEmployer(name, position),
@@ -141,8 +130,8 @@ public class CompanyController {
     @PostMapping("/{comp_id}/license")
     @Operation(summary = "Добавление лицензии")
     public ResponseEntity<IdentifiableDto> addLicense(@PathVariable("comp_id") long id,
-                                           @RequestBody LicenseDto dto,
-                                           Authentication authentication) {
+                                                      @RequestBody LicenseDto dto,
+                                                      Authentication authentication) {
         return ResponseEntity.ok(commonMapper.mapToIdentifiableDto(licenseService.addLicense(
                 controllerUtils.getUserId(authentication), id, licenseMapper.mapToLicense(dto))));
     }

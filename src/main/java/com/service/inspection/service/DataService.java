@@ -1,7 +1,6 @@
 package com.service.inspection.service;
 
 import com.service.inspection.entities.Photo;
-import com.service.inspection.repositories.InspectionRepository;
 import com.service.inspection.repositories.PhotoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

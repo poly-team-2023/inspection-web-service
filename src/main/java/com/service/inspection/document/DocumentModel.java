@@ -3,12 +3,10 @@ package com.service.inspection.document;
 import com.service.inspection.document.model.CategoryModel;
 import com.service.inspection.document.model.CompanyModel;
 import com.service.inspection.document.model.ImageModel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,7 +20,8 @@ public class DocumentModel {
     private ImageModel mainPhoto;
 
     private CompanyModel company;
-    private List<CategoryModel> categories = Collections.synchronizedList(new ArrayList<CategoryModel>());
+
+    private List<CategoryModel> categories = Collections.synchronizedList(new ArrayList<>());
 
     public void addCategory(CategoryModel categoryModel) {
         categories.add(categoryModel);

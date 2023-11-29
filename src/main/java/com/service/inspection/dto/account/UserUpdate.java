@@ -1,9 +1,8 @@
 package com.service.inspection.dto.account;
 
-import org.springframework.validation.annotation.Validated;
-
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.springframework.validation.annotation.Validated;
 
 @Data
 @Validated

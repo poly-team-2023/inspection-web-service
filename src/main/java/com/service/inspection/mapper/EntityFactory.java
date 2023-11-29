@@ -1,17 +1,15 @@
 package com.service.inspection.mapper;
 
-import java.util.List;
-
 import com.service.inspection.entities.Company;
 import com.service.inspection.entities.Employer;
 import com.service.inspection.entities.Role;
 import com.service.inspection.repositories.CompanyRepository;
 import com.service.inspection.repositories.EmployerRepository;
-
+import lombok.RequiredArgsConstructor;
 import org.mapstruct.Named;
 import org.springframework.stereotype.Component;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor

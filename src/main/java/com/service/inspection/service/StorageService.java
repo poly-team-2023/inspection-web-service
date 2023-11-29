@@ -1,21 +1,20 @@
 package com.service.inspection.service;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.service.inspection.configs.BucketName;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -58,7 +57,7 @@ public class StorageService {
                 amazonS3.createBucket(bucketName.getBucket());
             }
             amazonS3.putObject(bucketName.getBucket(), key, inputStream, objectMetadata);
-        } catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException();
         }
     }
@@ -87,10 +86,18 @@ public class StorageService {
                 .completedFuture(new BytesWithContentType(fileBytes, s3Object.getObjectMetadata().getContentType()));
     }
 
+    // нормальное хранение файлов
+
     @Data
     @AllArgsConstructor
     public static class BytesWithContentType {
         private byte[] bytes;
         private String contentType;
+        private String name;
+
+        public BytesWithContentType(byte[] bytes, String contentType) {
+            this.bytes = bytes;
+            this.contentType = contentType;
+        }
     }
 }

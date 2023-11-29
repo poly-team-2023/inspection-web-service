@@ -1,12 +1,11 @@
 package com.service.inspection.dto.equipment;
 
-import java.time.LocalDate;
-
-import org.springframework.validation.annotation.Validated;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.springframework.validation.annotation.Validated;
+
+import java.time.LocalDate;
 
 @Data
 @Validated

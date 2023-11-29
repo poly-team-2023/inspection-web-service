@@ -1,15 +1,14 @@
 package com.service.inspection.entities;
 
-import java.util.Objects;
-
-import org.hibernate.proxy.HibernateProxy;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.proxy.HibernateProxy;
+
+import java.util.Objects;
 
 @Entity
 @Table(name = "feedback")
@@ -17,7 +16,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-public class FeedbackRequest extends Identifiable{
+public class FeedbackRequest extends Identifiable {
     private String email;
     private String fullName;
     private String number;

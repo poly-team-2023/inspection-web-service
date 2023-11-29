@@ -1,8 +1,8 @@
 package com.service.inspection.controller;
 
-import java.util.Set;
-
+import com.google.common.base.Joiner;
 import com.service.inspection.dto.IdentifiableDto;
+import com.service.inspection.dto.document.DocumentStatusDto;
 import com.service.inspection.dto.inspection.*;
 import com.service.inspection.entities.Category;
 import com.service.inspection.entities.Identifiable;
@@ -13,26 +13,22 @@ import com.service.inspection.mapper.InspectionMapper;
 import com.service.inspection.service.InspectionService;
 import com.service.inspection.service.StorageService;
 import com.service.inspection.utils.ControllerUtils;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/inspections")
@@ -204,19 +200,43 @@ public class InspectionController {
     @GetMapping("/{id}")
     @Operation(summary = "Получение информации об инспекции")
     public ResponseEntity<GetInspectionDto> getInspectionInfo(
-            @PathVariable @Min(1) Long id,  Authentication authentication
+            @PathVariable @Min(1) Long id, Authentication authentication
     ) {
         Long userId = utils.getUserId(authentication);
         return ResponseEntity
                 .ok(inspectionMapper.mapToGetInspectionDto(inspectionService.getUserInspection(userId, id)));
     }
 
-    @GetMapping("/{id}/create-docx")
+    @PostMapping("/{id}/docx")
     @Operation(summary = "Сгенерировать отчет")
-    public ResponseEntity<Resource> getCategoryPhoto(@PathVariable @Min(1) Long id, Authentication authentication
+    public ResponseEntity<Void> getCategoryPhoto(@PathVariable @Min(1) Long id, Authentication authentication
     ) {
         Long userId = utils.getUserId(authentication);
         inspectionService.createDocument(id, userId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/docx")
+    @Operation(summary = "Скачать файла", description = "Перед этим требуется проверить, доступен ли файл для скачивания")
+    public ResponseEntity<Resource> getInspectionReport(@PathVariable @Min(1) Long id, Authentication authentication) {
+        Long userId = utils.getUserId(authentication);
+        StorageService.BytesWithContentType file = inspectionService.getUserInspectionReport(id, userId);
+        String fileName = Joiner.on('_').join(
+                Optional.of(file.getName()).orElse("Отчет"),
+                LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+        );
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=" + fileName)
+                .contentType(new MediaType("application", "vnd.openxmlformats-officedocument.wordprocessingml.document"))
+                .body(new ByteArrayResource(file.getBytes()));
+    }
+
+    @GetMapping("/{id}/docx/check")
+    @Operation(summary = "Проверка статуса отчета")
+    public ResponseEntity<DocumentStatusDto> getInspectionReportStatus(@PathVariable @Min(1) Long id, Authentication authentication) {
+        Long userId = utils.getUserId(authentication);
+        return ResponseEntity.ok(
+                new DocumentStatusDto(inspectionService.getReportStatus(id, userId))
+        );
     }
 }

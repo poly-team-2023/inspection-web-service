@@ -1,31 +1,19 @@
 package com.service.inspection.entities;
 
+import com.service.inspection.entities.enums.ProgressingStatus;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.proxy.HibernateProxy;
+
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-
-import com.service.inspection.entities.enums.ProgressingStatus;
-
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.proxy.HibernateProxy;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 @Entity
 @Table(name = "inspection")
@@ -36,7 +24,7 @@ import lombok.ToString;
 public class Inspection extends Named {
 
     @Column(name = "report_name")
-    private String reportName;
+    private String reportName = "Технический отчет об обследовании";
 
     // TODO:  разобраться как правильно хранить дату
     @Column(name = "start_date")
@@ -56,7 +44,7 @@ public class Inspection extends Named {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private ProgressingStatus status;
+    private ProgressingStatus status = ProgressingStatus.WAIT_FILLING;
 
     @Column(name = "main_photo_name")
     private String mainPhotoName;

@@ -1,8 +1,5 @@
 package com.service.inspection.service;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.dto.equipment.EquipmentDto;
 import com.service.inspection.entities.Equipment;
@@ -10,13 +7,14 @@ import com.service.inspection.entities.Identifiable;
 import com.service.inspection.entities.User;
 import com.service.inspection.mapper.EquipmentMapper;
 import com.service.inspection.repositories.EquipmentRepository;
-
+import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor

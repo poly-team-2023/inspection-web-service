@@ -3,7 +3,6 @@ package com.service.inspection.mapper;
 import com.service.inspection.dto.employer.EmployerDto;
 import com.service.inspection.dto.employer.GetEmployerDto;
 import com.service.inspection.entities.Employer;
-
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

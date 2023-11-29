@@ -7,23 +7,17 @@ import com.service.inspection.document.model.ImageModel;
 import com.service.inspection.entities.Category;
 import com.service.inspection.entities.Company;
 import com.service.inspection.entities.Inspection;
-import com.service.inspection.entities.Photo;
-import com.service.inspection.service.document.ProcessingImageDto;
-import org.apache.logging.log4j.util.Strings;
-import org.mapstruct.InjectionStrategy;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import com.service.inspection.service.DocumentModelService;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
+import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jmx.export.annotation.ManagedOperation;
-import org.springframework.scheduling.annotation.Async;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 @Mapper(
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
@@ -31,29 +25,52 @@ import java.util.stream.Collectors;
         uses = {ImageMapper.class}
 
 )
+@Slf4j
 public abstract class DocumentMapper {
 
     @Autowired
-    private ImageMapper imageMapper;
+    private DocumentModelService documentModelService;
 
     @Mapping(target = "company", source = "company")
     @Mapping(source = "name", target = "projectName")
     @Mapping(source = "reportName", target = "reportName", defaultValue = "Технический отчет об обследовании")
     @Mapping(source = "script", target = "script")
     @Mapping(target = "categories", ignore = true)
-    public abstract DocumentModel mapToDocumentModel(Inspection inspection);
+    public abstract DocumentModel mapToDocumentModel(Inspection inspection, @Context List<CompletableFuture<Void>> futureResult);
 
     @Mapping(source = "processedPhotos", target = "photos")
     public abstract CategoryModel mapToCategoryModel(Category category, Collection<ImageModel> processedPhotos);
 
-    @Mapping(source = "photoBytes", target = "image", qualifiedByName = "mapToModelPicture")
-    @Mapping(source = "defects", target = "imageTitle")
-    public abstract ImageModel mapToImageModel(ProcessingImageDto processingImageDto);
+    @AfterMapping
+    public void mappingAsyncPhotoFields(@MappingTarget DocumentModel documentModel, Inspection inspection,
+                                        @Context List<CompletableFuture<Void>> futureResult) {
 
-    public String mapToImageTitle(Set<Photo.Defect> defects) {
-        if (defects != null) {
-            return Strings.join(defects.stream().map(Photo.Defect::getName).toList(), ' ');
+        Set<Category> categories = inspection.getCategories();
+        for (Category category : categories) {
+            Hibernate.initialize(category.getPhotos());
+            futureResult.add(
+                    documentModelService.processAllPhotosAsync(category.getPhotos()).thenAccept(x -> {
+                        log.debug("Adding category %s to documentModel for inspection with id %s".formatted(category.getName(), inspection.getId()));
+                        documentModel.addCategory(this.mapToCategoryModel(category, x));
+                        log.debug("End category adding %s to documentModel for inspection with id %s".formatted(category.getName(), inspection.getId()));
+                    })
+            );
         }
-        return "Без названия";
+        UUID uuid = inspection.getMainPhotoUuid();
+        if (uuid != null) {
+            futureResult.add(documentModelService.processAbstractPhoto(uuid).thenAccept(documentModel::setMainPhoto));
+        }
+
+    }
+
+    abstract CompanyModel companyModel(Company company, @Context List<CompletableFuture<Void>> futureResult);
+
+    @AfterMapping
+    public void mappingCompanyPhotoAsync(@MappingTarget CompanyModel companyModel, Company company,
+                                         @Context List<CompletableFuture<Void>> futureResult) {
+        UUID uuid = company.getLogoUuid();
+        if (uuid != null) {
+            futureResult.add(documentModelService.processAbstractPhoto(uuid).thenAccept(companyModel::setLogo));
+        }
     }
 }

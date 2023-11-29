@@ -1,18 +1,11 @@
 package com.service.inspection.service;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-
 import com.deepoove.poi.XWPFTemplate;
+import com.service.inspection.advice.MessageException;
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.document.DocumentModel;
 import com.service.inspection.dto.inspection.InspectionDto;
-import com.service.inspection.entities.Category;
-import com.service.inspection.entities.Identifiable;
-import com.service.inspection.entities.Inspection;
-import com.service.inspection.entities.Photo;
-import com.service.inspection.entities.User;
+import com.service.inspection.entities.*;
 import com.service.inspection.entities.enums.ProgressingStatus;
 import com.service.inspection.mapper.CategoryMapper;
 import com.service.inspection.mapper.InspectionMapper;
@@ -23,16 +16,19 @@ import com.service.inspection.repositories.InspectionRepository;
 import com.service.inspection.repositories.PhotoRepository;
 import com.service.inspection.repositories.UserRepository;
 import com.service.inspection.utils.ServiceUtils;
-
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 
 @Service
@@ -181,44 +177,52 @@ public class InspectionService {
     }
 
     // --------------------------------------- create-document -----------------------------------------
+    @Transactional
     public void createDocument(Long inspectionId, Long userId) {
         Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
-        moveInspectionStatus(inspection, ProgressingStatus.WAIT_ANALYZE);
-
-        DocumentModel documentModel = documentMapper.mapToDocumentModel(inspection);
-
-        List<CompletableFuture<Void>> completableFutures = new ArrayList<>();
-        Set<Category> categories = inspection.getCategories();
-        for (Category category: categories) {
-            Hibernate.initialize(category.getPhotos());
-
-            completableFutures.add(
-                documentModelService.processAllPhotosAsync(category.getPhotos()).thenAccept(x -> {
-                    log.info("Добавление категории к модели" + category.getName());
-                    documentModel.addCategory(documentMapper.mapToCategoryModel(category, x));
-                    log.info("Окончание добавления категории к модели" + category.getName());
-                })
-            );
-
+        if (inspection.getStatus() == ProgressingStatus.WAIT_ANALYZE) {
+            throw new MessageException(HttpStatus.TOO_EARLY, "Inspection already in analyze");
         }
 
-        CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[0])).thenAccept(x -> {
+        inspection.setStatus(ProgressingStatus.WAIT_ANALYZE);
+        inspectionRepository.save(inspection);
 
+        List<CompletableFuture<Void>> futureResult = new ArrayList<>();
+        DocumentModel documentModel = documentMapper.mapToDocumentModel(inspection, futureResult);
+
+        CompletableFuture.allOf(futureResult.toArray(new CompletableFuture[0])).thenAccept(x -> {
             try (
                     XWPFTemplate template = XWPFTemplate.compile(mainTemplate).render(documentModel);
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    ) {
-                    template.write(byteArrayOutputStream);
-                    InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
+            ) {
 
-                    saveDocxFileFile(inspection, inputStream);
-                } catch (IOException e) {
+                template.write(byteArrayOutputStream);
+                InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+                UUID fileUuid = saveDocxFileFile(inspection, inputStream);
+                log.info("Saved file uuid: " + fileUuid);
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-
         });
     }
 
+    public ProgressingStatus getReportStatus(Long inspectionId, Long userId) {
+        // TODO метод для загрузки только одного поля
+        Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
+        return inspection.getStatus();
+    }
+
+    public StorageService.BytesWithContentType getUserInspectionReport(Long inspectionId, Long userId) {
+        Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
+        if (inspection.getStatus() != ProgressingStatus.READY) {
+            throw new MessageException(HttpStatus.TOO_EARLY, "Report still not ready");
+        }
+        StorageService.BytesWithContentType file =
+                storageService.getFile(BucketName.DOCUMENT, inspection.getReportUuid().toString());
+        // TODO мега костыль стоит сделать чтобы при загрузке подгружалось пользовательское назнвание файла
+        file.setName(inspection.getReportName());
+        return file;
+    }
 
     private Inspection getInspectionIfExistForUser(Long inspectionId, Long userId) {
         Inspection inspection = inspectionRepository.findByUsersIdAndId(userId, inspectionId);
@@ -229,7 +233,7 @@ public class InspectionService {
     }
 
 
-    private void saveDocxFileFile(Inspection inspection, InputStream inputStream) {
+    private UUID saveDocxFileFile(Inspection inspection, InputStream inputStream) {
         UUID uuid = UUID.randomUUID();
 
         inspection.setStatus(ProgressingStatus.READY);
@@ -237,14 +241,6 @@ public class InspectionService {
         inspectionRepository.save(inspection);
 
         storageService.saveFile(BucketName.DOCUMENT, uuid.toString(), inputStream);
-    }
-
-    public void moveInspectionStatus(Inspection inspection, ProgressingStatus targetStatus) {
-        ProgressingStatus status = inspection.getStatus();
-//        if (status == targetStatus) {
-//            throw new RuntimeException();
-//        }
-        inspection.setStatus(targetStatus);
-        inspectionRepository.save(inspection);
+        return uuid;
     }
 }
