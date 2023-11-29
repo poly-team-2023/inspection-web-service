@@ -1,17 +1,19 @@
 package com.service.inspection.mapper;
 
 import com.service.inspection.dto.document.PhotoDefectsDto;
+import java.util.UUID;
+
 import com.service.inspection.dto.inspection.CategoryWithFile;
 import com.service.inspection.entities.Category;
 import com.service.inspection.entities.Photo;
 import com.service.inspection.entities.Plan;
 import com.service.inspection.service.document.ProcessingImageDto;
+
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.Set;
-import java.util.UUID;
 
 @Mapper(
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,

@@ -1,18 +1,21 @@
 package com.service.inspection.service;
 
+import java.util.UUID;
+
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.dto.license.LicenseDto;
 import com.service.inspection.entities.Company;
+import com.service.inspection.entities.Identifiable;
 import com.service.inspection.entities.License;
 import com.service.inspection.mapper.LicenseMapper;
 import com.service.inspection.repositories.LicenseRepository;
 import com.service.inspection.utils.ServiceUtils;
-import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.UUID;
+import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
@@ -24,11 +27,12 @@ public class LicenseService {
     private final ServiceUtils serviceUtils;
 
 
-    public void addLicense(long userId, long companyId, License license) {
+    public Identifiable addLicense(long userId, long companyId, License license) {
         Company company = serviceUtils.getCompanyIfExistForUser(companyId, userId);
 
         license.setCompany(company);
         licenseRepository.save(license);
+        return license;
     }
 
     @Transactional

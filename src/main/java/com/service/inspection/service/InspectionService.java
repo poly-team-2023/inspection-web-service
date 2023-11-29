@@ -1,10 +1,18 @@
 package com.service.inspection.service;
 
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+
 import com.deepoove.poi.XWPFTemplate;
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.document.DocumentModel;
 import com.service.inspection.dto.inspection.InspectionDto;
-import com.service.inspection.entities.*;
+import com.service.inspection.entities.Category;
+import com.service.inspection.entities.Identifiable;
+import com.service.inspection.entities.Inspection;
+import com.service.inspection.entities.Photo;
+import com.service.inspection.entities.User;
 import com.service.inspection.entities.enums.ProgressingStatus;
 import com.service.inspection.mapper.CategoryMapper;
 import com.service.inspection.mapper.InspectionMapper;
@@ -14,8 +22,8 @@ import com.service.inspection.repositories.CategoryRepository;
 import com.service.inspection.repositories.InspectionRepository;
 import com.service.inspection.repositories.PhotoRepository;
 import com.service.inspection.repositories.UserRepository;
-import com.service.inspection.service.document.ImageProcessingFacade;
 import com.service.inspection.utils.ServiceUtils;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +32,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +54,7 @@ public class InspectionService {
     private final File mainTemplate;
 
     @Transactional
-    public Long createInspection(Long userId) {
+    public Identifiable createInspection(Long userId) {
         User user = serviceUtils.tryToFindByID(userRepository, userId); // TODO
 
         Inspection inspection = new Inspection();
@@ -59,11 +63,15 @@ public class InspectionService {
         user.addInspection(inspection);
 
         inspectionRepository.save(inspection);
-        return inspection.getId();
+        return inspection;
     }
 
-    public Page<Inspection> getUserInspection(Long userId, Integer pageSize, Integer pageNum) {
+    public Page<Inspection> getUserInspections(Long userId, Integer pageSize, Integer pageNum) {
         return inspectionRepository.findByUsersId(userId, PageRequest.of(pageNum, pageSize));
+    }
+
+    public Inspection getUserInspection(Long userId, Long inspectionId) {
+        return getInspectionIfExistForUser(inspectionId, userId);
     }
 
     public void deleteInspection(Long inspectionId, Long userId) {

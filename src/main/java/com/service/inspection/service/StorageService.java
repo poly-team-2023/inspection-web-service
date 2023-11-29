@@ -1,19 +1,21 @@
 package com.service.inspection.service;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.service.inspection.configs.BucketName;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.springframework.scheduling.annotation.Async;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -31,10 +33,17 @@ public class StorageService {
             objectMetadata.setContentType(multipartFile.getContentType());
             objectMetadata.setContentLength(multipartFile.getSize());
 
+            PutObjectRequest putObjectRequest =
+                    new PutObjectRequest(bucketName.getBucket(), key, inputStream, objectMetadata);
+
+            int newRightReadLimit = putObjectRequest.getRequestClientOptions().getReadLimit() * 100;
+
+            putObjectRequest.getRequestClientOptions().setReadLimit(newRightReadLimit);
+
             if (!amazonS3.doesBucketExist(bucketName.getBucket())) {
                 amazonS3.createBucket(bucketName.getBucket());
             }
-            amazonS3.putObject(bucketName.getBucket(), key, inputStream, objectMetadata);
+            amazonS3.putObject(putObjectRequest);
         } catch (IOException e) {
             throw new RuntimeException();
         }

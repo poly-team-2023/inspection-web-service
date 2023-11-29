@@ -1,48 +1,28 @@
 package com.service.inspection.entities;
 
-import java.time.LocalDate;
 import java.util.Objects;
-import java.util.UUID;
 
 import org.hibernate.proxy.HibernateProxy;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "equipment")
+@Table(name = "feedback")
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-public class Equipment extends Named {
-
-    @Column(name = "serial_number", nullable = false)
-    private String serialNumber;
-
-    @Column(name = "verification_date", nullable = false)
-    private LocalDate verificationDate;
-
-    @Column(name = "verification_scan_name")
-    private String verificationScanName;
-
-    @Column(name = "verification_scan_uuid")
-    private UUID verificationScanUuid;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private User user;
+public class FeedbackRequest extends Identifiable{
+    private String email;
+    private String fullName;
+    private String number;
+    private String companyName;
+    private String details;
 
     @Override
     public final boolean equals(Object o) {
@@ -51,8 +31,8 @@ public class Equipment extends Named {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        Equipment equipment = (Equipment) o;
-        return getId() != null && Objects.equals(getId(), equipment.getId());
+        FeedbackRequest that = (FeedbackRequest) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
     }
 
     @Override

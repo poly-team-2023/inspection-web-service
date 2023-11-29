@@ -1,15 +1,23 @@
 package com.service.inspection.entities;
 
+import java.util.Objects;
+import java.util.Set;
+
 import com.service.inspection.entities.enums.ERole;
-import jakarta.persistence.*;
+
+import org.hibernate.proxy.HibernateProxy;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.proxy.HibernateProxy;
-
-import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "roles")

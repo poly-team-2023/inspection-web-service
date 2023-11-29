@@ -263,6 +263,19 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="create-user-request" author="admin">
+        <createTable tableName="feedback">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="email" type="varchar(500)"/>
+            <column name="full_name" type="varchar(500)"/>
+            <column name="number" type="varchar(255)"/>
+            <column name="company_name" type="varchar(255)"/>
+            <column name="details" type="text"/>
+        </createTable>
+    </changeSet>
+
     <changeSet id="create-fk-user-user-roles" author="admin">
         <addForeignKeyConstraint baseTableName="user_roles" baseColumnNames="user_id"
                                  constraintName="fk_user_user_roles" referencedTableName="users"

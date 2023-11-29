@@ -1,19 +1,16 @@
 package com.service.inspection.dto.account;
 
-import org.springframework.validation.annotation.Validated;
-
-import jakarta.validation.constraints.NotBlank;
+import com.service.inspection.dto.NamedDto;
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
-@Validated
-public class UserUpdate {
-    @NotBlank
+public class UserWithCompanyDto {
     private String email;
-    @NotBlank
     private String firstName;
-    @NotBlank
     private String secondName;
     private String patronymic;
     private String number;
+    private Set<NamedDto> companies;
 }
