@@ -1,8 +1,8 @@
 package com.service.inspection.dto.equipment;
 
-import lombok.Data;
-
 import java.time.LocalDate;
+
+import lombok.Data;
 
 @Data
 public class GetEquipmentDto {

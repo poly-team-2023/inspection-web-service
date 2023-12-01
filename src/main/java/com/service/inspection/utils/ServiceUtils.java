@@ -1,15 +1,17 @@
 package com.service.inspection.utils;
 
+import java.util.Collection;
+import java.util.Optional;
+
 import com.service.inspection.entities.Company;
 import com.service.inspection.entities.Identifiable;
 import com.service.inspection.repositories.CompanyRepository;
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.Optional;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

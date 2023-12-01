@@ -2,7 +2,6 @@ package com.service.inspection.dto.employer;
 
 import lombok.Data;
 
-
 @Data
 public class GetEmployerDto {
 

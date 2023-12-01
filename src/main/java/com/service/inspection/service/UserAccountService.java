@@ -1,20 +1,22 @@
 package com.service.inspection.service;
 
+import java.util.UUID;
+
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.dto.account.PasswordDto;
 import com.service.inspection.dto.account.UserUpdate;
 import com.service.inspection.entities.User;
 import com.service.inspection.mapper.UserMapper;
 import com.service.inspection.repositories.UserRepository;
-import com.service.inspection.utils.ServiceUtils;
 
+import com.service.inspection.utils.ServiceUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.UUID;
+import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
