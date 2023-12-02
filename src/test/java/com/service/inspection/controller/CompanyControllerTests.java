@@ -1,63 +1,64 @@
 package com.service.inspection.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.service.inspection.dto.auth.UserSignInDto;
+import com.service.inspection.InspectionApplication;
+import com.service.inspection.configs.BucketName;
 import com.service.inspection.dto.company.CompanyDto;
+import com.service.inspection.dto.employer.EmployerDto;
+import com.service.inspection.entities.Company;
+import com.service.inspection.entities.Employer;
+import com.service.inspection.entities.Identifiable;
 import com.service.inspection.entities.User;
-import com.service.inspection.jwt.JwtUtils;
-import com.service.inspection.repositories.RoleRepository;
+import com.service.inspection.mapper.CommonMapper;
+import com.service.inspection.mapper.CompanyMapper;
+import com.service.inspection.mapper.EmployerMapper;
+import com.service.inspection.mapper.LicenseMapper;
+import com.service.inspection.repositories.EmployerRepository;
 import com.service.inspection.repositories.UserRepository;
 import com.service.inspection.service.AbstractTestContainerStartUp;
 import com.service.inspection.service.AuthService;
-import com.service.inspection.service.security.UserDetailsImpl;
+import com.service.inspection.service.CompanyService;
+import com.service.inspection.service.EmployerService;
+import com.service.inspection.service.LicenseService;
+import com.service.inspection.service.StorageService;
 import com.service.inspection.utils.ControllerUtils;
-import jakarta.servlet.http.Cookie;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.jdbc.JdbcTestUtils;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.security.Principal;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
+@SpringBootTest(classes = InspectionApplication.class)
 @AutoConfigureMockMvc
 public class CompanyControllerTests extends AbstractTestContainerStartUp {
     @Autowired
-    private UserRepository userRepo;
-
-    @Autowired
-    private RoleRepository roleRepo;
-
-    @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private UserRepository userRepo;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private MockMvc mockMvc;
+    private EmployerRepository employerRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -66,16 +67,37 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
     private AuthService authService;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private AuthController authController;
 
     @MockBean
-    private JwtUtils jwtUtils;
+    private UserDetailsService userDetailsService;
 
-//    @MockBean
-//    private ControllerUtils controllerUtils;
+    @Autowired
+    private CompanyService companyService;
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+    @Autowired
+    private EmployerService employerService;
+
+    @Autowired
+    private LicenseService licenseService;
+
+    @Autowired
+    private CompanyMapper companyMapper;
+
+    @Autowired
+    private EmployerMapper employerMapper;
+
+    @Autowired
+    private LicenseMapper licenseMapper;
+
+    @Autowired
+    private ControllerUtils controllerUtils;
+
+    @Autowired
+    private CommonMapper commonMapper;
+
+    @Autowired
+    private StorageService storageService;
 
     @AfterEach
     void tearDown() {
@@ -83,42 +105,173 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
     }
 
     @Test
-    void test() throws Exception {
+    void companyBasicActionsTest() {
         User user = new User();
         user.setFirstName("test");
         user.setSecondName("test");
         user.setPassword(passwordEncoder.encode("password"));
         user.setEmail("test@example.com");
-        userRepo.save(user);
+        User savedUser = userRepo.save(user);
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken("test@example.com", "password");
-        authentication = authenticationManager.authenticate(authentication);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        companyService.createCompany(savedUser);
 
-        // Mock JWT token generation
-        when(jwtUtils.generateJwtToken(any(Authentication.class))).thenReturn("mockedJWTToken");
+        Company company = getSingleCompany(savedUser.getId());
+        assertEquals(company.getUser(), user);
 
-//         Mock cookie creation
-//        when(controllerUtils.createJwtCookie(any())).thenReturn(null );
+        companyService.deleteCompany(user.getId(), company.getId());
 
-        UserSignInDto userSignInDto = new UserSignInDto();
-        userSignInDto.setEmail(user.getEmail());
-        userSignInDto.setPassword("test-password");
+        List<Company> companies = companyService.getCompanies(savedUser.getId());
+        assertEquals(companies.size(), 0);
+    }
+
+    private Company getSingleCompany(long id) {
+        List<Company> companies = companyService.getCompanies(id);
+        assertEquals(companies.size(), 1);
+
+        return companies.get(0);
+    }
+
+    @Test
+    void createLogo_checkContent() {
+        User user = new User();
+        user.setFirstName("test");
+        user.setSecondName("test");
+        user.setPassword(passwordEncoder.encode("password"));
+        user.setEmail("test@example.com");
+        User savedUser = userRepo.save(user);
+
+        Identifiable companyWithId = companyService.createCompany(savedUser);
+
+        String fileContent = "This is the content of the file";
+        MultipartFile logo = getFile(fileContent);
+        companyService.addLogo(savedUser.getId(), companyWithId.getId(), logo);
+
+        Company savedCompany = getSingleCompany(savedUser.getId());
+        StorageService.BytesWithContentType logoBytes =
+                storageService.getFile(BucketName.COMPANY_LOGO, savedCompany.getLogoUuid().toString());
+        String savedFileContent = new String(logoBytes.getBytes());
+
+        assertEquals(fileContent, savedFileContent);
+    }
+
+    private MultipartFile getFile(String content) {
+        String name = "file";
+        String originalFileName = "sample.txt";
+        String contentType = "text/plain";
+
+        return new MockMultipartFile(
+                name,
+                originalFileName,
+                contentType,
+                content.getBytes()
+        );
+    }
+
+    @Test
+    void updateCompany() {
+        User user = new User();
+        user.setFirstName("test");
+        user.setSecondName("test");
+        user.setPassword(passwordEncoder.encode("password"));
+        user.setEmail("test@example.com");
+        User savedUser = userRepo.save(user);
+
+        Identifiable companyWithId = companyService.createCompany(savedUser);
+
+        Company savedCompany = getSingleCompany(savedUser.getId());
+        assertNull(savedCompany.getName(), "");
+        assertNull(savedCompany.getCity(), "");
+        assertNull(savedCompany.getLegalAddress(), "");
 
         CompanyDto companyDto = new CompanyDto();
-        companyDto.setName("estripper");
-        companyDto.setCity("saint-pi");
-        companyDto.setLegalAddress("turku");
+        companyDto.setName("name");
+        companyDto.setCity("city");
+        companyDto.setLegalAddress("address");
 
-        Authentication finalAuthentication = authentication;
-        mockMvc.perform(MockMvcRequestBuilders
-                        .post("/?comp_id=12")
-                        .content(objectMapper.writeValueAsString(companyDto))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(request -> {
-                            request.setUserPrincipal(finalAuthentication);
-                            return request;
-                        }))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+        companyService.updateCompany(savedUser.getId(), companyWithId.getId(), companyDto);
+        savedCompany = getSingleCompany(savedUser.getId());
+        assertEquals(savedCompany.getName(), "name");
+        assertEquals(savedCompany.getCity(), "city");
+        assertEquals(savedCompany.getLegalAddress(), "address");
+    }
+
+    @Test
+    @Transactional
+    void employeeAddDeleteTest() {
+        User user = new User();
+        user.setFirstName("test");
+        user.setSecondName("test");
+        user.setPassword(passwordEncoder.encode("password"));
+        user.setEmail("test@example.com");
+        User savedUser = userRepo.save(user);
+
+        Identifiable companyWithId = companyService.createCompany(savedUser);
+
+        List<Employer> employers = new ArrayList<>();
+        int employersCount = 4;
+        for (int i = 0; i < employersCount; i++) {
+            Employer employer = new Employer();
+            employer.setPositionName("pos_" + i);
+            employer.setName("name_" + i);
+            employers.add(employer);
+        }
+
+        MultipartFile sign = getFile("sign");
+        for (Employer employer : employers) {
+            Identifiable employerWithId = employerService.addEmployer(
+                    savedUser.getId(),
+                    employerMapper.mapToEmployer(employer.getName(), employer.getPositionName()),
+                    companyWithId.getId(),
+                    sign
+            );
+            employer.setId(employerWithId.getId());
+        }
+
+        for (int i = 0; i < employersCount; i++) {
+            long employeeId = employers.get(i).getId();
+            employerService.deleteEmployer(savedUser.getId(), companyWithId.getId(), employeeId);
+            assertTrue(employerRepository.findById(employeeId).isEmpty());
+
+            int existedEmployersCount = employerRepository.findAllByCompanyId(companyWithId.getId()).size();
+            int expectedEmployersCount = employersCount - i - 1;
+            assertEquals(expectedEmployersCount, existedEmployersCount);
+        }
+    }
+
+    @Test
+    @Transactional
+    @Disabled
+    void employeeUpdateTest() {
+        User user = new User();
+        user.setFirstName("test");
+        user.setSecondName("test");
+        user.setPassword(passwordEncoder.encode("password"));
+        user.setEmail("test@example.com");
+        User savedUser = userRepo.save(user);
+
+        Identifiable companyWithId = companyService.createCompany(savedUser);
+
+        String name = "name";
+        String pos = "pos";
+        MultipartFile sign = getFile("sign");
+        Identifiable employerWithId = employerService.addEmployer(
+                savedUser.getId(),
+                employerMapper.mapToEmployer(name, pos),
+                companyWithId.getId(),
+                sign
+        );
+
+        EmployerDto employerDto = new EmployerDto();
+        employerDto.setName(name + 1);
+        employerDto.setPositionName(pos + 1);
+
+        employerService.updateEmployer(savedUser.getId(), companyWithId.getId(), employerWithId.getId(), employerDto);
+        Optional<Employer> employerOptional = employerRepository.findById(employerWithId.getId());
+
+        assert employerOptional.isPresent();
+        Employer employer = employerOptional.get();
+
+        assertEquals(employer.getName(), name + 1);
+        assertEquals(employer.getPositionName(), pos + 1);
     }
 }
