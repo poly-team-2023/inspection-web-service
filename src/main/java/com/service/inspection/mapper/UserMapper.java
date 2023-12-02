@@ -1,11 +1,18 @@
 package com.service.inspection.mapper;
 
 import com.service.inspection.dto.account.UserUpdate;
+import com.service.inspection.dto.account.UserWithCompanyDto;
 import com.service.inspection.dto.auth.UserSignUpDto;
 import com.service.inspection.entities.Role;
 import com.service.inspection.entities.User;
 import com.service.inspection.service.security.UserDetailsImpl;
-import org.mapstruct.*;
+
+import org.mapstruct.InjectionStrategy;
+import org.mapstruct.IterableMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +30,9 @@ public abstract class UserMapper {
     @Mapping(target = "password", source = "password", qualifiedByName = "createCryptPassword")
     @Mapping(target = "roles", source = "email", qualifiedByName = "userRole") // email just for mapping
     public abstract User mapToUser(UserSignUpDto userSignUpDto);
+
+    @Mapping(source = "companies", target = "companies")
+    public abstract UserWithCompanyDto mapToUserWithCompany(User user);
 
     @IterableMapping
     SimpleGrantedAuthority mapToGrantedAuthority(Role r) {
