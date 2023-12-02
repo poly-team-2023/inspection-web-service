@@ -19,8 +19,6 @@ import com.service.inspection.service.EmployerService;
 import com.service.inspection.service.LicenseService;
 import com.service.inspection.service.StorageService;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -72,33 +70,24 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
     @Autowired
     private LicenseRepository licenseRepository;
 
-    private static final User user = new User();
-
     @AfterEach
     void tearDown() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, "users", "user_roles");
-    }
-
-    @BeforeAll
-    static void initUser() {
-        user.setFirstName("test");
-        user.setSecondName("test");
-        user.setEmail("test@example.com");
+        JdbcTestUtils.deleteFromTables(jdbcTemplate,
+                "users", "user_roles", "company", "employer", "license");
     }
 
     @Test
     void companyBasicActionsTest() {
-        user.setPassword(passwordEncoder.encode("password"));
-        User savedUser = userRepo.save(user);
+        User user = userRepo.save(getUser(1));
 
-        companyService.createCompany(savedUser);
+        companyService.createCompany(user);
 
-        Company company = getSingleCompany(savedUser.getId());
+        Company company = getSingleCompany(user.getId());
         assertEquals(company.getUser(), user);
 
         companyService.deleteCompany(user.getId(), company.getId());
 
-        List<Company> companies = companyService.getCompanies(savedUser.getId());
+        List<Company> companies = companyService.getCompanies(user.getId());
         assertEquals(companies.size(), 0);
     }
 
@@ -111,16 +100,15 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
 
     @Test
     void createLogo_checkContent() {
-        user.setPassword(passwordEncoder.encode("password"));
-        User savedUser = userRepo.save(user);
+        User user = userRepo.save(getUser(1));
 
-        Identifiable companyWithId = companyService.createCompany(savedUser);
+        Identifiable companyWithId = companyService.createCompany(user);
 
         String fileContent = "This is the content of the file";
         MultipartFile logo = getFile(fileContent);
-        companyService.addLogo(savedUser.getId(), companyWithId.getId(), logo);
+        companyService.addLogo(user.getId(), companyWithId.getId(), logo);
 
-        Company savedCompany = getSingleCompany(savedUser.getId());
+        Company savedCompany = getSingleCompany(user.getId());
         StorageService.BytesWithContentType logoBytes =
                 storageService.getFile(BucketName.COMPANY_LOGO, savedCompany.getLogoUuid().toString());
         String savedFileContent = new String(logoBytes.getBytes());
@@ -128,27 +116,13 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
         assertEquals(fileContent, savedFileContent);
     }
 
-    private MultipartFile getFile(String content) {
-        String name = "file";
-        String originalFileName = "sample.txt";
-        String contentType = "text/plain";
-
-        return new MockMultipartFile(
-                name,
-                originalFileName,
-                contentType,
-                content.getBytes()
-        );
-    }
-
     @Test
     void updateCompany() {
-        user.setPassword(passwordEncoder.encode("password"));
-        User savedUser = userRepo.save(user);
+        User user = userRepo.save(getUser(1));
 
-        Identifiable companyWithId = companyService.createCompany(savedUser);
+        Identifiable companyWithId = companyService.createCompany(user);
 
-        Company savedCompany = getSingleCompany(savedUser.getId());
+        Company savedCompany = getSingleCompany(user.getId());
         assertNull(savedCompany.getName(), "");
         assertNull(savedCompany.getCity(), "");
         assertNull(savedCompany.getLegalAddress(), "");
@@ -158,8 +132,8 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
         companyDto.setCity("city");
         companyDto.setLegalAddress("address");
 
-        companyService.updateCompany(savedUser.getId(), companyWithId.getId(), companyDto);
-        savedCompany = getSingleCompany(savedUser.getId());
+        companyService.updateCompany(user.getId(), companyWithId.getId(), companyDto);
+        savedCompany = getSingleCompany(user.getId());
         assertEquals(savedCompany.getName(), "name");
         assertEquals(savedCompany.getCity(), "city");
         assertEquals(savedCompany.getLegalAddress(), "address");
@@ -167,10 +141,9 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
 
     @Test
     void employeeAddDeleteTest() {
-        user.setPassword(passwordEncoder.encode("password"));
-        User savedUser = userRepo.save(user);
+        User user = userRepo.save(getUser(1));
 
-        Identifiable companyWithId = companyService.createCompany(savedUser);
+        Identifiable companyWithId = companyService.createCompany(user);
 
         List<Employer> employers = new ArrayList<>();
         int employersCount = 4;
@@ -184,7 +157,7 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
         MultipartFile sign = getFile("sign");
         for (Employer employer : employers) {
             Identifiable employerWithId = employerService.addEmployer(
-                    savedUser.getId(),
+                    user.getId(),
                     employerMapper.mapToEmployer(employer.getName(), employer.getPositionName()),
                     companyWithId.getId(),
                     sign
@@ -194,7 +167,7 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
 
         for (int i = 0; i < employersCount; i++) {
             long employeeId = employers.get(i).getId();
-            employerService.deleteEmployer(savedUser.getId(), companyWithId.getId(), employeeId);
+            employerService.deleteEmployer(user.getId(), companyWithId.getId(), employeeId);
             assertTrue(employerRepository.findById(employeeId).isEmpty());
 
             int existedEmployersCount = employerRepository.findAllByCompanyId(companyWithId.getId()).size();
@@ -205,16 +178,15 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
 
     @Test
     void employeeUpdateTest() {
-        user.setPassword(passwordEncoder.encode("password"));
-        User savedUser = userRepo.save(user);
+        User user = userRepo.save(getUser(1));
 
-        Identifiable companyWithId = companyService.createCompany(savedUser);
+        Identifiable companyWithId = companyService.createCompany(user);
 
         String name = "name";
         String pos = "pos";
         MultipartFile sign = getFile("sign");
         Identifiable employerWithId = employerService.addEmployer(
-                savedUser.getId(),
+                user.getId(),
                 employerMapper.mapToEmployer(name, pos),
                 companyWithId.getId(),
                 sign
@@ -228,7 +200,7 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
         employerDto.setName(name + 1);
         employerDto.setPositionName(pos + 1);
 
-        employerService.updateEmployer(savedUser.getId(), companyWithId.getId(), employerWithId.getId(), employerDto);
+        employerService.updateEmployer(user.getId(), companyWithId.getId(), employerWithId.getId(), employerDto);
 
         Optional<Employer> employerOptional = employerRepository.findById(employerWithId.getId());
         assert employerOptional.isPresent();
@@ -244,36 +216,33 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
     }
 
     @Test
-    @Disabled
-    void licenceTest() throws InterruptedException {
-        user.setPassword(passwordEncoder.encode("password"));
-        User savedUser = userRepo.save(user);
+    void licenceTest() {
+        User user = userRepo.save(getUser(1));
 
-        Identifiable companyWithId = companyService.createCompany(savedUser);
+        Identifiable companyWithId = companyService.createCompany(user);
 
         License license = new License();
         license.setName("licence_name");
         license.setNumber(123);
 
-        Identifiable licenceWithId = licenseService.addLicense(savedUser.getId(), companyWithId.getId(), license);
-        licenseService.addLicense(savedUser.getId(), companyWithId.getId(), license); // it's ok.
+        Identifiable licenceWithId = licenseService.addLicense(user.getId(), companyWithId.getId(), license);
+        licenseService.addLicense(user.getId(), companyWithId.getId(), license); // it's ok.
 
         List<License> licences = licenseRepository.findAll();
         assertEquals(licences.size(), 1);
         assertEquals(licences.get(0).getName(), "licence_name");
         assertEquals(licences.get(0).getNumber(), 123);
 
-        licenseService.deleteLicense(savedUser.getId(), companyWithId.getId(), licenceWithId.getId());
+        licenseService.deleteLicense(user.getId(), companyWithId.getId(), licenceWithId.getId());
 
         assertTrue(licenseRepository.findAll().isEmpty());
     }
 
     @Test
     void sroBaseTest() {
-        user.setPassword(passwordEncoder.encode("password"));
-        User savedUser = userRepo.save(user);
+        User user = userRepo.save(getUser(1));
 
-        Identifiable companyWithId = companyService.createCompany(savedUser);
+        Identifiable companyWithId = companyService.createCompany(user);
 
         License license = new License();
         license.setName("licence_name");
@@ -281,21 +250,20 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
 
         String sroContent = "sro";
         MultipartFile sro = getFile(sroContent);
-        companyService.addSro(savedUser.getId(), companyWithId.getId(), sro);
-        StorageService.BytesWithContentType sroBytes = companyService.getSroScan(companyWithId.getId(), savedUser.getId());
+        companyService.addSro(user.getId(), companyWithId.getId(), sro);
+        StorageService.BytesWithContentType sroBytes = companyService.getSroScan(companyWithId.getId(), user.getId());
 
         assertEquals(new String(sroBytes.getBytes()), sroContent);
 
-        companyService.deleteSro(savedUser.getId(), companyWithId.getId());
+        companyService.deleteSro(user.getId(), companyWithId.getId());
 
-        StorageService.BytesWithContentType sroBytesAfterDelete = companyService.getSroScan(companyWithId.getId(), savedUser.getId());
+        StorageService.BytesWithContentType sroBytesAfterDelete = companyService.getSroScan(companyWithId.getId(), user.getId());
         assertNull(sroBytesAfterDelete);
     }
 
     @Test
     void sroReplacementTest() {
-        user.setPassword(passwordEncoder.encode("password"));
-        User savedUser = userRepo.save(user);
+        User savedUser = userRepo.save(getUser(1));
 
         Identifiable companyWithId = companyService.createCompany(savedUser);
 
@@ -305,11 +273,34 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
 
         companyService.addSro(savedUser.getId(), companyWithId.getId(), getFile("sro"));
 
-        // Заменяем другим.
         String sroNewContent = "sro_new";
         companyService.addSro(savedUser.getId(), companyWithId.getId(), getFile(sroNewContent));
         StorageService.BytesWithContentType sroBytes = companyService.getSroScan(companyWithId.getId(), savedUser.getId());
 
         assertEquals(new String(sroBytes.getBytes()), sroNewContent);
+    }
+
+    private User getUser(int prefix) {
+        User user = new User();
+
+        user.setFirstName("test" + prefix);
+        user.setSecondName("test" + prefix);
+        user.setEmail("test" + prefix + "@example.com");
+        user.setPassword(passwordEncoder.encode("password"));
+
+        return user;
+    }
+
+    private MultipartFile getFile(String content) {
+        String name = "file";
+        String originalFileName = "sample.txt";
+        String contentType = "text/plain";
+
+        return new MockMultipartFile(
+                name,
+                originalFileName,
+                contentType,
+                content.getBytes()
+        );
     }
 }
