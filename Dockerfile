@@ -1,5 +1,10 @@
-FROM openjdk:17-jdk-slim
+FROM openjdk:17-oracle AS build
+WORKDIR /app
+COPY . .
+RUN chmod +x ./mvnw
+RUN ["./mvnw", "package", "-Dmaven.test.skip=true"]
+
+FROM openjdk:17-oracle
 EXPOSE 8080
-ARG JAR_FILE=target/inspection-0.0.1-SNAPSHOT.jar
-ADD ${JAR_FILE} app.jar
+COPY --from=build /app/target/inspection-0.0.1.jar app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
