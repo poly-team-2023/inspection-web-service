@@ -57,7 +57,9 @@ public class LicenseService {
 
     public void deleteLicense(long userId, long companyId, long licenseId) {
         serviceUtils.tryToFindByID(
-                serviceUtils.getCompanyIfExistForUser(companyId, userId).getEmployers(), licenseId);
+                serviceUtils.getCompanyIfExistForUser(companyId, userId).getEmployers(),
+                licenseId
+        );
         licenseRepository.deleteById(licenseId);
     }
 }

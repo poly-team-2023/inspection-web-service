@@ -43,14 +43,18 @@ public class EmployerService {
         return employer;
     }
 
+    @Transactional
     public void updateEmployer(long userId, long companyId, long employerId, EmployerDto dto) {
         Employer employer = serviceUtils.tryToFindByID(
-                serviceUtils.getCompanyIfExistForUser(companyId, userId).getEmployers(), employerId);
+                serviceUtils.getCompanyIfExistForUser(companyId, userId).getEmployers(),
+                employerId
+        );
 
         employerMapper.mapToUpdateEmployer(employer, dto);
         employerRepository.save(employer);
     }
 
+    @Transactional
     public void deleteEmployer(long userId, long companyId, long employerId) {
         serviceUtils.tryToFindByID(
                 serviceUtils.getCompanyIfExistForUser(companyId, userId).getEmployers(), employerId);
