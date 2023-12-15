@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 public class GetEquipmentDto {
@@ -13,8 +12,7 @@ public class GetEquipmentDto {
     private String name;
     private String serialNumber;
     private String verificationNumber;
-    @JsonFormat(pattern = "dd.MM.yyyy")
-    @DateTimeFormat(pattern = "dd.MM.yyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private LocalDate verificationDate;
 
 }

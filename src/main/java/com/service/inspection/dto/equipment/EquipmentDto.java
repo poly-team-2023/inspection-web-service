@@ -3,9 +3,6 @@ package com.service.inspection.dto.equipment;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.constraints.NotBlank;
@@ -21,9 +18,7 @@ public class EquipmentDto {
     private String serialNumber;
     private String verificationNumber;
     @NotNull
-    @JsonFormat(pattern = "dd.MM.yyyy")
-    @DateTimeFormat(pattern = "dd.MM.yyyy")
-    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private LocalDate verificationDate;
 
 }
