@@ -21,8 +21,8 @@ public class ImageStoringStep extends AbstractImageProcessingStep {
                     storageService.getFile(BucketName.DEFAULT_IMAGE_BUCKET, processingImageDto.getUuid().toString());
             processingImageDto.setPhotoBytes(file.getBytes());
         } catch (Exception e) {
+            return;
         }
-
-//        nextStep.executeProcess(processingImageDto);
+        nextStep.executeProcess(processingImageDto);
     }
 }

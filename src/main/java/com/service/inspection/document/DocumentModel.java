@@ -6,6 +6,7 @@ import com.service.inspection.document.model.ImageModel;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 public class DocumentModel {
+    private Integer year = Year.now().getValue();
     private String projectName;
     private String reportName;
     private String script;

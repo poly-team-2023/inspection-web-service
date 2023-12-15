@@ -19,6 +19,8 @@ import com.service.inspection.utils.ServiceUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -26,7 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -46,8 +51,10 @@ public class InspectionService {
     private final ServiceUtils serviceUtils;
     private final PhotoRepository photoRepository;
     private final DocumentMapper documentMapper;
-    private final DocumentModelService documentModelService;
-    private final File mainTemplate;
+    @Qualifier("mainTemplatePath")
+    private final String templatePath;
+    private final ResourceLoader resourceLoader;
+
 
     @Transactional
     public Identifiable createInspection(Long userId) {
@@ -189,10 +196,12 @@ public class InspectionService {
 
         List<CompletableFuture<Void>> futureResult = new ArrayList<>();
         DocumentModel documentModel = documentMapper.mapToDocumentModel(inspection, futureResult);
-
         CompletableFuture.allOf(futureResult.toArray(new CompletableFuture[0])).thenAccept(x -> {
+            log.info("Start creating document");
             try (
-                    XWPFTemplate template = XWPFTemplate.compile(mainTemplate).render(documentModel);
+                    XWPFTemplate template = XWPFTemplate
+                            .compile(resourceLoader.getResource(templatePath).getInputStream())
+                            .render(documentModel);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
             ) {
 
@@ -242,5 +251,7 @@ public class InspectionService {
 
         storageService.saveFile(BucketName.DOCUMENT, uuid.toString(), inputStream);
         return uuid;
+
     }
+
 }

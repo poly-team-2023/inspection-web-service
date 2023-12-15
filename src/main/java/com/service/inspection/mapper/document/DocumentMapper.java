@@ -50,17 +50,16 @@ public abstract class DocumentMapper {
             Hibernate.initialize(category.getPhotos());
             futureResult.add(
                     documentModelService.processAllPhotosAsync(category.getPhotos()).thenAccept(x -> {
-                        log.debug("Adding category %s to documentModel for inspection with id %s".formatted(category.getName(), inspection.getId()));
                         documentModel.addCategory(this.mapToCategoryModel(category, x));
-                        log.debug("End category adding %s to documentModel for inspection with id %s".formatted(category.getName(), inspection.getId()));
+                        log.debug("Add category {} to inspection {}", category.getId(), inspection.getId());
                     })
             );
         }
+
         UUID uuid = inspection.getMainPhotoUuid();
         if (uuid != null) {
             futureResult.add(documentModelService.processAbstractPhoto(uuid).thenAccept(documentModel::setMainPhoto));
         }
-
     }
 
     abstract CompanyModel companyModel(Company company, @Context List<CompletableFuture<Void>> futureResult);

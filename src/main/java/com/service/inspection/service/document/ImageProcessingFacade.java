@@ -27,9 +27,9 @@ public class ImageProcessingFacade {
 
     @Async("fileAsyncExecutor")
     public CompletableFuture<ProcessingImageDto> processPhoto(ProcessingImageDto photo) {
-        log.info("Start " + Thread.currentThread().getName());
+        log.info("Start processing photo {}, in {}", photo.getId(), Thread.currentThread().getName());
         firstStep.executeProcess(photo);
-        log.info("End " + Thread.currentThread().getName());
+        log.info("End processing photo {}, in {}", photo.getId(), Thread.currentThread().getName());
         return CompletableFuture.completedFuture(photo);
     }
 }

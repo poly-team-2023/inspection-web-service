@@ -26,17 +26,16 @@ public class DocumentModelService {
 
     @Async
     public CompletableFuture<List<ImageModel>> processAllPhotosAsync(Set<Photo> photos) {
-        log.debug("Start all photos processing" + Thread.currentThread().getName());
+        log.debug("Start all photos processing {}", Thread.currentThread().getName());
         List<CompletableFuture<ImageModel>> futures = Collections.synchronizedList(new ArrayList<>());
         for (Photo photo : photos) {
             ProcessingImageDto processingImageDto = photoMapper.mapToProcessingImage(photo);
-            futures.add(imageProcessingFacade.processPhoto(processingImageDto)
-                    .thenApply(imageMapper::mapToImageModel));
+            futures.add(imageProcessingFacade.processPhoto(processingImageDto).thenApply(imageMapper::mapToImageModel));
         }
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        log.debug("End all photos document processing" + Thread.currentThread().getName());
-        return CompletableFuture
-                .completedFuture(futures.stream().map(x -> x.getNow(null)).collect(Collectors.toList()));
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenApply(f -> {
+            log.debug("End all photos processing {}", Thread.currentThread().getName());
+            return futures.stream().map(CompletableFuture::join).toList();
+        });
     }
 
     public CompletableFuture<ImageModel> processAbstractPhoto(UUID uuid) {

@@ -33,7 +33,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         return PatternMatchUtils.simpleMatch(
-                List.of("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs**", "/api/v1/feedback**").toArray(String[]::new),
+                List.of("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs**", "/api/v1/feedback**", "/api/v1/data/**").toArray(String[]::new),
                 request.getServletPath()
         );
     }

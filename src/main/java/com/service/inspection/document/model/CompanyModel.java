@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CompanyModel {
+    private String name;
     private String legalAddress;
     private String city;
     private ImageModel logo;

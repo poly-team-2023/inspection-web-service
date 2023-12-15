@@ -4,19 +4,22 @@ import com.deepoove.poi.config.Configure;
 import com.deepoove.poi.config.ConfigureBuilder;
 import com.deepoove.poi.data.style.PictureStyle;
 import com.service.inspection.entities.Photo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.ResourceUtils;
+import org.springframework.core.io.ResourceLoader;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Configuration
+@RequiredArgsConstructor
 public class DocumentEngineConfig {
+
+    private final ResourceLoader resourceLoader;
 
     @Bean
     public Configure builderCreator() {
@@ -34,18 +37,12 @@ public class DocumentEngineConfig {
     }
 
     @Bean
-    public Map<Long, Optional<Set<Photo.Defect>>> getInnerMapStorage() {
+    public Map<Long, BlockingQueue<Set<Photo.Defect>>> getInnerMapStorage() {
         return new ConcurrentHashMap<>(100);
     }
 
-    @Bean
-    public File getMainTemplate() {
-        File file;
-        try {
-            file = ResourceUtils.getFile("classpath:test-template2.docx");
-        } catch (FileNotFoundException f) {
-            throw new RuntimeException(); // TODO
-        }
-        return file;
+    @Bean(name="mainTemplatePath")
+    public String getMainTemplatePath() {
+        return "classpath:test-template2.docx";
     }
 }
