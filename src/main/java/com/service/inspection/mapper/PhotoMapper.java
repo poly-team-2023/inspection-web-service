@@ -35,6 +35,7 @@ public interface PhotoMapper {
 
     @Mapping(source = "fileUuid", target = "uuid")
     @Mapping(source = "id", target = "id")
+    @Mapping(source = "defectsCoords", target = "defects")
     ProcessingImageDto mapToProcessingImage(Photo photo);
 
     ProcessingImageDto mapToProcessingImage(UUID uuid);

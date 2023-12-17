@@ -43,15 +43,3 @@ services:
       MINIO_CONSOLE_ADDRESS: ':9001'
       MINIO_REGION: 'ru-msk'
     command: minio server /data
-
-#  nn:
-#    image: image-processor:latest
-#    volumes:
-#      - C:/Users/piatl/IdeaProjects/ck-image-processing/sqlite.db:/ck-image-processing/sqlite.db
-#      - C:/Users/piatl/IdeaProjects/ck-image-processing/res/images:/ck-image-processing/res/images
-#      - C:/Users/piatl/IdeaProjects/ck-image-processing/res/predictions:/ck-image-processing/res/predictions
-#    ports:
-#      - 9022:55558
-#    environment:
-#      SEND_IP: server
-#      SEND_PORT: 8080

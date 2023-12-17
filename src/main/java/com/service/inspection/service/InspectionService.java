@@ -1,6 +1,7 @@
 package com.service.inspection.service;
 
 import com.deepoove.poi.XWPFTemplate;
+import com.google.common.base.Stopwatch;
 import com.service.inspection.advice.MessageException;
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.document.DocumentModel;
@@ -16,6 +17,7 @@ import com.service.inspection.repositories.InspectionRepository;
 import com.service.inspection.repositories.PhotoRepository;
 import com.service.inspection.repositories.UserRepository;
 import com.service.inspection.utils.ServiceUtils;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -186,6 +190,8 @@ public class InspectionService {
     // --------------------------------------- create-document -----------------------------------------
     @Transactional
     public void createDocument(Long inspectionId, Long userId) {
+        Stopwatch timer = Stopwatch.createStarted();
+
         Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
         if (inspection.getStatus() == ProgressingStatus.WAIT_ANALYZE) {
             throw new MessageException(HttpStatus.TOO_EARLY, "Inspection already in analyze");
@@ -208,7 +214,7 @@ public class InspectionService {
                 template.write(byteArrayOutputStream);
                 InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
                 UUID fileUuid = saveDocxFileFile(inspection, inputStream);
-                log.info("Saved file uuid: " + fileUuid);
+                log.info("Saved file uuid {} for inspection {}. Takes: {}", fileUuid, inspectionId, timer.stop());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -245,13 +251,15 @@ public class InspectionService {
     private UUID saveDocxFileFile(Inspection inspection, InputStream inputStream) {
         UUID uuid = UUID.randomUUID();
 
-        inspection.setStatus(ProgressingStatus.READY);
-        inspection.setReportUuid(uuid);
-        inspectionRepository.save(inspection);
+        Inspection inspection1 = inspectionRepository.findById(inspection.getId()).orElse(null);
+
+        inspection1.setStatus(ProgressingStatus.READY);
+        inspection1.setReportUuid(uuid);
+
+        inspectionRepository.save(inspection1);
 
         storageService.saveFile(BucketName.DOCUMENT, uuid.toString(), inputStream);
         return uuid;
-
     }
 
 }

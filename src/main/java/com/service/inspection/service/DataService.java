@@ -24,16 +24,19 @@ public class DataService {
     @Transactional
     public void updatePhotoInfo(Long photoId, Set<Photo.Defect> defects) {
 
-        Photo photo = photoRepository.findById(photoId).orElseThrow(RuntimeException::new);
+        Photo photo = photoRepository.findById(photoId).orElse(null);
+        if (photo == null) return;
 
         if (photosUpdatingStorage.containsKey(photoId)) {
             if (!photosUpdatingStorage.get(photoId).offer(defects)) {
-                log.warn("Cant insert photo {} info about defects", photoId);
+                log.error("Cant insert photo {} info about defects", photoId);
             } else {
                 photo.setDefectsCoords(defects);
                 photoRepository.save(photo);
                 log.debug("Successfully add defects photo {} info", photoId);
             }
+        } else {
+            log.warn("I dont need info about photo {}", photoId);
         }
     }
 }
