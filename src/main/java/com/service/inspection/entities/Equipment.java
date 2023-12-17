@@ -19,6 +19,9 @@ public class Equipment extends Named {
     @Column(name = "serial_number", nullable = false)
     private String serialNumber;
 
+    @Column(name = "verification_number")
+    private String verificationNumber;
+
     @Column(name = "verification_date", nullable = false)
     private LocalDate verificationDate;
 
