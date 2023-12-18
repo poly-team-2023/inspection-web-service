@@ -127,6 +127,7 @@
             <column name="serial_number" type="text">
                 <constraints nullable="false"/>
             </column>
+            <column name="verification_number" type="varchar(255)"/>
             <column name="verification_date" type="date">
                 <constraints nullable="false"/>
             </column>
