@@ -1,6 +1,11 @@
 package com.service.inspection.mapper.document;
 
-import com.deepoove.poi.data.*;
+import com.deepoove.poi.data.CellRenderData;
+import com.deepoove.poi.data.Cells;
+import com.deepoove.poi.data.RowRenderData;
+import com.deepoove.poi.data.Rows;
+import com.deepoove.poi.data.TableRenderData;
+import com.deepoove.poi.data.Tables;
 import com.google.common.base.Strings;
 import com.service.inspection.entities.Equipment;
 import lombok.extern.slf4j.Slf4j;
