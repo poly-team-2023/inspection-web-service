@@ -8,7 +8,12 @@ import com.service.inspection.entities.*;
 import com.service.inspection.service.DocumentModelService;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
-import org.mapstruct.*;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Context;
+import org.mapstruct.InjectionStrategy;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
