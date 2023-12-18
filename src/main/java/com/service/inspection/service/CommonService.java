@@ -2,10 +2,8 @@ package com.service.inspection.service;
 
 import com.service.inspection.entities.FeedbackRequest;
 import com.service.inspection.repositories.FeedbackRepository;
-
-import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

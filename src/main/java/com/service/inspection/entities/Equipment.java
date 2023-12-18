@@ -1,11 +1,5 @@
 package com.service.inspection.entities;
 
-import java.time.LocalDate;
-import java.util.Objects;
-import java.util.UUID;
-
-import org.hibernate.proxy.HibernateProxy;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,6 +11,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.proxy.HibernateProxy;
+
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "equipment")

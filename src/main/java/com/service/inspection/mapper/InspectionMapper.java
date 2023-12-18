@@ -4,7 +4,6 @@ import com.service.inspection.dto.inspection.GetInspectionDto;
 import com.service.inspection.dto.inspection.InspectionDto;
 import com.service.inspection.dto.inspection.InspectionWithName;
 import com.service.inspection.entities.Inspection;
-
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

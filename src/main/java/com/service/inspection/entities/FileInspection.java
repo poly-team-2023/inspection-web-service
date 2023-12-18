@@ -1,12 +1,6 @@
 package com.service.inspection.entities;
 
-import java.time.OffsetDateTime;
-import java.util.Objects;
-
 import com.service.inspection.entities.enums.FileTypes;
-
-import org.hibernate.proxy.HibernateProxy;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,6 +13,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.proxy.HibernateProxy;
+
+import java.time.OffsetDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "file_inspection")

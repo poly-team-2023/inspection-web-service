@@ -1,15 +1,14 @@
 package com.service.inspection.mapper;
 
-import java.util.Set;
-
 import com.service.inspection.dto.inspection.CategoryWithFile;
 import com.service.inspection.entities.Category;
 import com.service.inspection.entities.Inspection;
-
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+
+import java.util.Set;
 
 @Mapper(
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,

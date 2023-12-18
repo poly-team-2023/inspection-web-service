@@ -1,16 +1,15 @@
 package com.service.inspection.mapper;
 
 
-import java.text.MessageFormat;
-
 import com.service.inspection.email.UserFeedbackRequestDto;
 import com.service.inspection.entities.FeedbackRequest;
-
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
+
+import java.text.MessageFormat;
 
 @Mapper(
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,

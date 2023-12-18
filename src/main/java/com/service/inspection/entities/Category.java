@@ -1,15 +1,7 @@
 package com.service.inspection.entities;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-
 import com.service.inspection.entities.enums.Condition;
 import com.service.inspection.entities.enums.ProgressingStatus;
-
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.proxy.HibernateProxy;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,6 +16,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.proxy.HibernateProxy;
+
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "category")

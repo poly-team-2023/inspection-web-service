@@ -6,14 +6,19 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum BucketName {
+
     USER_LOGO("images"),
-    VERIFICATION_SCAN("verification"),
-    SIGNATURE("signature"),
-    LICENSE_SCAN("license"),
-    SRO("sro"),
+    VERIFICATION_SCAN("images"),
+    SIGNATURE("images"),
+    LICENSE_SCAN("images"),
+    SRO("images"),
     COMPANY_LOGO("images"),
-    INSPECTION_MAIN_PHOTO("main-photo"),
-    CATEGORY_PHOTOS("photos");
+    INSPECTION_MAIN_PHOTO("images"),
+    CATEGORY_PHOTOS("images"),
+
+    DEFAULT_IMAGE_BUCKET("images"),
+
+    DOCUMENT("documents");
 
     private final String bucket;
 }
