@@ -193,6 +193,8 @@ public class InspectionService {
         Stopwatch timer = Stopwatch.createStarted();
 
         Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
+        User user = userRepository.findById(userId).orElse(null);
+
         if (inspection.getStatus() == ProgressingStatus.WAIT_ANALYZE) {
             throw new MessageException(HttpStatus.TOO_EARLY, "Inspection already in analyze");
         }
@@ -201,7 +203,7 @@ public class InspectionService {
         inspectionRepository.save(inspection);
 
         List<CompletableFuture<Void>> futureResult = new ArrayList<>();
-        DocumentModel documentModel = documentMapper.mapToDocumentModel(inspection, futureResult);
+        DocumentModel documentModel = documentMapper.mapToDocumentModel(inspection, user, futureResult);
         CompletableFuture.allOf(futureResult.toArray(new CompletableFuture[0])).thenAccept(x -> {
             log.info("Start creating document");
             try (

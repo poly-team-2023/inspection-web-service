@@ -23,6 +23,6 @@ public class ImageStoringStep extends AbstractImageProcessingStep {
         } catch (Exception e) {
             return;
         }
-        nextStep.executeProcess(processingImageDto);
+//        nextStep.executeProcess(processingImageDto);
     }
 }

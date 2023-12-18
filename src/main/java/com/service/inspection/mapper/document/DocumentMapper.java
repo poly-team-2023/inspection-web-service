@@ -4,9 +4,7 @@ import com.service.inspection.document.DocumentModel;
 import com.service.inspection.document.model.CategoryModel;
 import com.service.inspection.document.model.CompanyModel;
 import com.service.inspection.document.model.ImageModel;
-import com.service.inspection.entities.Category;
-import com.service.inspection.entities.Company;
-import com.service.inspection.entities.Inspection;
+import com.service.inspection.entities.*;
 import com.service.inspection.service.DocumentModelService;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
@@ -22,8 +20,7 @@ import java.util.concurrent.CompletableFuture;
 @Mapper(
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
         componentModel = "spring",
-        uses = {ImageMapper.class}
-
+        uses = {ImageMapper.class, TableMapper.class}
 )
 @Slf4j
 public abstract class DocumentMapper {
@@ -31,20 +28,19 @@ public abstract class DocumentMapper {
     @Autowired
     private DocumentModelService documentModelService;
 
-    @Mapping(target = "company", source = "company")
-    @Mapping(source = "name", target = "projectName")
-    @Mapping(source = "reportName", target = "reportName", defaultValue = "Технический отчет об обследовании")
-    @Mapping(source = "script", target = "script")
+    @Mapping(target = "company", source = "inspection.company")
+    @Mapping(source = "inspection.name", target = "projectName")
+    @Mapping(source = "inspection.reportName", target = "reportName", defaultValue = "Технический отчет об обследовании")
+    @Mapping(source = "inspection.script", target = "script")
     @Mapping(target = "categories", ignore = true)
-    public abstract DocumentModel mapToDocumentModel(Inspection inspection, @Context List<CompletableFuture<Void>> futureResult);
+    public abstract DocumentModel mapToDocumentModel(Inspection inspection, User user, @Context List<CompletableFuture<Void>> futureResult);
 
     @Mapping(source = "processedPhotos", target = "photos")
     public abstract CategoryModel mapToCategoryModel(Category category, Collection<ImageModel> processedPhotos);
 
     @AfterMapping
-    public void mappingAsyncPhotoFields(@MappingTarget DocumentModel documentModel, Inspection inspection,
+    public void mappingAsyncPhotoFields(@MappingTarget DocumentModel documentModel, Inspection inspection, User user,
                                         @Context List<CompletableFuture<Void>> futureResult) {
-
         Set<Category> categories = inspection.getCategories();
         for (Category category : categories) {
             Hibernate.initialize(category.getPhotos());

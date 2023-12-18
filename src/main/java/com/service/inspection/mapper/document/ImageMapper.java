@@ -17,6 +17,7 @@ import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Mapper(
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
@@ -24,12 +25,6 @@ import java.util.Set;
 )
 @Slf4j
 public abstract class ImageMapper {
-
-    @Autowired
-    private StorageService storageService;
-
-    @Autowired
-    private DocumentEngineConfig documentEngineConfig;
 
     @Named(value = "mapToModelPicture")
     public PictureRenderData mapToImageModel(byte[] bytes) {
@@ -42,7 +37,7 @@ public abstract class ImageMapper {
 
     public String mapToImageTitle(Set<Photo.Defect> defects) {
         if (defects != null) {
-            return Strings.join(defects.stream().map(Photo.Defect::getName).toList(), ' ');
+            return defects.stream().map(Photo.Defect::getName).collect(Collectors.joining(", "));
         }
         return "Без названия";
     }
