@@ -26,6 +26,6 @@ We release security-supported updates regularly. Please stay updated and apply p
 
 ## Contact Us
 
-If you have any questions or concerns regarding security, please contact us at security@example.com.
+If you have any questions or concerns regarding security, please contact us at piatlin2002@gmail.com.
 
 Thank you for helping us ensure the security of our project.
