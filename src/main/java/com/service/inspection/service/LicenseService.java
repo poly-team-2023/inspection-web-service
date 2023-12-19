@@ -81,7 +81,7 @@ public class LicenseService {
         licenseRepository.save(license);
     }
 
-    public void deleteLicense(long userId, long companyId, long licenseId) { // TODO: FIX
+    public void deleteLicense(long userId, long companyId, long licenseId) {
         Company company = serviceUtils.getCompanyIfExistForUser(userId, companyId);
         License license = serviceUtils.tryToFindByID(company.getLicenses(), licenseId);
         company.getLicenses().remove(license);
