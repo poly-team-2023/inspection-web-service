@@ -1,6 +1,5 @@
 package com.service.inspection.service;
 
-import java.util.List;
 import java.util.UUID;
 
 import com.service.inspection.configs.BucketName;

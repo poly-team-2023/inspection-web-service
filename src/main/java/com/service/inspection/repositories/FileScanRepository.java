@@ -11,7 +11,4 @@ import java.util.List;
 @Repository
 public interface FileScanRepository extends JpaRepository<FileScan, Long> {
 
-    List<FileScan> findFileScanByCompany(Company company);
-
-    List<FileScan> findFileScanByLicense(License company);
 }

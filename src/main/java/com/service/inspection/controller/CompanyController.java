@@ -94,7 +94,6 @@ public class CompanyController {
     public ResponseEntity<GetCompanyDto> getCompany(@PathVariable("comp_id") long id,
                                                     Authentication authentication) {
         Company company = serviceUtils.getCompanyIfExistForUser(controllerUtils.getUserId(authentication), id);
-        GetCompanyDto getCompanyDto = companyMapper.mapToDto(company);
         return ResponseEntity.ok(companyMapper.mapToDto(company));
     }
 

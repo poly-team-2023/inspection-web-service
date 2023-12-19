@@ -75,7 +75,7 @@ public class EquipmentController {
                 controllerUtils.getUserId(authentication), id, scanNumber, file)));
     }
 
-    @PutMapping("/{equip_id}/file/{fileId}")
+    @PutMapping("/{equip_id}/file/{file_id}")
     @Operation(summary = "Обновить скан")
     public ResponseEntity<Void> updateFile(@PathVariable("equip_id") long equipId,
                                            @PathVariable("file_id") long fileId,
@@ -85,7 +85,7 @@ public class EquipmentController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{equip_id}/file/{fileId}")
+    @DeleteMapping("/{equip_id}/file/{file_id}")
     @Operation(summary = "Удалить скан")
     public ResponseEntity<Void> deleteFile(@PathVariable("equip_id") long equipId,
                                            @PathVariable("file_id") long fileId,
