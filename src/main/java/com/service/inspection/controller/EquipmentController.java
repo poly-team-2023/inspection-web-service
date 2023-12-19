@@ -14,15 +14,7 @@ import com.service.inspection.utils.ControllerUtils;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -73,12 +65,40 @@ public class EquipmentController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{equip_id}/pic")
+    @PostMapping("/{equip_id}/file")
     @Operation(summary = "Добавить скан к оборудованию")
-    public ResponseEntity<Void> addPicture(@PathVariable("equip_id") long id,
-                                           MultipartFile picture,
+    public ResponseEntity<IdentifiableDto> addFile(@PathVariable("equip_id") long id,
+                                                   @RequestParam("scanNumber") int scanNumber,
+                                                   MultipartFile file,
+                                                   Authentication authentication) {
+        return ResponseEntity.ok(commonMapper.mapToIdentifiableDto(equipmentService.addScan(
+                controllerUtils.getUserId(authentication), id, scanNumber, file)));
+    }
+
+    @PutMapping("/{equip_id}/file/{fileId}")
+    @Operation(summary = "Обновить скан")
+    public ResponseEntity<Void> updateFile(@PathVariable("equip_id") long equipId,
+                                           @PathVariable("file_id") long fileId,
+                                           @RequestParam("scanNumber") int scanNumber,
                                            Authentication authentication) {
-        equipmentService.addPicture(controllerUtils.getUserId(authentication), id, picture);
+        equipmentService.updateScan(controllerUtils.getUserId(authentication), equipId, fileId, scanNumber);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{equip_id}/file/{fileId}")
+    @Operation(summary = "Удалить скан")
+    public ResponseEntity<Void> deleteFile(@PathVariable("equip_id") long equipId,
+                                           @PathVariable("file_id") long fileId,
+                                           Authentication authentication) {
+        equipmentService.deleteScan(controllerUtils.getUserId(authentication), equipId, fileId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{equip_id}/file")
+    @Operation(summary = "Удалить все сканы")
+    public ResponseEntity<Void> deleteAllFiles(@PathVariable("equip_id") long equipId,
+                                               Authentication authentication) {
+        equipmentService.deleteAllScan(controllerUtils.getUserId(authentication), equipId);
         return ResponseEntity.ok().build();
     }
 }
