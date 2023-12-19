@@ -18,6 +18,7 @@ import com.service.inspection.service.LicenseService;
 import com.service.inspection.service.security.UserDetailsImpl;
 import com.service.inspection.utils.ControllerUtils;
 
+import com.service.inspection.utils.ServiceUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -49,6 +50,7 @@ public class CompanyController {
     private final CompanyService companyService;
     private final EmployerService employerService;
     private final LicenseService licenseService;
+    private final ServiceUtils serviceUtils;
     private final CompanyMapper companyMapper;
     private final EmployerMapper employerMapper;
     private final LicenseMapper licenseMapper;
@@ -89,8 +91,10 @@ public class CompanyController {
 
     @GetMapping("/{comp_id}")
     @Operation(summary = "Получить информацию о компании")
-    public ResponseEntity<GetCompanyDto> getCompany(@PathVariable("comp_id") long id) {
-        Company company = companyService.get(id);
+    public ResponseEntity<GetCompanyDto> getCompany(@PathVariable("comp_id") long id,
+                                                    Authentication authentication) {
+        Company company = serviceUtils.getCompanyIfExistForUser(controllerUtils.getUserId(authentication), id);
+        GetCompanyDto getCompanyDto = companyMapper.mapToDto(company);
         return ResponseEntity.ok(companyMapper.mapToDto(company));
     }
 
@@ -147,13 +151,44 @@ public class CompanyController {
                 controllerUtils.getUserId(authentication), id, licenseMapper.mapToLicense(dto))));
     }
 
-    @PostMapping("/{comp_id}/license/{lic_id}/pic")
+    @PostMapping("/{comp_id}/license/{lic_id}")
     @Operation(summary = "Добавление картинки к лицензии")
-    public ResponseEntity<Void> addLicensePicture(@PathVariable("comp_id") long compId,
+    public ResponseEntity<IdentifiableDto> addLicensePicture(@PathVariable("comp_id") long compId,
                                                   @PathVariable("lic_id") long licId,
+                                                  @RequestParam("scanNumber") int scanNumber,
                                                   MultipartFile scan,
                                                   Authentication authentication) {
-        licenseService.addLicensePicture(controllerUtils.getUserId(authentication), compId, licId, scan);
+        return ResponseEntity.ok(commonMapper.mapToIdentifiableDto(licenseService.addLicenseScan(
+                controllerUtils.getUserId(authentication), compId, licId, scanNumber, scan)));
+    }
+
+    @PutMapping("/{comp_id}/license/{lic_id}/{scan_id}")
+    @Operation(summary = "Обновление скана")
+    public ResponseEntity<Void> updateLicenseScan(@PathVariable("comp_id") long compId,
+                                                  @PathVariable("lic_id") long licId,
+                                                  @PathVariable("scan_id") long scanId,
+                                                  @RequestParam("scanNumber") int scanNumber,
+                                                  Authentication authentication) {
+        licenseService.updateLicenseScan(controllerUtils.getUserId(authentication), compId, licId, scanId, scanNumber);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{comp_id}/license/{lic_id}/{scan_id}")
+    @Operation(summary = "Удаление скана")
+    public ResponseEntity<Void> deleteLicenseScan(@PathVariable("comp_id") long compId,
+                                                  @PathVariable("lic_id") long licId,
+                                                  @PathVariable("scan_id") long scanId,
+                                                  Authentication authentication) {
+        licenseService.deleteLicenseScan(controllerUtils.getUserId(authentication), compId, licId, scanId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{comp_id}/license/{lic_id}/scan")
+    @Operation(summary = "Удаление скана")
+    public ResponseEntity<Void> deleteAllLicenseScan(@PathVariable("comp_id") long compId,
+                                                     @PathVariable("lic_id") long licId,
+                                                     Authentication authentication) {
+        licenseService.deleteAllLicenseScan(controllerUtils.getUserId(authentication), compId, licId);
         return ResponseEntity.ok().build();
     }
 
@@ -178,18 +213,38 @@ public class CompanyController {
 
     @PostMapping("/{comp_id}/sro")
     @Operation(summary = "Добавить сро")
-    public ResponseEntity<Void> addSro(@PathVariable("comp_id") long compId,
+    public ResponseEntity<IdentifiableDto> addSro(@PathVariable("comp_id") long compId,
+                                       @RequestParam("scanNumber") int scanNumber,
                                        MultipartFile picture,
                                        Authentication authentication) {
-        companyService.addSro(controllerUtils.getUserId(authentication), compId, picture);
+        return ResponseEntity.ok(commonMapper.mapToIdentifiableDto(companyService.addSro(
+                controllerUtils.getUserId(authentication), compId, scanNumber, picture)));
+    }
+
+    @DeleteMapping("/{comp_id}/sro/{sro_id}")
+    @Operation(summary = "Удалить сро")
+    public ResponseEntity<Void> deleteSro(@PathVariable("comp_id") long compId,
+                                          @PathVariable("sro_id") long sroId,
+                                          Authentication authentication) {
+        companyService.deleteSro(controllerUtils.getUserId(authentication), compId, sroId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{comp_id}/sro")
-    @Operation(summary = "Удалить сро")
-    public ResponseEntity<Void> deleteSro(@PathVariable("comp_id") long compId,
+    @Operation(summary = "Удалить все сро")
+    public ResponseEntity<Void> deleteAllSro(@PathVariable("comp_id") long compId,
                                           Authentication authentication) {
-        companyService.deleteSro(controllerUtils.getUserId(authentication), compId);
+        companyService.deleteAllSro(controllerUtils.getUserId(authentication), compId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{comp_id}/sro/{sro_id}")
+    @Operation(summary = "Обновить сро")
+    public ResponseEntity<Void> updateSro(@PathVariable("comp_id") long compId,
+                                          @PathVariable("sro_id") long sroId,
+                                          @RequestParam("scanNumber") int scanNumber,
+                                          Authentication authentication) {
+        companyService.updateSro(controllerUtils.getUserId(authentication), compId, sroId, scanNumber);
         return ResponseEntity.ok().build();
     }
 }
