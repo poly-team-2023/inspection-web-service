@@ -83,9 +83,6 @@
             <column name="logo_name" type="varchar(255)"/>
             <column name="logo_uuid" type="uuid"/>
 
-            <column name="sro_scan_name" type="varchar(255)"/>
-            <column name="sro_scan_uuid" type="uuid"/>
-
             <column name="user_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
@@ -99,11 +96,25 @@
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="name" type="varchar(255)"/>
-            <column name="uuid" type="uuid"/>
-            <column name="scan_number" type="int"/>
             <column name="company_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-file-scan-table" author="admin">
+        <createTable tableName="file_scan">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)"/>
+            <column name="scan_number" type="int"/>
+            <column name="uuid" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint"/>
+            <column name="license_id" type="bigint"/>
+            <column name="equipment_id" type="bigint"/>
         </createTable>
     </changeSet>
 
@@ -131,9 +142,6 @@
             <column name="verification_date" type="date">
                 <constraints nullable="false"/>
             </column>
-
-            <column name="verification_scan_name" type="varchar(255)"/>
-            <column name="verification_scan_uuid" type="uuid"/>
 
             <column name="user_id" type="bigint">
                 <constraints nullable="false"/>
@@ -282,7 +290,6 @@
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
 
-    
     <changeSet id="create-fk-roles-user-roles" author="admin">
         <addForeignKeyConstraint baseTableName="user_roles" baseColumnNames="role_id"
                                  constraintName="fk_roles_user_roles" referencedTableName="roles"
@@ -392,10 +399,35 @@
                                  referencedColumnNames="id" deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
+
     <changeSet id="fk-inspection-employer" author="admin">
         <addForeignKeyConstraint baseTableName="inspection" baseColumnNames="employer_id"
                                  constraintName="fk-inspection-employer" referencedTableName="employer"
                                  referencedColumnNames="id" deferrable="false" initiallyDeferred="false"
                                  onDelete="SET NULL" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="fk-file-scan-license" author="admin">
+        <addForeignKeyConstraint baseTableName="file_scan" baseColumnNames="license_id"
+                                 constraintName="license_id-fk"
+                                 referencedTableName="license" referencedColumnNames="id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="fk-file-scan-sro" author="admin">
+        <addForeignKeyConstraint baseTableName="file_scan" baseColumnNames="company_id"
+                                 constraintName="company_id-fk"
+                                 referencedTableName="company" referencedColumnNames="id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="fk-file-scan-equipment" author="admin">
+        <addForeignKeyConstraint baseTableName="file_scan" baseColumnNames="equipment_id"
+                                 constraintName="equipment_id-fk"
+                                 referencedTableName="equipment" referencedColumnNames="id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
 </databaseChangeLog>
