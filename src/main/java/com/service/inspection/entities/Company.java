@@ -40,12 +40,6 @@ public class Company extends Named {
     @Column(name = "logo_uuid")
     private UUID logoUuid;
 
-    @Column(name = "sro_scan_name")
-    private String sroScanName;
-
-    @Column(name = "sro_scan_uuid")
-    private UUID sroScanUuid;
-
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
@@ -57,6 +51,10 @@ public class Company extends Named {
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<License> licenses;
+
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Set<FileScan> filesSro;
 
     @PreRemove
     private void preRemove() {

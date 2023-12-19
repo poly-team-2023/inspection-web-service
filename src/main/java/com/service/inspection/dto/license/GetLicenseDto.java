@@ -1,12 +1,16 @@
 package com.service.inspection.dto.license;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.service.inspection.dto.NamedDto;
+import com.service.inspection.dto.files.GetFileScanDto;
 import lombok.Data;
 
-@Data
-public class GetLicenseDto {
+import java.util.List;
 
-    private Long id;
-    private String name;
-    private Integer number;
+@Data
+public class GetLicenseDto extends NamedDto {
+
+    @JsonProperty(value = "files")
+    private List<GetFileScanDto> files;
 
 }
