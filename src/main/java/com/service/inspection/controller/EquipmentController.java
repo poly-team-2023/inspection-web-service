@@ -11,6 +11,7 @@ import com.service.inspection.service.EquipmentService;
 import com.service.inspection.service.security.UserDetailsImpl;
 import com.service.inspection.utils.ControllerUtils;
 
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -58,7 +59,7 @@ public class EquipmentController {
 
     @PutMapping("/{equip_id}")
     @Operation(summary = "Обновить сведения об оборудовании")
-    public ResponseEntity<Void> updateEquipment(@PathVariable("equip_id") long id,
+    public ResponseEntity<Void> updateEquipment(@PathVariable("equip_id") @Min(1) long id,
                                                 @RequestBody @Valid EquipmentDto dto,
                                                 Authentication authentication) {
         equipmentService.updateEquipment(controllerUtils.getUserId(authentication), id, dto);
@@ -67,7 +68,7 @@ public class EquipmentController {
 
     @DeleteMapping("/{equip_id}")
     @Operation(summary = "Удаление оборудования")
-    public ResponseEntity<Void> deleteEquipment(@PathVariable("equip_id") long id,
+    public ResponseEntity<Void> deleteEquipment(@PathVariable("equip_id") @Min(1) long id,
                                                 Authentication authentication) {
         equipmentService.deleteEquipment(controllerUtils.getUserId(authentication), id);
         return ResponseEntity.ok().build();
@@ -75,7 +76,7 @@ public class EquipmentController {
 
     @PostMapping("/{equip_id}/file")
     @Operation(summary = "Добавить скан к оборудованию")
-    public ResponseEntity<IdentifiableDto> addFile(@PathVariable("equip_id") long id,
+    public ResponseEntity<IdentifiableDto> addFile(@PathVariable("equip_id") @Min(1) long id,
                                                    @RequestParam("scanNumber") int scanNumber,
                                                    MultipartFile file,
                                                    Authentication authentication) {
@@ -85,8 +86,8 @@ public class EquipmentController {
 
     @PutMapping("/{equip_id}/file/{file_id}")
     @Operation(summary = "Обновить скан")
-    public ResponseEntity<Void> updateFile(@PathVariable("equip_id") long equipId,
-                                           @PathVariable("file_id") long fileId,
+    public ResponseEntity<Void> updateFile(@PathVariable("equip_id") @Min(1) long equipId,
+                                           @PathVariable("file_id") @Min(1) long fileId,
                                            @RequestParam("scanNumber") int scanNumber,
                                            Authentication authentication) {
         equipmentService.updateScan(controllerUtils.getUserId(authentication), equipId, fileId, scanNumber);
@@ -95,8 +96,8 @@ public class EquipmentController {
 
     @DeleteMapping("/{equip_id}/file/{file_id}")
     @Operation(summary = "Удалить скан")
-    public ResponseEntity<Void> deleteFile(@PathVariable("equip_id") long equipId,
-                                           @PathVariable("file_id") long fileId,
+    public ResponseEntity<Void> deleteFile(@PathVariable("equip_id") @Min(1) long equipId,
+                                           @PathVariable("file_id") @Min(1) long fileId,
                                            Authentication authentication) {
         equipmentService.deleteScan(controllerUtils.getUserId(authentication), equipId, fileId);
         return ResponseEntity.ok().build();
@@ -104,7 +105,7 @@ public class EquipmentController {
 
     @DeleteMapping("/{equip_id}/file")
     @Operation(summary = "Удалить все сканы")
-    public ResponseEntity<Void> deleteAllFiles(@PathVariable("equip_id") long equipId,
+    public ResponseEntity<Void> deleteAllFiles(@PathVariable("equip_id") @Min(1) long equipId,
                                                Authentication authentication) {
         equipmentService.deleteAllScan(controllerUtils.getUserId(authentication), equipId);
         return ResponseEntity.ok().build();
