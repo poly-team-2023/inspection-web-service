@@ -41,7 +41,8 @@ public class LicenseService {
     }
 
     @Transactional
-    public Identifiable addLicenseScan(long userId, long companyId, long licenseId, int scanNumber, MultipartFile scan) {
+    public Identifiable addLicenseScan(long userId, long companyId, long licenseId,
+                                       int scanNumber, MultipartFile scan) {
         License license = getLicense(companyId, userId, licenseId);
         UUID scanUuid = UUID.randomUUID();
 

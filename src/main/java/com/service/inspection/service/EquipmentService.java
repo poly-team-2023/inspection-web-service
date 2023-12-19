@@ -89,7 +89,6 @@ public class EquipmentService {
         fileScanRepository.deleteAll(equipment.getFiles());
     }
 
-
     public Equipment getEquipmentIfExistForUser(Long equipmentId, Long userId) {
         return equipmentRepository.findByUserIdAndId(userId, equipmentId).orElseThrow(() ->
                 new EntityNotFoundException(String.format("No such equipment with id %s for this user", equipmentId)));

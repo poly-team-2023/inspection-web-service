@@ -30,7 +30,6 @@ public class CompanyService {
     private final ServiceUtils serviceUtils;
     private final FileScanRepository fileScanRepository;
 
-
     public List<Company> getCompanies(long id) {
         return companyRepository.findAllByUserId(id);
     }
