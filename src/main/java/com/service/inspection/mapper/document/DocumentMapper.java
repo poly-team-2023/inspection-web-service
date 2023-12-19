@@ -53,7 +53,11 @@ public abstract class DocumentMapper {
         for (Category category : categories) {
             Hibernate.initialize(category.getPhotos());
             futureResult.add(
-                    documentModelService.processAllPhotosAsync(category.getPhotos()).thenAccept(x -> {
+                    documentModelService.processAllPhotosAsync(category.getPhotos() ).thenAccept(x -> {
+
+                        // TODO чтобы в модель фото на основе порядкового номера номера фото и категории
+                        //  вставлялся ее номер
+
                         documentModel.addCategory(this.mapToCategoryModel(category, x));
                         log.debug("Add category {} to inspection {}", category.getId(), inspection.getId());
                     })

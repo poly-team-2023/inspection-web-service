@@ -43,7 +43,7 @@ public class ListenerPhotoStage extends AbstractImageProcessingStep {
 
             try {
                 log.debug("Block for waiting photo {} {}", imageModel.getId(), Thread.currentThread().getName());
-                defects = result.poll(60, TimeUnit.SECONDS);
+                defects = result.poll(2, TimeUnit.HOURS);
                 if (defects == null) {
                     log.error("NN dont send info for photo {}", imageModel.getId());
                 }
