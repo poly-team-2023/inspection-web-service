@@ -1,12 +1,11 @@
 package com.service.inspection.dto.employer;
 
+import com.service.inspection.dto.NamedDto;
 import lombok.Data;
 
 @Data
-public class GetEmployerDto {
+public class GetEmployerDto extends NamedDto {
 
-    private Long id;
-    private String name;
     private String positionName;
     private String signatureName;
 
