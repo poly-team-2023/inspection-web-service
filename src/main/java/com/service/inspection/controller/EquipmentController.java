@@ -12,6 +12,7 @@ import com.service.inspection.service.security.UserDetailsImpl;
 import com.service.inspection.utils.ControllerUtils;
 
 import jakarta.validation.constraints.Min;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -35,6 +36,8 @@ import lombok.AllArgsConstructor;
 @CrossOrigin(allowCredentials = "true", originPatterns = "*")
 @AllArgsConstructor
 public class EquipmentController {
+
+    private static final String VERIFICATION_SCAN = "verification-scan";
 
     private final EquipmentService equipmentService;
     private final EquipmentMapper equipmentMapper;
@@ -109,5 +112,15 @@ public class EquipmentController {
                                                Authentication authentication) {
         equipmentService.deleteAllScan(controllerUtils.getUserId(authentication), equipId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{equip_id}/file/{file_id}")
+    public ResponseEntity<Resource> getFile(@PathVariable("equip_id") @Min(1) long equipId,
+                                            @PathVariable("file_id") @Min(1) long fileId,
+                                            Authentication authentication) {
+        return controllerUtils.getResponseEntityFromFile(
+                VERIFICATION_SCAN,
+                equipmentService.getScan(controllerUtils.getUserId(authentication), equipId, fileId)
+        );
     }
 }

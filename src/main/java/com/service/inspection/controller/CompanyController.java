@@ -20,6 +20,7 @@ import com.service.inspection.utils.ControllerUtils;
 
 import com.service.inspection.utils.ServiceUtils;
 import jakarta.validation.constraints.Min;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -47,6 +48,10 @@ import java.util.List;
 @CrossOrigin(allowCredentials = "true", originPatterns = "*")
 @AllArgsConstructor
 public class CompanyController {
+
+    private static final String SRO_SCAN = "sro-scan";
+    private static final String LICENSE_SCAN = "license-scan";
+    private static final String SIGNATURE = "signature";
 
     private final CompanyService companyService;
     private final EmployerService employerService;
@@ -142,6 +147,17 @@ public class CompanyController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/{comp_id}/employer/{emp_id}/signature")
+    @Operation(summary = "Получить подпись сотрудника")
+    public ResponseEntity<Resource> getSignature(@PathVariable("comp_id") @Min(1) long compId,
+                                                 @PathVariable("emp_id") @Min(1) long empId,
+                                                 Authentication authentication) {
+        return controllerUtils.getResponseEntityFromFile(
+                SIGNATURE,
+                employerService.getSignature(controllerUtils.getUserId(authentication), compId, empId)
+        );
+    }
+
     @PostMapping("/{comp_id}/license")
     @Operation(summary = "Добавление лицензии")
     public ResponseEntity<IdentifiableDto> addLicense(@PathVariable("comp_id") @Min(1) long id,
@@ -152,8 +168,8 @@ public class CompanyController {
     }
 
     @PostMapping("/{comp_id}/license/{lic_id}/scan")
-    @Operation(summary = "Добавление картинки к лицензии")
-    public ResponseEntity<IdentifiableDto> addLicensePicture(@PathVariable("comp_id") @Min(1) long compId,
+    @Operation(summary = "Добавление скана лицензии")
+    public ResponseEntity<IdentifiableDto> addLicenseScan(@PathVariable("comp_id") @Min(1) long compId,
                                                              @PathVariable("lic_id") @Min(1) long licId,
                                                              @RequestParam("scanNumber") int scanNumber,
                                                              MultipartFile scan,
@@ -190,6 +206,18 @@ public class CompanyController {
                                                      Authentication authentication) {
         licenseService.deleteAllLicenseScan(controllerUtils.getUserId(authentication), compId, licId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{comp_id}/license/{lic_id}/scan/{scan_id}")
+    @Operation(summary = "Получить скан лицензии")
+    public ResponseEntity<Resource> getLicenseScan(@PathVariable("comp_id") @Min(1) long compId,
+                                                   @PathVariable("lic_id") @Min(1) long licId,
+                                                   @PathVariable("scan_id") @Min(1) long scanId,
+                                                   Authentication authentication) {
+        return controllerUtils.getResponseEntityFromFile(
+                LICENSE_SCAN,
+                licenseService.getLicenseScan(compId, controllerUtils.getUserId(authentication), licId, scanId)
+        );
     }
 
     @PutMapping("/{comp_id}/license/{lic_id}")
@@ -246,5 +274,16 @@ public class CompanyController {
                                           Authentication authentication) {
         companyService.updateSro(controllerUtils.getUserId(authentication), compId, sroId, scanNumber);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{comp_id}/sro/{sro_id}")
+    @Operation(summary = "Получить сро")
+    public ResponseEntity<Resource> getSro(@PathVariable("comp_id") @Min(1) long compId,
+                                           @PathVariable("sro_id") @Min(1) long sroId,
+                                           Authentication authentication) {
+        return controllerUtils.getResponseEntityFromFile(
+                SRO_SCAN,
+                companyService.getSroScan(compId, controllerUtils.getUserId(authentication), sroId)
+        );
     }
 }

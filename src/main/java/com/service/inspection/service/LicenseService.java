@@ -91,8 +91,8 @@ public class LicenseService {
     }
 
     public StorageService.BytesWithContentType getLicenseScan(Long companyId, Long userId,
-                                                              Long licenseId, Long sroId) {
-        FileScan scan = serviceUtils.tryToFindByID(getLicense(companyId, userId, licenseId).getFiles(), sroId);
+                                                              Long licenseId, Long scanId) {
+        FileScan scan = serviceUtils.tryToFindByID(getLicense(companyId, userId, licenseId).getFiles(), scanId);
         return storageService.getFile(BucketName.LICENSE_SCAN, scan.getFileUuid().toString());
     }
 
