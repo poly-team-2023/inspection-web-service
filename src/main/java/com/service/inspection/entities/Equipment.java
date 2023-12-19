@@ -2,16 +2,12 @@ package com.service.inspection.entities;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
+import jakarta.persistence.*;
 import org.hibernate.proxy.HibernateProxy;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,11 +31,9 @@ public class Equipment extends Named {
     @Column(name = "verification_date", nullable = false)
     private LocalDate verificationDate;
 
-    @Column(name = "verification_scan_name")
-    private String verificationScanName;
-
-    @Column(name = "verification_scan_uuid")
-    private UUID verificationScanUuid;
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Set<FileScan> files;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
