@@ -31,23 +31,24 @@ public class EmployerService {
     @Transactional
     public Identifiable addEmployer(long userId, Employer employer, long companyId, MultipartFile signature) {
         Company company = serviceUtils.getCompanyIfExistForUser(userId, companyId);
-        UUID signatureUuid = UUID.randomUUID();
-
-        employer.setSignatureUuid(signatureUuid);
-        employer.setSignatureName(signature.getOriginalFilename());
+        UUID uuid = setSignature(employer, signature);
         employer.setCompany(company);
 
         employerRepository.save(employer);
-        storageService.saveFile(BucketName.SIGNATURE, signatureUuid.toString(), signature);
+        storageService.saveFile(BucketName.SIGNATURE, uuid.toString(), signature);
         return employer;
     }
 
-    public void updateEmployer(long userId, long companyId, long employerId, EmployerDto dto) {
+    @Transactional
+    public void updateEmployer(long userId, long companyId, long employerId,
+                               EmployerDto dto, MultipartFile signature) {
         Employer employer = serviceUtils.tryToFindByID(
                 serviceUtils.getCompanyIfExistForUser(userId, companyId).getEmployers(), employerId);
-
         employerMapper.mapToUpdateEmployer(employer, dto);
+        UUID uuid = setSignature(employer, signature);
+
         employerRepository.save(employer);
+        storageService.saveFile(BucketName.SIGNATURE, uuid.toString(), signature);
     }
 
     public void deleteEmployer(long userId, long companyId, long employerId) {
@@ -65,5 +66,12 @@ public class EmployerService {
             return null;
         }
         return storageService.getFile(BucketName.SIGNATURE, employer.getSignatureUuid().toString());
+    }
+
+    private UUID setSignature(Employer employer, MultipartFile signature) {
+        UUID signatureUuid = UUID.randomUUID();
+        employer.setSignatureUuid(signatureUuid);
+        employer.setSignatureName(signature.getOriginalFilename());
+        return signatureUuid;
     }
 }
