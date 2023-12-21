@@ -101,6 +101,13 @@ public class CompanyService {
         storageService.saveFile(BucketName.COMPANY_LOGO, logoUuid.toString(), logo);
     }
 
+    public void deleteLogo(long userId, long companyId) {
+        Company company = serviceUtils.getCompanyIfExistForUser(userId, companyId);
+        company.setLogoUuid(null);
+        company.setLogoName(null);
+        companyRepository.save(company);
+    }
+
     public StorageService.BytesWithContentType getLogo(Long companyId, Long userId) {
         Company company = serviceUtils.getCompanyIfExistForUser(userId, companyId);
         if (company.getLogoUuid() == null) {
