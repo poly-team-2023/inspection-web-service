@@ -72,8 +72,10 @@ public class CompanyService {
     }
 
     public void deleteSro(long userId, long companyId, long sroId) {
-        serviceUtils.tryToFindByID(
-                serviceUtils.getCompanyIfExistForUser(userId, companyId).getFilesSro(), sroId);
+        Company company = serviceUtils.getCompanyIfExistForUser(userId, companyId);
+        FileScan fileScan = serviceUtils.tryToFindByID(company.getFilesSro(), sroId);
+        company.getFilesSro().remove(fileScan);
+        companyRepository.save(company);
         fileScanRepository.deleteById(sroId);
     }
 
@@ -86,6 +88,8 @@ public class CompanyService {
 
     public void deleteAllSro(long userId, long companyId) {
         Company company = serviceUtils.getCompanyIfExistForUser(userId, companyId);
+        company.getFilesSro().clear();
+        companyRepository.save(company);
         fileScanRepository.deleteAll(company.getFilesSro());
     }
 

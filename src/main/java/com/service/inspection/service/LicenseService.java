@@ -67,11 +67,15 @@ public class LicenseService {
     public void deleteLicenseScan(long userId, long companyId, long licenseId, long sroId) {
         License license = getLicense(companyId, userId, licenseId);
         FileScan scan = serviceUtils.tryToFindByID(license.getFiles(), sroId);
+        license.getFiles().remove(scan);
+        licenseRepository.save(license);
         fileScanRepository.delete(scan);
     }
 
     public void deleteAllLicenseScan(long userId, long companyId, long licenseId) {
         License license = getLicense(companyId, userId, licenseId);
+        license.getFiles().clear();
+        licenseRepository.save(license);
         fileScanRepository.deleteAll(license.getFiles());
     }
 

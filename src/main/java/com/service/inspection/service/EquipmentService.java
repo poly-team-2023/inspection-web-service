@@ -79,13 +79,17 @@ public class EquipmentService {
     }
 
     public void deleteScan(long userId, long equipmentId, long scanId) {
-        serviceUtils.tryToFindByID(
-                getEquipmentIfExistForUser(equipmentId, userId).getFiles(), scanId);
+        Equipment equipment = getEquipmentIfExistForUser(equipmentId, userId);
+        FileScan fileScan = serviceUtils.tryToFindByID(equipment.getFiles(), scanId);
+        equipment.getFiles().remove(fileScan);
+        equipmentRepository.save(equipment);
         fileScanRepository.deleteById(scanId);
     }
 
     public void deleteAllScan(long userId, long equipmentId) {
         Equipment equipment = getEquipmentIfExistForUser(equipmentId, userId);
+        equipment.getFiles().clear();
+        equipmentRepository.save(equipment);
         fileScanRepository.deleteAll(equipment.getFiles());
     }
 
