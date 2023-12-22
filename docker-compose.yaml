@@ -22,7 +22,7 @@ services:
       - "5432:5432"
 
   client:
-    image: alina2002alina/front:0.0.4.3
+    image: alina2002alina/front:0.0.4.4
     environment:
       - NGINX_HOST=foobar.com
       - NGINX_PORT=80
