@@ -1,5 +1,6 @@
 package com.service.inspection.entities;
 
+import com.service.inspection.entities.enums.BuildingType;
 import com.service.inspection.entities.enums.ProgressingStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -102,6 +103,9 @@ public class Inspection extends Named {
     @JoinColumn(name = "company_id")
     @ToString.Exclude
     private Company company;
+
+    @Column(name = "building_type")
+    private BuildingType buildingType;
 
     public void addCategory(Category category) {
         if (categories == null) {
