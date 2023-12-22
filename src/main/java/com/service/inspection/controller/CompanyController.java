@@ -52,6 +52,7 @@ public class CompanyController {
     private static final String SRO_SCAN = "sro-scan";
     private static final String LICENSE_SCAN = "license-scan";
     private static final String SIGNATURE = "signature";
+    private static final String LOGO = "company-logo";
 
     private final CompanyService companyService;
     private final EmployerService employerService;
@@ -109,6 +110,24 @@ public class CompanyController {
                                         @RequestParam("file") MultipartFile picture,
                                         Authentication authentication) {
         companyService.addLogo(controllerUtils.getUserId(authentication), id, picture);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(path = "/{comp_id}/logo")
+    @Operation(summary = "Получить лого компапнии")
+    public ResponseEntity<Resource> getLogo(@PathVariable("comp_id") @Min(1) long id,
+                                            Authentication authentication) {
+        return controllerUtils.getResponseEntityFromFile(
+                LOGO,
+                companyService.getLogo(id, controllerUtils.getUserId(authentication))
+        );
+    }
+
+    @DeleteMapping(path = "/{comp_id}/logo")
+    @Operation(summary = "Удалить лого компапнии")
+    public ResponseEntity<Void> deleteLogo(@PathVariable("comp_id") @Min(1) long id,
+                                           Authentication authentication) {
+        companyService.deleteLogo(controllerUtils.getUserId(authentication), id);
         return ResponseEntity.ok().build();
     }
 
