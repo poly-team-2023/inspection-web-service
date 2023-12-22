@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 
 @Service
@@ -24,54 +23,58 @@ import lombok.AllArgsConstructor;
 public class EmployerService {
 
     private final EmployerRepository employerRepository;
-    private final CompanyRepository companyRepository;
     private final StorageService storageService;
     private final EmployerMapper employerMapper;
     private final ServiceUtils serviceUtils;
+    private final CompanyRepository companyRepository;
 
     @Transactional
     public Identifiable addEmployer(long userId, Employer employer, long companyId, MultipartFile signature) {
-        Company company = getCompanyIfExistForUser(userId, companyId);
-        UUID signatureUuid = UUID.randomUUID();
-
-        employer.setSignatureUuid(signatureUuid);
-        employer.setSignatureName(signature.getOriginalFilename());
+        Company company = serviceUtils.getCompanyIfExistForUser(userId, companyId);
+        UUID uuid = setSignature(employer, signature);
         employer.setCompany(company);
 
         employerRepository.save(employer);
-        storageService.saveFile(BucketName.SIGNATURE, signatureUuid.toString(), signature);
+        storageService.saveFile(BucketName.SIGNATURE, uuid.toString(), signature);
         return employer;
     }
 
     @Transactional
-    public void updateEmployer(long userId, long companyId, long employerId, EmployerDto dto) {
+    public void updateEmployer(long userId, long companyId, long employerId,
+                               EmployerDto dto, MultipartFile signature) {
         Employer employer = serviceUtils.tryToFindByID(
-                serviceUtils.getCompanyIfExistForUser(companyId, userId).getEmployers(),
-                employerId
-        );
-
+                serviceUtils.getCompanyIfExistForUser(userId, companyId).getEmployers(), employerId);
         employerMapper.mapToUpdateEmployer(employer, dto);
+        UUID uuid = signature != null ? setSignature(employer, signature) : null;
+
         employerRepository.save(employer);
+        if (uuid != null) {
+            storageService.saveFile(BucketName.SIGNATURE, uuid.toString(), signature);
+        }
     }
 
     @Transactional
     public void deleteEmployer(long userId, long companyId, long employerId) {
-        serviceUtils.tryToFindByID(
-                serviceUtils.getCompanyIfExistForUser(companyId, userId).getEmployers(), employerId);
-        employerRepository.deleteById(employerId); // TODO : add deletePic
+        Company company = serviceUtils.getCompanyIfExistForUser(userId, companyId);
+        Employer employer = serviceUtils.tryToFindByID(company.getEmployers(), employerId);
+        company.getEmployers().remove(employer);
+        companyRepository.save(company);
+        employerRepository.deleteById(employerId);
     }
 
     public StorageService.BytesWithContentType getSignature(long userId, long companyId, long employerId) {
         Employer employer = serviceUtils.tryToFindByID(
-                serviceUtils.getCompanyIfExistForUser(companyId, userId).getEmployers(), employerId);
+                serviceUtils.getCompanyIfExistForUser(userId, companyId).getEmployers(), employerId);
         if (employer.getSignatureUuid() == null) {
             return null;
         }
         return storageService.getFile(BucketName.SIGNATURE, employer.getSignatureUuid().toString());
     }
 
-    private Company getCompanyIfExistForUser(Long companyId, Long userId) {
-        return companyRepository.findByUserIdAndId(userId, companyId).orElseThrow(() ->
-                new EntityNotFoundException(String.format("No such inspection with id %s for this user", companyId)));
+    private UUID setSignature(Employer employer, MultipartFile signature) {
+        UUID signatureUuid = UUID.randomUUID();
+        employer.setSignatureUuid(signatureUuid);
+        employer.setSignatureName(signature.getOriginalFilename());
+        return signatureUuid;
     }
 }

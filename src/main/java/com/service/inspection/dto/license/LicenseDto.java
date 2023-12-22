@@ -6,5 +6,5 @@ import lombok.Data;
 public class LicenseDto {
 
     private String name;
-    private int number;
+
 }
