@@ -67,6 +67,7 @@ public class CompanyService {
         fileScan.setFileUuid(sroUuid);
         fileScan.setCompany(company);
 
+        company.addSro(fileScan);
         fileScanRepository.save(fileScan);
         storageService.saveFile(BucketName.SRO, sroUuid.toString(), sro);
         return fileScan;

@@ -37,6 +37,7 @@ public class LicenseService {
         Company company = serviceUtils.getCompanyIfExistForUser(userId, companyId);
 
         license.setCompany(company);
+        company.addLicense(license);
         licenseRepository.save(license);
         return license;
     }

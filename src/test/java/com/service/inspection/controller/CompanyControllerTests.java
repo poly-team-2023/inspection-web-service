@@ -18,6 +18,8 @@ import com.service.inspection.service.CompanyService;
 import com.service.inspection.service.EmployerService;
 import com.service.inspection.service.LicenseService;
 import com.service.inspection.service.StorageService;
+import jakarta.persistence.EntityNotFoundException;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -201,7 +203,13 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
         employerDto.setName(name + 1);
         employerDto.setPositionName(pos + 1);
 
-        employerService.updateEmployer(user.getId(), companyWithId.getId(), employerWithId.getId(), employerDto);
+        employerService.updateEmployer(
+                user.getId(),
+                companyWithId.getId(),
+                employerWithId.getId(),
+                employerDto,
+                getFile("file")
+        );
 
         Optional<Employer> employerOptional = employerRepository.findById(employerWithId.getId());
         assert employerOptional.isPresent();
@@ -225,7 +233,6 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
 
         License license = new License();
         license.setName("licence_name");
-        license.setNumber(123);
 
         Identifiable licenceWithId = licenseService.addLicense(user.getId(), companyWithId.getId(), license);
         licenseService.addLicense(user.getId(), companyWithId.getId(), license); // it's ok.
@@ -233,7 +240,6 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
         List<License> licences = licenseRepository.findAll();
         assertEquals(licences.size(), 1);
         assertEquals(licences.get(0).getName(), "licence_name");
-        assertEquals(licences.get(0).getNumber(), 123);
 
         licenseService.deleteLicense(user.getId(), companyWithId.getId(), licenceWithId.getId());
 
@@ -241,6 +247,7 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
     }
 
     @Test
+    @Transactional
     void sroBaseTest() {
         User user = userRepo.save(getUser(1));
 
@@ -248,22 +255,30 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
 
         License license = new License();
         license.setName("licence_name");
-        license.setNumber(123);
 
         String sroContent = "sro";
-        MultipartFile sro = getFile(sroContent);
-        companyService.addSro(user.getId(), companyWithId.getId(), sro);
-        StorageService.BytesWithContentType sroBytes = companyService.getSroScan(companyWithId.getId(), user.getId());
+        Identifiable sroIdentifiable =
+                companyService.addSro(user.getId(), companyWithId.getId(), 1, getFile(sroContent));
+        StorageService.BytesWithContentType sroBytes = companyService.getSroScan(
+                companyWithId.getId(),
+                user.getId(),
+                sroIdentifiable.getId()
+        );
 
         assertEquals(new String(sroBytes.getBytes()), sroContent);
 
-        companyService.deleteSro(user.getId(), companyWithId.getId());
+        companyService.deleteSro(user.getId(), companyWithId.getId(), sroIdentifiable.getId());
 
-        StorageService.BytesWithContentType sroBytesAfterDelete = companyService.getSroScan(companyWithId.getId(), user.getId());
-        assertNull(sroBytesAfterDelete);
+        Assertions.assertThatThrownBy(
+                () -> companyService.getSroScan(
+                        companyWithId.getId(),
+                        user.getId(),
+                        sroIdentifiable.getId())
+        ).isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
+    @Transactional
     void sroReplacementTest() {
         User savedUser = userRepo.save(getUser(1));
 
@@ -271,13 +286,14 @@ public class CompanyControllerTests extends AbstractTestContainerStartUp {
 
         License license = new License();
         license.setName("licence_name");
-        license.setNumber(123);
 
-        companyService.addSro(savedUser.getId(), companyWithId.getId(), getFile("sro"));
+        companyService.addSro(savedUser.getId(), companyWithId.getId(), 1, getFile("sro"));
 
         String sroNewContent = "sro_new";
-        companyService.addSro(savedUser.getId(), companyWithId.getId(), getFile(sroNewContent));
-        StorageService.BytesWithContentType sroBytes = companyService.getSroScan(companyWithId.getId(), savedUser.getId());
+        Identifiable sroIdentifiable =
+                companyService.addSro(savedUser.getId(), companyWithId.getId(), 1, getFile(sroNewContent));
+        StorageService.BytesWithContentType sroBytes =
+                companyService.getSroScan(companyWithId.getId(), savedUser.getId(), sroIdentifiable.getId());
 
         assertEquals(new String(sroBytes.getBytes()), sroNewContent);
     }
