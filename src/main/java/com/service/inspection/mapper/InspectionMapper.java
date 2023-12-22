@@ -29,6 +29,7 @@ public interface InspectionMapper {
     void mapToInspection(@MappingTarget Inspection inspection, InspectionDto inspectionDto);
 
 
+    @Mapping(source = "buildingType", target = "isCulture")
     GetInspectionDto mapToGetInspectionDto(Inspection inspection);
 
     default Boolean toIsCultureBuildingType(BuildingType buildingType) {
