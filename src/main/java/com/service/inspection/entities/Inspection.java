@@ -104,6 +104,7 @@ public class Inspection extends Named {
     @ToString.Exclude
     private Company company;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "building_type")
     private BuildingType buildingType;
 
