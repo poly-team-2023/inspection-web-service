@@ -45,10 +45,12 @@ public class EmployerService {
         Employer employer = serviceUtils.tryToFindByID(
                 serviceUtils.getCompanyIfExistForUser(userId, companyId).getEmployers(), employerId);
         employerMapper.mapToUpdateEmployer(employer, dto);
-        UUID uuid = setSignature(employer, signature);
+        UUID uuid = signature != null ? setSignature(employer, signature) : null;
 
         employerRepository.save(employer);
-        storageService.saveFile(BucketName.SIGNATURE, uuid.toString(), signature);
+        if (uuid != null) {
+            storageService.saveFile(BucketName.SIGNATURE, uuid.toString(), signature);
+        }
     }
 
     public void deleteEmployer(long userId, long companyId, long employerId) {
