@@ -5,6 +5,7 @@ import com.google.common.base.Stopwatch;
 import com.service.inspection.advice.MessageException;
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.document.DocumentModel;
+import com.service.inspection.document.model.CategoryModel;
 import com.service.inspection.dto.inspection.InspectionDto;
 import com.service.inspection.entities.Category;
 import com.service.inspection.entities.Identifiable;
@@ -38,6 +39,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -134,7 +136,7 @@ public class InspectionService {
         return category;
     }
 
-    public Set<Category> getAllCategories(Long inspectionId, Long userId) {
+    public List<Category> getAllCategories(Long inspectionId, Long userId) {
         Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
         return Optional.ofNullable(inspection)
                 .map(Inspection::getCategories)
@@ -208,10 +210,14 @@ public class InspectionService {
         inspection.setStatus(ProgressingStatus.WAIT_ANALYZE);
         inspectionRepository.save(inspection);
 
+        log.info("Start creating inspection document for inspection {}", inspectionId);
         List<CompletableFuture<Void>> futureResult = new ArrayList<>();
         DocumentModel documentModel = documentMapper.mapToDocumentModel(inspection, user, futureResult);
         CompletableFuture.allOf(futureResult.toArray(new CompletableFuture[0])).thenAccept(x -> {
-            log.info("Start creating document");
+            if (documentModel.getCategories() != null) {
+                documentModel.getCategories().sort(Comparator.comparingLong(CategoryModel::getCategoryNum));
+            }
+            log.info("Start filling template {}", inspectionId);
             try (
                     XWPFTemplate template = XWPFTemplate
                             .compile(resourceLoader.getResource(templatePath).getInputStream())
@@ -224,7 +230,7 @@ public class InspectionService {
                 UUID fileUuid = saveDocxFileFile(inspection, inputStream);
                 log.info("Saved file uuid {} for inspection {}. Takes: {}", fileUuid, inspectionId, timer.stop());
             } catch (IOException e) {
-                throw new RuntimeException(e);
+               log.error(e.getMessage());
             }
         });
     }

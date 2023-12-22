@@ -5,8 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class EmployerModel {
-    private String positionName;
-    private ImageModel script;
+public class DefectModel {
     private String name;
 }

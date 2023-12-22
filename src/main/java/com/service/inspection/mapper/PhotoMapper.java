@@ -33,10 +33,11 @@ public interface PhotoMapper {
     @Mapping(source = "defectName", target = "name")
     Photo.Defect mapToPhotos(PhotoDefectsDto.DefectDto dto);
 
-    @Mapping(source = "fileUuid", target = "uuid")
-    @Mapping(source = "id", target = "id")
-    @Mapping(source = "defectsCoords", target = "defects")
-    ProcessingImageDto mapToProcessingImage(Photo photo);
+    @Mapping(source = "photo.fileUuid", target = "uuid")
+    @Mapping(source = "photo.id", target = "id")
+    @Mapping(source = "photo.defectsCoords", target = "defects")
+    @Mapping(source = "photoNum", target = "photoNum")
+    ProcessingImageDto mapToProcessingImage(Photo photo, Long photoNum);
 
     ProcessingImageDto mapToProcessingImage(UUID uuid);
 }

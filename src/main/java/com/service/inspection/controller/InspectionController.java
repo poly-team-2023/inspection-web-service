@@ -42,8 +42,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/inspections")
@@ -145,11 +145,11 @@ public class InspectionController {
 
     @GetMapping("/{id}/categories")
     @Operation(summary = "Получение всех категорий инспекций с информацией о фотографиях")
-    public ResponseEntity<Set<CategoryWithFile>> getAllCategories(
+    public ResponseEntity<List<CategoryWithFile>> getAllCategories(
             Authentication authentication, @PathVariable @Min(1) Long id
     ) {
         Long userId = utils.getUserId(authentication);
-        Set<Category> categories = inspectionService.getAllCategories(id, userId);
+        List<Category> categories = inspectionService.getAllCategories(id, userId);
 
         return ResponseEntity.ok(categoryMapper.mapToCategoryWithFile(categories));
     }

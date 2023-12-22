@@ -19,9 +19,9 @@ import lombok.ToString;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "category")
@@ -48,7 +48,7 @@ public class Category extends Named {
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     @BatchSize(size = 50)
-    private Set<Photo> photos;
+    private List<Photo> photos;
 
     @ManyToOne(fetch = FetchType.LAZY,
             cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}
@@ -59,7 +59,7 @@ public class Category extends Named {
 
     public void addPhoto(Photo photo) {
         if (photos == null) {
-            photos = new HashSet<>();
+            photos = new ArrayList<>();
         }
         photos.add(photo);
     }

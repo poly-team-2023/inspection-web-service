@@ -4,6 +4,7 @@ import com.deepoove.poi.data.PictureRenderData;
 import com.deepoove.poi.data.PictureType;
 import com.deepoove.poi.data.Pictures;
 import com.service.inspection.document.model.ImageModel;
+import com.service.inspection.document.model.ImageModelWithDefects;
 import com.service.inspection.entities.Photo;
 import com.service.inspection.service.document.ProcessingImageDto;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +29,16 @@ public abstract class ImageMapper {
     }
 
     @Mapping(source = "photoBytes", target = "image", qualifiedByName = "mapToModelPicture")
-    @Mapping(source = "defects", target = "imageTitle")
+    @Mapping(source = "id", target = "imageTitle", defaultValue = "Без названия")
     public abstract ImageModel mapToImageModel(ProcessingImageDto processingImageDto);
 
+    @Mapping(source = "photoBytes", target = "image", qualifiedByName = "mapToModelPicture")
+    @Mapping(source = "defects", target = "imageTitle", defaultValue = "Дефектов не выявлено")
+    @Mapping(source = "defects", target = "defects")
+    public abstract ImageModelWithDefects mapToImageModelWithDefects(ProcessingImageDto processingImageDto);
+
     public String mapToImageTitle(Set<Photo.Defect> defects) {
-        if (defects != null) {
-            return defects.stream().map(Photo.Defect::getName).collect(Collectors.joining(", "));
-        }
-        return "Без названия";
+        if (defects.isEmpty()) return "Дефектов не выявлено";
+        return defects.stream().map(Photo.Defect::getName).collect(Collectors.joining(", "));
     }
 }

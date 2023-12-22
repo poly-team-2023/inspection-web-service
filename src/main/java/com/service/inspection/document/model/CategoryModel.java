@@ -8,6 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class CategoryModel {
+    private Long categoryNum = 0L;
     private String name;
-    private List<ImageModel> photos;
+    private List<ImageModelWithDefects> photos;
 }

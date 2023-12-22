@@ -3,6 +3,7 @@ package com.service.inspection.document;
 import com.deepoove.poi.data.TableRenderData;
 import com.service.inspection.document.model.CategoryModel;
 import com.service.inspection.document.model.CompanyModel;
+import com.service.inspection.document.model.EmployerModel;
 import com.service.inspection.document.model.ImageModel;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,8 @@ public class DocumentModel {
     private String projectName;
     private String reportName;
     private String script;
+
+    private EmployerModel employer;
 
     private ImageModel mainPhoto;
 

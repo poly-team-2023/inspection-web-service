@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import java.util.Set;
+import java.util.List;
 
 @Mapper(
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
@@ -28,5 +28,5 @@ public interface CategoryMapper {
     void mapToCategory(@MappingTarget Category category, String name);
 
 
-    Set<CategoryWithFile> mapToCategoryWithFile(Set<Category> categories);
+    List<CategoryWithFile> mapToCategoryWithFile(List<Category> categories);
 }
