@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import com.service.inspection.entities.enums.BuildingType;
 import com.service.inspection.entities.enums.ProgressingStatus;
 
 import org.hibernate.annotations.BatchSize;
@@ -100,6 +101,9 @@ public class Inspection extends Named {
     @JoinColumn(name = "company_id")
     @ToString.Exclude
     private Company company;
+
+    @Column(name = "building_type")
+    private BuildingType buildingType;
 
     public void addCategory(Category category) {
         if (categories == null) {
