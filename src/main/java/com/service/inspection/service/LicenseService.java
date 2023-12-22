@@ -1,5 +1,8 @@
 package com.service.inspection.service;
 
+import java.util.Set;
+import java.util.UUID;
+
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.dto.license.LicenseDto;
 import com.service.inspection.entities.Company;
@@ -11,12 +14,12 @@ import com.service.inspection.repositories.CompanyRepository;
 import com.service.inspection.repositories.FileScanRepository;
 import com.service.inspection.repositories.LicenseRepository;
 import com.service.inspection.utils.ServiceUtils;
-import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.UUID;
+import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
@@ -65,12 +68,17 @@ public class LicenseService {
     public void deleteLicenseScan(long userId, long companyId, long licenseId, long sroId) {
         License license = getLicense(companyId, userId, licenseId);
         FileScan scan = serviceUtils.tryToFindByID(license.getFiles(), sroId);
+        license.getFiles().remove(scan);
+        licenseRepository.save(license);
         fileScanRepository.delete(scan);
     }
 
     public void deleteAllLicenseScan(long userId, long companyId, long licenseId) {
         License license = getLicense(companyId, userId, licenseId);
-        fileScanRepository.deleteAll(license.getFiles());
+        Set<FileScan> fileScanSet = license.getFiles();
+        license.getFiles().clear();
+        licenseRepository.save(license);
+        fileScanRepository.deleteAll(fileScanSet);
     }
 
     public void updateLicense(long userId, long companyId, long licenseId, LicenseDto dto) {

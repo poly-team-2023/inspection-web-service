@@ -14,5 +14,7 @@ public interface EmployerMapper {
 
     Employer mapToEmployer(String name, String positionName);
 
+    EmployerDto mapToEmployerDto(String name, String positionName);
+
     void mapToUpdateEmployer(@MappingTarget Employer toUpdate, EmployerDto source);
 }

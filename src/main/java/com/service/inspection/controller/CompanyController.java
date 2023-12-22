@@ -52,6 +52,7 @@ public class CompanyController {
     private static final String SRO_SCAN = "sro-scan";
     private static final String LICENSE_SCAN = "license-scan";
     private static final String SIGNATURE = "signature";
+    private static final String LOGO = "company-logo";
 
     private final CompanyService companyService;
     private final EmployerService employerService;
@@ -112,12 +113,30 @@ public class CompanyController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping(path = "/{comp_id}/logo")
+    @Operation(summary = "Получить лого компапнии")
+    public ResponseEntity<Resource> getLogo(@PathVariable("comp_id") @Min(1) long id,
+                                            Authentication authentication) {
+        return controllerUtils.getResponseEntityFromFile(
+                LOGO,
+                companyService.getLogo(id, controllerUtils.getUserId(authentication))
+        );
+    }
+
+    @DeleteMapping(path = "/{comp_id}/logo")
+    @Operation(summary = "Удалить лого компапнии")
+    public ResponseEntity<Void> deleteLogo(@PathVariable("comp_id") @Min(1) long id,
+                                           Authentication authentication) {
+        companyService.deleteLogo(controllerUtils.getUserId(authentication), id);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping(path = "/{comp_id}/employer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Добавление работника со всеми полями и подписью")
     public ResponseEntity<IdentifiableDto> addEmployer(@PathVariable("comp_id") @Min(1) long id,
                                                        @RequestParam("name") @NotBlank String name,
                                                        @RequestParam("position") @NotBlank String position,
-                                                       MultipartFile signature,
+                                                       @RequestParam("signature") MultipartFile signature,
                                                        Authentication authentication) {
         Identifiable employer = employerService.addEmployer(
                 controllerUtils.getUserId(authentication),
@@ -141,9 +160,13 @@ public class CompanyController {
     @Operation(summary = "Обновление работника")
     public ResponseEntity<Void> updateEmployer(@PathVariable("comp_id") @Min(1) long compId,
                                                @PathVariable("emp_id") @Min(1) long empId,
-                                               @RequestBody @Valid EmployerDto dto,
+                                               @RequestParam("name") @NotBlank String name,
+                                               @RequestParam("position") @NotBlank String position,
+                                               @RequestParam(value = "signature", required = false)
+                                                   MultipartFile signature,
                                                Authentication authentication) {
-        employerService.updateEmployer(controllerUtils.getUserId(authentication), compId, empId, dto);
+        employerService.updateEmployer(controllerUtils.getUserId(authentication),
+                compId, empId, employerMapper.mapToEmployerDto(name, position), signature);
         return ResponseEntity.ok().build();
     }
 
