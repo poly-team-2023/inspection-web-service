@@ -53,6 +53,7 @@ public class EmployerService {
         }
     }
 
+    @Transactional
     public void deleteEmployer(long userId, long companyId, long employerId) {
         Company company = serviceUtils.getCompanyIfExistForUser(userId, companyId);
         Employer employer = serviceUtils.tryToFindByID(company.getEmployers(), employerId);

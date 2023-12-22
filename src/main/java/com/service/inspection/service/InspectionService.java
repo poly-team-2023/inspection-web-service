@@ -92,7 +92,7 @@ public class InspectionService {
     public void deleteInspection(Long inspectionId, Long userId) {
         Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
         inspectionRepository.deleteById(inspection.getId());
-        // TODO проверка на наличие именно этой инспекци у пользователя + обработка ошибок
+        // TODO проверка на наличие именно этой инспекции у пользователя + обработка ошибок
     }
 
     public void updateInspection(Long inspectionId, Long userId, InspectionDto inspectionDto) {
