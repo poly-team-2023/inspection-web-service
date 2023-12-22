@@ -1,5 +1,6 @@
 package com.service.inspection.service;
 
+import java.util.Set;
 import java.util.UUID;
 
 import com.service.inspection.configs.BucketName;
@@ -88,9 +89,10 @@ public class CompanyService {
 
     public void deleteAllSro(long userId, long companyId) {
         Company company = serviceUtils.getCompanyIfExistForUser(userId, companyId);
+        Set<FileScan> fileScanSet = company.getFilesSro();
         company.getFilesSro().clear();
         companyRepository.save(company);
-        fileScanRepository.deleteAll(company.getFilesSro());
+        fileScanRepository.deleteAll(fileScanSet);
     }
 
     @Transactional

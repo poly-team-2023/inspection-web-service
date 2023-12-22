@@ -1,6 +1,7 @@
 package com.service.inspection.service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import com.service.inspection.configs.BucketName;
@@ -88,9 +89,10 @@ public class EquipmentService {
 
     public void deleteAllScan(long userId, long equipmentId) {
         Equipment equipment = getEquipmentIfExistForUser(equipmentId, userId);
+        Set<FileScan> fileScanSet = equipment.getFiles();
         equipment.getFiles().clear();
         equipmentRepository.save(equipment);
-        fileScanRepository.deleteAll(equipment.getFiles());
+        fileScanRepository.deleteAll(fileScanSet);
     }
 
     public Equipment getEquipmentIfExistForUser(Long equipmentId, Long userId) {

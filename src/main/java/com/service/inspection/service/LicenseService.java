@@ -1,5 +1,6 @@
 package com.service.inspection.service;
 
+import java.util.Set;
 import java.util.UUID;
 
 import com.service.inspection.configs.BucketName;
@@ -74,9 +75,10 @@ public class LicenseService {
 
     public void deleteAllLicenseScan(long userId, long companyId, long licenseId) {
         License license = getLicense(companyId, userId, licenseId);
+        Set<FileScan> fileScanSet = license.getFiles();
         license.getFiles().clear();
         licenseRepository.save(license);
-        fileScanRepository.deleteAll(license.getFiles());
+        fileScanRepository.deleteAll(fileScanSet);
     }
 
     public void updateLicense(long userId, long companyId, long licenseId, LicenseDto dto) {
