@@ -3,5 +3,10 @@ spring.cloud.vault:
   host: localhost
   port: 8200
   scheme: https
+  uri: https://localhost:8200
+  connection-timeout: 5000
+  read-timeout: 3000
   authentication: TOKEN
   token: ${spring.cloud.vault.token}
+  config:
+    order: -10
