@@ -1,0 +1,7 @@
+spring.application.name: inspection-web-service
+spring.cloud.vault:
+  host: localhost
+  port: 8200
+  scheme: https
+  authentication: TOKEN
+  token: ${spring.cloud.vault.token}
