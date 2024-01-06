@@ -2,6 +2,7 @@ package com.service.inspection.security;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.service.inspection.InspectionApplication;
 import com.service.inspection.dto.auth.UserSignInDto;
 import com.service.inspection.dto.auth.UserSignUpDto;
 import com.service.inspection.entities.User;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -23,8 +25,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-@SpringBootTest
+@SpringBootTest(classes = InspectionApplication.class)
 @AutoConfigureMockMvc
+@TestPropertySource(locations="classpath:application-test.properties")
 class AuthTest extends AbstractTestContainerStartUp {
 
     @Autowired

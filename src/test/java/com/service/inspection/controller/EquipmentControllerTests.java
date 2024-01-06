@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,6 +25,7 @@ import java.util.List;
 
 @SpringBootTest(classes = InspectionApplication.class)
 @AutoConfigureMockMvc
+@TestPropertySource(locations="classpath:application-test.properties")
 public class EquipmentControllerTests {
     @Autowired
     private JdbcTemplate jdbcTemplate;

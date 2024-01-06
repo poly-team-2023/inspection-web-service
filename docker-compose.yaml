@@ -24,3 +24,19 @@ services:
       MINIO_CONSOLE_ADDRESS: ':9001'
       MINIO_REGION: 'ru-msk'
     command: minio server /data
+
+  vault:
+    image: vault:1.13.3
+    container_name: vault
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_ADDR: 'http://127.0.0.1:8200'
+    volumes:
+      - ./file:/vault/file:rw
+      - ./config:/vault/config:rw
+      - ./data:/vault/data:rw
+    cap_add:
+      - IPC_LOCK
+    working_dir: /vault/config
+    entrypoint: sh ./workflow-vault.sh
