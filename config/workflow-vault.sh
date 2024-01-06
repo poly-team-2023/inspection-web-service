@@ -32,10 +32,11 @@ export VAULT_TOKEN="$rootToken"
 #vault policy write spring-policy spring-policy.hcl
 #vault write auth/userpass/users/admin password="${SECRET_PASS}" policies=spring-policy
 
-## Put key-values
+## Put key-values from file
 secrets_file="secrets.txt"
 secret_string=""
 while IFS= read -r line || [ -n "$line" ]; do
+    line="${line%$'\r'}"
     if [[ "$line" != "#"* ]]; then
         secret_string="$secret_string $line"
     fi
