@@ -1,13 +1,10 @@
 package com.service.inspection;
 
 import com.service.inspection.utils.VaultConfigReaderUtil;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.annotation.Bean;
 
 import java.util.Properties;
-
 
 @SpringBootApplication
 public class InspectionApplication {
