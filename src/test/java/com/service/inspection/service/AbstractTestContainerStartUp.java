@@ -8,6 +8,7 @@ import org.testcontainers.junit.jupiter.Container;
 
 
 @TestPropertySource(properties = {"spring.test.database.replace=none"})
+@TestPropertySource(locations="classpath:application-test.properties")
 public abstract class AbstractTestContainerStartUp {
 
     @Container
