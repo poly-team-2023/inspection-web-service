@@ -13,8 +13,6 @@ public class InspectionApplication {
         Properties properties = VaultConfigReaderUtil.read();
         SpringApplicationBuilder springApplication = new SpringApplicationBuilder(InspectionApplication.class);
         springApplication.properties(properties).run(args);
-
-//        SpringApplication.run(InspectionApplication.class, args);
     }
 
 }

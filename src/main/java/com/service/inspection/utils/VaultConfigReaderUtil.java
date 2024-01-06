@@ -15,7 +15,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
 
-public class VaultConfigReaderUtil {
+public final class VaultConfigReaderUtil {
     public static final String TOKEN;
     public static final String URI = "http://127.0.0.1:8200";
     public static final String VAULT_PATH = "kv/base";
