@@ -1,5 +1,6 @@
 package com.service.inspection.service;
 
+import java.util.Set;
 import java.util.UUID;
 
 import com.service.inspection.configs.BucketName;
@@ -36,6 +37,7 @@ public class LicenseService {
         Company company = serviceUtils.getCompanyIfExistForUser(userId, companyId);
 
         license.setCompany(company);
+        company.addLicense(license);
         licenseRepository.save(license);
         return license;
     }
@@ -67,12 +69,17 @@ public class LicenseService {
     public void deleteLicenseScan(long userId, long companyId, long licenseId, long sroId) {
         License license = getLicense(companyId, userId, licenseId);
         FileScan scan = serviceUtils.tryToFindByID(license.getFiles(), sroId);
+        license.getFiles().remove(scan);
+        licenseRepository.save(license);
         fileScanRepository.delete(scan);
     }
 
     public void deleteAllLicenseScan(long userId, long companyId, long licenseId) {
         License license = getLicense(companyId, userId, licenseId);
-        fileScanRepository.deleteAll(license.getFiles());
+        Set<FileScan> fileScanSet = license.getFiles();
+        license.getFiles().clear();
+        licenseRepository.save(license);
+        fileScanRepository.deleteAll(fileScanSet);
     }
 
     public void updateLicense(long userId, long companyId, long licenseId, LicenseDto dto) {

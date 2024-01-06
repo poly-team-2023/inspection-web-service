@@ -136,7 +136,7 @@ public class CompanyController {
     public ResponseEntity<IdentifiableDto> addEmployer(@PathVariable("comp_id") @Min(1) long id,
                                                        @RequestParam("name") @NotBlank String name,
                                                        @RequestParam("position") @NotBlank String position,
-                                                       MultipartFile signature,
+                                                       @RequestParam("signature") MultipartFile signature,
                                                        Authentication authentication) {
         Identifiable employer = employerService.addEmployer(
                 controllerUtils.getUserId(authentication),
@@ -160,9 +160,13 @@ public class CompanyController {
     @Operation(summary = "Обновление работника")
     public ResponseEntity<Void> updateEmployer(@PathVariable("comp_id") @Min(1) long compId,
                                                @PathVariable("emp_id") @Min(1) long empId,
-                                               @RequestBody @Valid EmployerDto dto,
+                                               @RequestParam("name") @NotBlank String name,
+                                               @RequestParam("position") @NotBlank String position,
+                                               @RequestParam(value = "signature", required = false)
+                                                   MultipartFile signature,
                                                Authentication authentication) {
-        employerService.updateEmployer(controllerUtils.getUserId(authentication), compId, empId, dto);
+        employerService.updateEmployer(controllerUtils.getUserId(authentication),
+                compId, empId, employerMapper.mapToEmployerDto(name, position), signature);
         return ResponseEntity.ok().build();
     }
 
