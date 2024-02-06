@@ -149,9 +149,14 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.vault</groupId>
+			<artifactId>spring-vault-core</artifactId>
+			<version>3.1.0</version>
+		</dependency>
     </dependencies>
-
-
+	
 	<build>
 		<plugins>
 			<plugin>
