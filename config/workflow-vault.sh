@@ -24,14 +24,6 @@ rootToken=$(grep "Initial Root Token: " < generated_keys.txt | cut -c21-)
 echo "$rootToken" > root_token.txt
 export VAULT_TOKEN="$rootToken"
 
-# Enable kv
-#vault secrets enable -version=2 kv
-
-# Enable userpass and add default user
-#vault auth enable userpass
-#vault policy write spring-policy spring-policy.hcl
-#vault write auth/userpass/users/admin password="${SECRET_PASS}" policies=spring-policy
-
 ## Put key-values from file
 secrets_file="secrets.txt"
 secret_string=""
