@@ -20,10 +20,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Mapper(
@@ -61,10 +58,11 @@ public abstract class DocumentMapper {
             futureResult.add(
                     documentModelService.processAllPhotosAsync(category.getPhotos(), lastPhotosCount).thenAccept(x -> {
 
-                        // TODO чтобы в модель фото на основе порядкового номера номера фото и категории
-                        //  вставлялся ее номер
-
                         documentModel.addCategory(this.mapToCategoryModel(category, x));
+
+//                        Map<String, Integer> m = x.stream().flatMap(t -> t.getDefects().stream())
+//                                .collect(Collectors.toMap(DefectModel::getName, v -> 1, Integer::sum));
+
                         log.debug("Add category {} to inspection {}", category.getId(), inspection.getId());
                     })
             );

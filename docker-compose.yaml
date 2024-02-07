@@ -12,6 +12,18 @@ services:
       - "8080:8080"
     restart: on-failure
 
+
+
+  client:
+    image: alina2002alina/front:0.0.4.5
+    environment:
+      - NGINX_HOST=foobar.com
+      - NGINX_PORT=80
+      - CHOKIDAR_USEPOLLING=true
+    ports:
+      - 80:80
+    restart: on-failure
+
   postgres:
     image: postgres
     environment:
@@ -20,16 +32,6 @@ services:
       POSTGRES_PASSWORD: "admin"
     ports:
       - "5432:5432"
-
-  client:
-    image: alina2002alina/front:0.0.4.4
-    environment:
-      - NGINX_HOST=foobar.com
-      - NGINX_PORT=80
-      - CHOKIDAR_USEPOLLING=true
-    ports:
-      - 80:80
-    restart: on-failure
 
   minio:
     image: minio/minio
@@ -45,3 +47,13 @@ services:
       MINIO_CONSOLE_ADDRESS: ':9001'
       MINIO_REGION: 'ru-msk'
     command: minio server /data
+
+  rabbitmq:
+      image: rabbitmq:3.12.12-management-alpine
+      hostname: rabbitmq
+      restart: always
+      volumes:
+        - ./rabbitmq:/var/lib/rabbitmq
+      ports:
+        - 15672:15672
+        - 5672:5672

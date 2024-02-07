@@ -30,7 +30,7 @@ public class DocumentModelService {
     private final PhotoMapper photoMapper;
     private final ImageMapper imageMapper;
 
-    @Async
+    @Async("categoryAsyncExecutor")
     public CompletableFuture<List<ImageModelWithDefects>> processAllPhotosAsync(List<Photo> photos, Long startNum) {
         photos.sort(Comparator.comparingLong(Photo::getId)); // TODO нормальное реализовать
 

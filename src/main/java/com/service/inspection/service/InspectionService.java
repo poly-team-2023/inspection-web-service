@@ -66,6 +66,8 @@ public class InspectionService {
     @Qualifier("mainTemplatePath")
     private final String templatePath;
     private final ResourceLoader resourceLoader;
+    private DocumentModelService documentModelService;
+    private final DocumentService documentService;
 
 
     @Transactional
@@ -195,8 +197,15 @@ public class InspectionService {
         return storageService.getFile(BucketName.CATEGORY_PHOTOS, photo.getFileUuid().toString());
     }
 
+    public void  addTaskForCreatingDocument(Long inspectionId, Long userId) {
+        Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
+        User user = userRepository.findById(userId).orElse(null);
+        // TODO логика проверки прав тд тп
+
+        documentService.addInspectionInQueueToProcess(inspection, user);
+    }
+
     // --------------------------------------- create-document -----------------------------------------
-    @Transactional
     public void createDocument(Long inspectionId, Long userId) {
         Stopwatch timer = Stopwatch.createStarted();
 
@@ -253,7 +262,7 @@ public class InspectionService {
         return file;
     }
 
-    private Inspection getInspectionIfExistForUser(Long inspectionId, Long userId) {
+    public Inspection getInspectionIfExistForUser(Long inspectionId, Long userId) {
         Inspection inspection = inspectionRepository.findByUsersIdAndId(userId, inspectionId);
         if (inspection == null) {
             throw new EntityNotFoundException(String.format("No such inspection with id %s for this user", inspectionId));

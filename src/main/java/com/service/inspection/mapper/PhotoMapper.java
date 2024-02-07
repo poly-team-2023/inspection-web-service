@@ -1,5 +1,6 @@
 package com.service.inspection.mapper;
 
+import com.service.inspection.dto.document.CkImageProcessingDto;
 import com.service.inspection.dto.document.PhotoDefectsDto;
 import com.service.inspection.dto.inspection.CategoryWithFile;
 import com.service.inspection.entities.Category;
@@ -10,6 +11,7 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.Base64;
 import java.util.Set;
 import java.util.UUID;
 
@@ -40,4 +42,12 @@ public interface PhotoMapper {
     ProcessingImageDto mapToProcessingImage(Photo photo, Long photoNum);
 
     ProcessingImageDto mapToProcessingImage(UUID uuid);
+
+    @Mapping(target = "imgBASE64", source = "photoBytes")
+    @Mapping(target = "nnMode", constant = "facade")
+    public abstract CkImageProcessingDto mapToCkSendProcessDto(ProcessingImageDto processingImageDto);
+
+    default String toBase64(byte[] bytes) {
+        return Base64.getEncoder().encodeToString(bytes);
+    }
 }

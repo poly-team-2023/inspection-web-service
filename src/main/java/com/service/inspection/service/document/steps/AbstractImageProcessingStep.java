@@ -1,5 +1,7 @@
 package com.service.inspection.service.document.steps;
 
+import com.service.inspection.service.document.ProcessingImageDto;
+
 public abstract class AbstractImageProcessingStep implements ImageProcessingStep {
 
     protected ImageProcessingStep nextStep;
@@ -9,5 +11,5 @@ public abstract class AbstractImageProcessingStep implements ImageProcessingStep
         this.nextStep = nextStep;
     }
 
-//    public abstract void executeProcess(TestImageModel imageModel);
+    public abstract boolean isValidImageStep(ProcessingImageDto nextStep);
 }

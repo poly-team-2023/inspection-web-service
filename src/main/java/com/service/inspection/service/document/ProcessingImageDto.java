@@ -12,6 +12,7 @@ import java.util.UUID;
 public class ProcessingImageDto {
     private Long id;
     private Long photoNum;
+
     private UUID uuid;
     private byte[] photoBytes;
     private Set<Photo.Defect> defects;

@@ -14,6 +14,8 @@ import com.service.inspection.entities.Inspection;
 import com.service.inspection.mapper.CategoryMapper;
 import com.service.inspection.mapper.CommonMapper;
 import com.service.inspection.mapper.InspectionMapper;
+import com.service.inspection.service.DataService;
+import com.service.inspection.service.DocumentService;
 import com.service.inspection.service.InspectionService;
 import com.service.inspection.service.StorageService;
 import com.service.inspection.utils.ControllerUtils;
@@ -56,7 +58,7 @@ public class InspectionController {
     private final ControllerUtils utils;
     private final CommonMapper commonMapper;
     private final CategoryMapper categoryMapper;
-
+    private final DocumentService dataService;
 
     // TODO заменить обращение к бд для поиска пользователя с email на id для более быстрого поиска
 
@@ -223,11 +225,11 @@ public class InspectionController {
     }
 
     @PostMapping("/{id}/docx")
-    @Operation(summary = "Сгенерировать отчет")
+    @Operation(summary = "Добавить отчет в очередь генерации")
     public ResponseEntity<Void> getCategoryPhoto(@PathVariable @Min(1) Long id, Authentication authentication
     ) {
         Long userId = utils.getUserId(authentication);
-        inspectionService.createDocument(id, userId);
+        inspectionService.addTaskForCreatingDocument(id, userId);
         return ResponseEntity.ok().build();
     }
 
@@ -256,4 +258,6 @@ public class InspectionController {
                 new DocumentStatusDto(inspectionService.getReportStatus(id, userId))
         );
     }
+
+
 }
