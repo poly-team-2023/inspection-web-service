@@ -3,6 +3,7 @@ package com.service.inspection.controller;
 import com.service.inspection.dto.document.PhotoDefectsDto;
 import com.service.inspection.mapper.PhotoMapper;
 import com.service.inspection.service.DataService;
+import com.service.inspection.service.GptTesterService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class NNController {
     private final DataService dataService;
     private final PhotoMapper photoMapper;
+    private final GptTesterService testService;
 
     @PostMapping("/photos/{photoId}")
     @Operation(summary = "Добавить дефекты к фото",
@@ -30,5 +32,10 @@ public class NNController {
     ) {
         dataService.updatePhotoInfo(photoId, photoMapper.mapToPhotos(photoDefectsDto.getDefectsDto()));
         return ResponseEntity.ok(photoDefectsDto);
+    }
+
+    @GetMapping("/gpt/test")
+    public void testToDeleteLater() {
+        testService.sendTestGptRequest();
     }
 }

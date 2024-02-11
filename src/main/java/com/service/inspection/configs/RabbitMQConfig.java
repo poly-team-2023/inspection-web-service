@@ -55,6 +55,11 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Queue gptTaskPublisher() {
+        return new Queue("nlm.task", true);
+    }
+
+    @Bean
     public MessageConverter jsonMessageConverter() {
         SimpleMessageConverter simpleMessageConverter = new SimpleMessageConverter();
         simpleMessageConverter.addAllowedListPatterns("com.service.inspection.service.*");

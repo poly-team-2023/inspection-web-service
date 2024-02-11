@@ -35,10 +35,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -87,7 +84,8 @@ public class DocumentService {
         User user = userRepository.findById(dto.getUserId()).orElse(null);
 
         log.info("Start creating inspection document for inspection {}", inspection.getId());
-        List<CompletableFuture<Void>> futureResult = new ArrayList<>();
+
+        List<CompletableFuture<Void>> futureResult = Collections.synchronizedList(new ArrayList<>());
         DocumentModel documentModel = documentMapper.mapToDocumentModel(inspection, user, futureResult);
         CompletableFuture.allOf(futureResult.toArray(new CompletableFuture[0])).thenAccept(x -> {
             if (documentModel.getCategories() != null) {

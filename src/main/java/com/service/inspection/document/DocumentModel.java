@@ -34,4 +34,7 @@ public class DocumentModel {
     public void addCategory(CategoryModel categoryModel) {
         categories.add(categoryModel);
     }
+
+    private String recommendation;
+    private String estimation;
 }
