@@ -16,10 +16,6 @@ public class CategoryModel {
     private Long categoryNum = 0L;
     private String name;
 
-    // Раздел который в будущем надо сделать. Последняя таблица со сводной таблицей дефектов и того,
-    // какие дефекты на них были выявлены.
-    private Map<String, Pair<String, List<Long>>> defectsWithPhotos;
-
     // Раздел в котором делается вывод по категориям.
     private String recommendation;
     private String estimation;
@@ -27,4 +23,7 @@ public class CategoryModel {
     private Set<String> defects;
 
     private List<ImageModelWithDefects> photos;
+
+    // Map<String, CategoryDefectsModel>
+    private Map<String, CategoryDefectsModel> defectsWithPhotos;
 }

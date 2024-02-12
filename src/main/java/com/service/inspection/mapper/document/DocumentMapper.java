@@ -6,11 +6,9 @@ import com.deepoove.poi.data.Tables;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
 import com.service.inspection.document.DocumentModel;
-import com.service.inspection.document.model.CategoryModel;
-import com.service.inspection.document.model.CompanyModel;
-import com.service.inspection.document.model.DefectModel;
-import com.service.inspection.document.model.ImageModelWithDefects;
+import com.service.inspection.document.model.*;
 import com.service.inspection.dto.document.GptReceiverDto;
 import com.service.inspection.entities.*;
 import com.service.inspection.mapper.SenderMapper;
@@ -62,23 +60,29 @@ public abstract class DocumentMapper {
 
     @Mapping(source = "processedPhotos", target = "photos")
     @Mapping(source = "category.id", target = "categoryNum", defaultValue = "0L")
-    @Mapping(source = "processedPhotos", target = "defectsWithPhotos")
     @Mapping(source = "processedPhotos", target = "defects", qualifiedByName = "processedPhotos")
+    @Mapping(source = "processedPhotos", target = "defectsWithPhotos", dependsOn = "defects")
     public abstract CategoryModel mapToCategoryModel(Category category, List<ImageModelWithDefects> processedPhotos);
 
     @Named("processedPhotos")
     public Set<String> processedPhotos(List<ImageModelWithDefects> defectsModel) {
         if (defectsModel == null) return null;
-
-        
-
         return defectsModel.stream().flatMap(x -> x.getDefects().stream())
                 .map(DefectModel::getName).collect(Collectors.toSet());
     }
 
-    public Map<String, Pair<String, List<Long>>> processedPhotosMap(List<ImageModelWithDefects> defectsModel) {
-        if (defectsModel == null) return Collections.emptyMap();
-        return Collections.emptyMap();
+
+    public Map<String, CategoryDefectsModel> processedPhotosMap(List<ImageModelWithDefects> defectsModel) {
+        Map<String, CategoryDefectsModel> map = new HashMap<>();
+
+        for (ImageModelWithDefects image : defectsModel) {
+            if (image == null || image.getDefects() == null) continue;
+            for (DefectModel defect: image.getDefects()) {
+                map.putIfAbsent(defect.getName(), new CategoryDefectsModel(new ArrayList<>(), ""));
+                map.get(defect.getName()).getPhotoNums().add(image.getPhotoNum());
+            }
+        }
+        return map;
     }
 
 

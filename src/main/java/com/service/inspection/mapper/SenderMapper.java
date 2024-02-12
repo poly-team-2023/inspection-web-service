@@ -9,10 +9,10 @@ import com.service.inspection.document.model.ImageModelWithDefects;
 import com.service.inspection.dto.document.GptReceiverDto;
 import com.service.inspection.dto.document.GptSenderDto;
 import com.service.inspection.entities.Category;
-import org.mapstruct.InjectionStrategy;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import com.service.inspection.mapper.document.TableMapper;
+import org.aspectj.lang.annotation.After;
+import org.mapstruct.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,6 +22,9 @@ import java.util.stream.Collectors;
         componentModel = "spring"
 )
 public abstract class SenderMapper {
+
+    @Autowired
+    private TableMapper tableMapper;
 
     @Mapping(source = "building.recommendation", target = "recommendation")
     @Mapping(source = "building.estimation", target = "estimation")
@@ -45,6 +48,11 @@ public abstract class SenderMapper {
         }
     }
 
+    @AfterMapping
+    void renderTableRender(@MappingTarget DocumentModel documentModel, GptReceiverDto receiver) {
+        documentModel.setCategoriesDefectsTable(tableMapper.createSumDefectsTable(documentModel.getCategories()));
+    }
+
     // ------------------ преобразование модели после обработки всех фотографий во всех категориях -----------------
 
     @Mapping(source = "categories", target = "categories")
@@ -65,4 +73,6 @@ public abstract class SenderMapper {
         mapDefects.forEach((key, value) -> answer.add(new GptSenderDto.GptDefectDto(key, value.longValue())));
         return answer;
     }
+
+
 }
