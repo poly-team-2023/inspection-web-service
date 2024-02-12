@@ -3,6 +3,7 @@ package com.service.inspection.configs;
 import com.deepoove.poi.config.Configure;
 import com.deepoove.poi.config.ConfigureBuilder;
 import com.deepoove.poi.data.style.PictureStyle;
+import com.deepoove.poi.plugin.toc.TOCRenderPolicy;
 import com.service.inspection.entities.Photo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +24,8 @@ public class DocumentEngineConfig {
     @Bean
     public Configure builderCreator() {
         ConfigureBuilder builder = Configure.builder();
-        builder.useSpringEL(true);
+        builder.useSpringEL(false);
+        builder.bind("TOC", new TOCRenderPolicy());
         return builder.build();
     }
 

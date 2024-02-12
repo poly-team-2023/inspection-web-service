@@ -3,20 +3,18 @@ package com.service.inspection.mapper.document;
 import com.deepoove.poi.data.*;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.service.inspection.document.model.CategoryDefectsModel;
 import com.service.inspection.document.model.CategoryModel;
-import com.service.inspection.document.model.DefectModel;
-import com.service.inspection.document.model.ImageModelWithDefects;
 import com.service.inspection.entities.Equipment;
+import com.service.inspection.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Mapper(
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
@@ -24,6 +22,9 @@ import java.util.stream.Collectors;
 )
 @Slf4j
 public abstract class TableMapper {
+
+    @Autowired
+    private CommonUtils utils;
 
     private RowRenderData mapToRowRenderData(Equipment equipment, Integer num) {
         return Rows.of(
@@ -65,20 +66,33 @@ public abstract class TableMapper {
     }
 
     public TableRenderData createSumDefectsTable(List<CategoryModel> categories) {
+        MergeCellRule.MergeCellRuleBuilder ruleBuilder = MergeCellRule.builder();
+        TableRenderData tableRenderData = Tables.of(Rows.of("№№ п/п", "Характеристика дефекта",
+                        "Место расположения дефекта", "Возможный способ устранения дефекта", "№ фото (см. Приложение В)")
+                .center().textFontSize(12).textBold().textFontFamily("Times New Roman").create()).left()
+                .width(26.81f, new double[]{2.57f, 7.42f, 4.1f, 7.97f, 4.74f}).create();
 
-        TableRenderData tableRenderData = Tables.of(Rows.of("1", "2", "3", "4").create()).right()
-                .width(17.01f, new double[]{1.64f, 7.75f, 3.63f, 3.99f}).create();
-
-        int currentCategoryNum = 1;
+        int currentRowCount = 1;
         for (CategoryModel category : categories) {
-            tableRenderData.addRow(Rows.of(null, null, currentCategoryNum + ". " + category.getName(), null).create());
+            tableRenderData.addRow(Rows.of(category.getCategoryNum() + ". " + category.getName(), null, null, null,
+                    null).center().textFontSize(12).textBold().textFontFamily("Times New Roman").create());
+
+            ruleBuilder.map(MergeCellRule.Grid.of(currentRowCount, 0), MergeCellRule.Grid.of(currentRowCount, 3));
+
             if (category.getDefectsWithPhotos() == null) continue;
-            category.getDefectsWithPhotos().forEach((def, photos) -> {
-                tableRenderData.addRow(Rows.of(def, null, photos.getRecommendation(),
-                        Joiner.on(", ").join(photos.getPhotoNums())).create());
-            });
-            currentCategoryNum += 1;
+
+            int currentLocalCounter = 1;
+            for (Map.Entry<String, CategoryDefectsModel> entry: category.getDefectsWithPhotos().entrySet()) {
+                tableRenderData.addRow(Rows.of(category.getCategoryNum() + "." + currentLocalCounter++,
+                                        utils.toHumanReadable(entry.getKey()), null, entry.getValue().getRecommendation(),
+                        "Фото №№" + Joiner.on(", №").join(entry.getValue().getPhotoNums()))
+                        .textFontSize(10).textFontFamily("Times New Roman").create());
+            }
+
+            currentRowCount += category.getDefectsWithPhotos().size() + 1;
         }
+
+        tableRenderData.setMergeRule(ruleBuilder.build());
         return tableRenderData;
     }
 }

@@ -3,6 +3,7 @@ package com.service.inspection.mapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.service.inspection.document.DocumentModel;
+import com.service.inspection.document.model.CategoryDefectsModel;
 import com.service.inspection.document.model.CategoryModel;
 import com.service.inspection.document.model.DefectModel;
 import com.service.inspection.document.model.ImageModelWithDefects;
@@ -43,8 +44,20 @@ public abstract class SenderMapper {
             if (categoryToModify == null) {
                 continue;
             }
-
             categoryToModify.setEstimation(categoryDto.getEstimation());
+
+            if (categoryToModify.getDefectsWithPhotos() == null) {
+                continue;
+            }
+            Map<String, GptReceiverDto.GptReceiverDefectsDto> t =
+                    Maps.uniqueIndex(categoryDto.getDefects(), GptReceiverDto.GptReceiverDefectsDto::getName);
+            for (String defect: t.keySet()) {
+
+                CategoryDefectsModel model  = categoryToModify.getDefectsWithPhotos().get(defect);
+                if (model != null) {
+                    model.setRecommendation(t.getOrDefault(defect, new GptReceiverDto.GptReceiverDefectsDto()).getRecommendation());
+                }
+            }
         }
     }
 

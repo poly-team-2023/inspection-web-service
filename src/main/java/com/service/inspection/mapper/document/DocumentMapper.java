@@ -13,6 +13,7 @@ import com.service.inspection.dto.document.GptReceiverDto;
 import com.service.inspection.entities.*;
 import com.service.inspection.mapper.SenderMapper;
 import com.service.inspection.service.DocumentModelService;
+import com.service.inspection.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.mapstruct.Named;
@@ -39,6 +40,9 @@ import java.util.stream.Collectors;
 public abstract class DocumentMapper {
 
     @Autowired
+    private CommonUtils utils;
+
+    @Autowired
     private DocumentModelService documentModelService;
 
     @Autowired
@@ -59,7 +63,7 @@ public abstract class DocumentMapper {
     public abstract DocumentModel mapToDocumentModel(Inspection inspection, User user, @Context List<CompletableFuture<Void>> futureResult);
 
     @Mapping(source = "processedPhotos", target = "photos")
-    @Mapping(source = "category.id", target = "categoryNum", defaultValue = "0L")
+    @Mapping(source = "category.numberOfCategory", target = "categoryNum", defaultValue = "0L")
     @Mapping(source = "processedPhotos", target = "defects", qualifiedByName = "processedPhotos")
     @Mapping(source = "processedPhotos", target = "defectsWithPhotos", dependsOn = "defects")
     public abstract CategoryModel mapToCategoryModel(Category category, List<ImageModelWithDefects> processedPhotos);
@@ -68,7 +72,7 @@ public abstract class DocumentMapper {
     public Set<String> processedPhotos(List<ImageModelWithDefects> defectsModel) {
         if (defectsModel == null) return null;
         return defectsModel.stream().flatMap(x -> x.getDefects().stream())
-                .map(DefectModel::getName).collect(Collectors.toSet());
+                .map(DefectModel::getName).map(utils::toHumanReadable).collect(Collectors.toSet());
     }
 
 
@@ -89,8 +93,16 @@ public abstract class DocumentMapper {
     @AfterMapping
     public void mappingAsyncPhotoFields(@MappingTarget DocumentModel documentModel, Inspection inspection, User user,
                                         @Context List<CompletableFuture<Void>> futureResult) {
+
         List<Category> categories = inspection.getCategories();
+
+        // --------- сортировка категорий в соответствии с id ---------
         categories.sort(Comparator.comparingLong(Category::getId));
+        for (int i = 0; i < categories.size(); i++) {
+            categories.get(i).setNumberOfCategory(i + 1);
+        }
+        // ------------------------------------------------------------
+
 
         List<CompletableFuture<Void>> categoryFutureContext = Collections.synchronizedList(new ArrayList<>());
         Long lastPhotosCount = 1L;
@@ -124,6 +136,7 @@ public abstract class DocumentMapper {
                          return x;
                         }).join();
                     } catch (Exception e) {
+                        log.error(e.getMessage());
                         throw new RuntimeException(e);
                     }
                 }).thenAccept(x -> {
@@ -131,8 +144,13 @@ public abstract class DocumentMapper {
                         if (x == null) return;
                         log.debug("Receive GPT analyze for inspection with id {}", inspection.getId());
                         GptReceiverDto dto = mapper.readValue(x.getBody(), GptReceiverDto.class);
+
+                        // добавил именно тут, что сохранить нумерацию в таблице !
+                        documentModel.getCategories().sort(Comparator.comparing(CategoryModel::getCategoryNum));
+
                         senderMapper.updateDocumentModelWithGpt(documentModel, dto);
                     } catch (Exception e) {
+                        log.error(e.getMessage());
                         return ;
                     }
                 });

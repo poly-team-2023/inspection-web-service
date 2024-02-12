@@ -7,11 +7,14 @@ import com.service.inspection.document.model.ImageModel;
 import com.service.inspection.document.model.ImageModelWithDefects;
 import com.service.inspection.entities.Photo;
 import com.service.inspection.service.document.ProcessingImageDto;
+import com.service.inspection.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,6 +25,9 @@ import java.util.stream.Collectors;
 )
 @Slf4j
 public abstract class ImageMapper {
+
+    @Autowired
+    public CommonUtils utils;
 
     @Named(value = "mapToModelPicture")
     public PictureRenderData mapToImageModel(byte[] bytes) {
@@ -39,6 +45,6 @@ public abstract class ImageMapper {
 
     public String mapToImageTitle(Set<Photo.Defect> defects) {
         if (defects.isEmpty()) return "Дефектов не выявлено";
-        return defects.stream().map(Photo.Defect::getName).collect(Collectors.joining(", "));
+        return utils.toHumanReadable(defects.stream().map(Photo.Defect::getName).collect(Collectors.joining(", ")));
     }
 }

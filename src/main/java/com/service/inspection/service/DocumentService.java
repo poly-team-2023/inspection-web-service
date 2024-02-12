@@ -1,6 +1,7 @@
 package com.service.inspection.service;
 
 import com.deepoove.poi.XWPFTemplate;
+import com.deepoove.poi.config.Configure;
 import com.google.common.base.Stopwatch;
 import com.rabbitmq.client.Channel;
 import com.service.inspection.configs.BucketName;
@@ -50,10 +51,11 @@ public class DocumentService {
     private final ResourceLoader resourceLoader;
     private final StorageService storageService;
     private final String templatePath;
+    private final Configure config;
 
 
     public DocumentService(RabbitTemplate rabbitTemplate, @Qualifier(value = "inspectionTask") Queue inspectionQueue,
-                           DocumentMapper documentMapper,
+                           DocumentMapper documentMapper, Configure config,
                            InspectionRepository inspectionRepository, UserRepository userRepository,
                            ResourceLoader resourceLoader, StorageService storageService, String templatePath) {
         this.rabbitTemplate = rabbitTemplate;
@@ -64,6 +66,7 @@ public class DocumentService {
         this.resourceLoader = resourceLoader;
         this.storageService = storageService;
         this.templatePath = templatePath;
+        this.config = config;
     }
 
     @Transactional
@@ -93,7 +96,7 @@ public class DocumentService {
             }
             try (
                     XWPFTemplate template = XWPFTemplate
-                            .compile(resourceLoader.getResource(templatePath).getInputStream())
+                            .compile(resourceLoader.getResource(templatePath).getInputStream(), config)
                             .render(documentModel);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
             ) {
