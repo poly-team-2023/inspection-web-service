@@ -1,7 +1,7 @@
-package com.service.inspection.configs;
+package com.service.inspection.configs.security;
 
-import com.service.inspection.jwt.AuthEntryPointJwt;
-import com.service.inspection.jwt.AuthTokenFilter;
+import com.service.inspection.configs.security.jwt.AuthEntryPointJwt;
+import com.service.inspection.configs.security.jwt.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

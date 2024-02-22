@@ -4,7 +4,7 @@ import com.service.inspection.dto.account.PasswordDto;
 import com.service.inspection.dto.account.UserUpdate;
 import com.service.inspection.dto.account.UserWithCompanyDto;
 import com.service.inspection.entities.User;
-import com.service.inspection.jwt.JwtUtils;
+import com.service.inspection.configs.security.jwt.JwtUtils;
 import com.service.inspection.mapper.UserMapper;
 import com.service.inspection.service.StorageService;
 import com.service.inspection.service.UserAccountService;

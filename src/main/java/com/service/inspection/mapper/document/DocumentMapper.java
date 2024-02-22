@@ -21,9 +21,11 @@ import org.mapstruct.*;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
 import org.springframework.amqp.rabbit.RabbitMessageFuture;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.util.Pair;
 
 import java.io.IOException;
@@ -38,6 +40,10 @@ import java.util.stream.Collectors;
 )
 @Slf4j
 public abstract class DocumentMapper {
+
+    @Autowired
+    @Qualifier("nlmTask")
+    private Queue nlmQueue;
 
     @Autowired
     private CommonUtils utils;
@@ -128,7 +134,7 @@ public abstract class DocumentMapper {
                                 .setContentType(MessageProperties.CONTENT_TYPE_JSON)
                                 .setCorrelationId(UUID.randomUUID().toString()).build();
                         // реально в этом моменте обработку ошибок, потому что сейчас join максимально тонкое место
-                        return template.sendAndReceive("nlm.task", m).handle((x, y) -> {
+                        return template.sendAndReceive(nlmQueue.getActualName(), m).handle((x, y) -> {
                          if (y != null) {
                              log.error("Error while waiting answer from gpt: {}", y.getMessage());
                              return null;

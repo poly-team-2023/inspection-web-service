@@ -206,44 +206,6 @@ public class InspectionService {
     }
 
     // --------------------------------------- create-document -----------------------------------------
-    public void createDocument(Long inspectionId, Long userId) {
-        Stopwatch timer = Stopwatch.createStarted();
-
-        Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
-        User user = userRepository.findById(userId).orElse(null);
-
-        if (inspection.getStatus() == ProgressingStatus.WAIT_ANALYZE) {
-            throw new MessageException(HttpStatus.TOO_EARLY, "Inspection already in analyze");
-        }
-
-        inspection.setStatus(ProgressingStatus.WAIT_ANALYZE);
-        inspectionRepository.save(inspection);
-
-        log.info("Start creating inspection document for inspection {}", inspectionId);
-        List<CompletableFuture<Void>> futureResult = new ArrayList<>();
-        DocumentModel documentModel = documentMapper.mapToDocumentModel(inspection, user, futureResult);
-        CompletableFuture.allOf(futureResult.toArray(new CompletableFuture[0])).thenAccept(x -> {
-            if (documentModel.getCategories() != null) {
-                documentModel.getCategories().sort(Comparator.comparingLong(CategoryModel::getCategoryNum));
-            }
-            log.info("Start filling template {}", inspectionId);
-            try (
-                    XWPFTemplate template = XWPFTemplate
-                            .compile(resourceLoader.getResource(templatePath).getInputStream())
-                            .render(documentModel);
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
-            ) {
-
-                template.write(byteArrayOutputStream);
-                InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-                UUID fileUuid = saveDocxFileFile(inspection, inputStream);
-                log.info("Saved file uuid {} for inspection {}. Takes: {}", fileUuid, inspectionId, timer.stop());
-            } catch (IOException e) {
-               log.error(e.getMessage());
-            }
-        });
-    }
-
     public ProgressingStatus getReportStatus(Long inspectionId, Long userId) {
         // TODO метод для загрузки только одного поля
         Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
@@ -269,20 +231,4 @@ public class InspectionService {
         }
         return inspection;
     }
-
-
-    private UUID saveDocxFileFile(Inspection inspection, InputStream inputStream) {
-        UUID uuid = UUID.randomUUID();
-
-        Inspection inspection1 = inspectionRepository.findById(inspection.getId()).orElse(null);
-
-        inspection1.setStatus(ProgressingStatus.READY);
-        inspection1.setReportUuid(uuid);
-
-        inspectionRepository.save(inspection1);
-
-        storageService.saveFile(BucketName.DOCUMENT, uuid.toString(), inputStream);
-        return uuid;
-    }
-
 }

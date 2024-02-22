@@ -109,9 +109,6 @@ public class DocumentService {
                 log.error(e.getMessage());
             }
         }).join();
-
-        inspection.setStatus(ProgressingStatus.READY);
-        inspectionRepository.save(inspection);
     }
 
 
@@ -126,16 +123,13 @@ public class DocumentService {
         private Long inspectionId;
     }
 
-    private UUID saveDocxFileFile(Inspection inspection, InputStream inputStream) {
+    protected UUID saveDocxFileFile(Inspection inspection, InputStream inputStream) {
         UUID uuid = UUID.randomUUID();
 
-        Inspection inspection1 = inspectionRepository.findById(inspection.getId()).orElse(null);
+        inspection.setStatus(ProgressingStatus.READY);
+        inspection.setReportUuid(uuid);
 
-        inspection1.setStatus(ProgressingStatus.READY);
-        inspection1.setReportUuid(uuid);
-
-        inspectionRepository.save(inspection1);
-
+        inspectionRepository.save(inspection);
         storageService.saveFile(BucketName.DOCUMENT, uuid.toString(), inputStream);
         return uuid;
     }

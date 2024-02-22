@@ -1,4 +1,4 @@
-package com.service.inspection.jwt;
+package com.service.inspection.configs.security.jwt;
 
 import com.service.inspection.service.security.UserDetailsImpl;
 import io.jsonwebtoken.Jwts;

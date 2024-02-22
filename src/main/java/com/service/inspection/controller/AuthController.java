@@ -2,7 +2,7 @@ package com.service.inspection.controller;
 
 import com.service.inspection.dto.auth.UserSignInDto;
 import com.service.inspection.dto.auth.UserSignUpDto;
-import com.service.inspection.jwt.JwtUtils;
+import com.service.inspection.configs.security.jwt.JwtUtils;
 import com.service.inspection.mapper.UserMapper;
 import com.service.inspection.service.AuthService;
 import com.service.inspection.utils.ControllerUtils;
@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/v1/auth")

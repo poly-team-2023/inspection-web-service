@@ -1,4 +1,4 @@
-package com.service.inspection.jwt;
+package com.service.inspection.configs.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
