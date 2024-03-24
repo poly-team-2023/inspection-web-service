@@ -101,8 +101,8 @@ public class DocumentService {
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
             ) {
 
-                template.write(byteArrayOutputStream);
-                InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+                    template.write(byteArrayOutputStream);
+                    InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
                 UUID fileUuid = saveDocxFileFile(inspection, inputStream);
                 log.info("Saved file uuid {} for inspection {}. Takes: {}", fileUuid, inspection.getId(), timer.stop());
             } catch (IOException e) {

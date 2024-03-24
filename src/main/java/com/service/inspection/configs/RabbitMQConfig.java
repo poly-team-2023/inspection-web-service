@@ -52,14 +52,14 @@ public class RabbitMQConfig {
 
         @Bean
         public com.rabbitmq.client.ConnectionFactory createMega() throws Exception {
-            char[] keyPassphrase = "123456".toCharArray();
+            char[] keyPassphrase = "12345678".toCharArray();
             KeyStore ks = KeyStore.getInstance("JKS");
             ks.load(new ClassPathResource("cert\\client.keystore").getInputStream(), keyPassphrase);
 
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
             kmf.init(ks, keyPassphrase);
 
-            char[] trustPassphrase = "123456".toCharArray();
+            char[] trustPassphrase = "12345678".toCharArray();
             KeyStore tks = KeyStore.getInstance("JKS");
             tks.load(new ClassPathResource("cert\\client.truststore").getInputStream(), trustPassphrase);
 
