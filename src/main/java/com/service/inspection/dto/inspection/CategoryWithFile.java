@@ -1,11 +1,10 @@
 package com.service.inspection.dto.inspection;
 
-import java.util.Set;
-
 import com.service.inspection.dto.NamedDto;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Set;
 
 @Getter
 @Setter

@@ -2,7 +2,7 @@ package com.service.inspection.utils;
 
 import com.service.inspection.service.StorageService;
 import com.service.inspection.service.security.UserDetailsImpl;
-
+import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -10,8 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-
-import jakarta.servlet.http.Cookie;
 
 @Component
 public class ControllerUtils {

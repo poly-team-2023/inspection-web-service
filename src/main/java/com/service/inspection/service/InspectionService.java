@@ -1,37 +1,56 @@
 package com.service.inspection.service;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
+import com.deepoove.poi.XWPFTemplate;
+import com.google.common.base.Stopwatch;
+import com.service.inspection.advice.MessageException;
 import com.service.inspection.configs.BucketName;
+import com.service.inspection.document.DocumentModel;
+import com.service.inspection.document.model.CategoryModel;
 import com.service.inspection.dto.inspection.InspectionDto;
 import com.service.inspection.entities.Category;
 import com.service.inspection.entities.Identifiable;
 import com.service.inspection.entities.Inspection;
 import com.service.inspection.entities.Photo;
 import com.service.inspection.entities.User;
+import com.service.inspection.entities.enums.ProgressingStatus;
 import com.service.inspection.mapper.CategoryMapper;
 import com.service.inspection.mapper.InspectionMapper;
 import com.service.inspection.mapper.PhotoMapper;
+import com.service.inspection.mapper.document.DocumentMapper;
 import com.service.inspection.repositories.CategoryRepository;
 import com.service.inspection.repositories.InspectionRepository;
 import com.service.inspection.repositories.PhotoRepository;
 import com.service.inspection.repositories.UserRepository;
 import com.service.inspection.utils.ServiceUtils;
-
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InspectionService {
 
     private final InspectionRepository inspectionRepository;
@@ -43,6 +62,13 @@ public class InspectionService {
     private final PhotoMapper photoMapper;
     private final ServiceUtils serviceUtils;
     private final PhotoRepository photoRepository;
+    private final DocumentMapper documentMapper;
+    @Qualifier("mainTemplatePath")
+    private final String templatePath;
+    private final ResourceLoader resourceLoader;
+    private DocumentModelService documentModelService;
+    private final DocumentService documentService;
+
 
     @Transactional
     public Identifiable createInspection(Long userId) {
@@ -112,7 +138,7 @@ public class InspectionService {
         return category;
     }
 
-    public Set<Category> getAllCategories(Long inspectionId, Long userId) {
+    public List<Category> getAllCategories(Long inspectionId, Long userId) {
         Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
         return Optional.ofNullable(inspection)
                 .map(Inspection::getCategories)
@@ -171,7 +197,34 @@ public class InspectionService {
         return storageService.getFile(BucketName.CATEGORY_PHOTOS, photo.getFileUuid().toString());
     }
 
-    private Inspection getInspectionIfExistForUser(Long inspectionId, Long userId) {
+    public void  addTaskForCreatingDocument(Long inspectionId, Long userId) {
+        Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
+        User user = userRepository.findById(userId).orElse(null);
+        // TODO логика проверки прав тд тп
+
+        documentService.addInspectionInQueueToProcess(inspection, user);
+    }
+
+    // --------------------------------------- create-document -----------------------------------------
+    public ProgressingStatus getReportStatus(Long inspectionId, Long userId) {
+        // TODO метод для загрузки только одного поля
+        Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
+        return inspection.getStatus();
+    }
+
+    public StorageService.BytesWithContentType getUserInspectionReport(Long inspectionId, Long userId) {
+        Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
+        if (inspection.getStatus() != ProgressingStatus.READY) {
+            throw new MessageException(HttpStatus.TOO_EARLY, "Report still not ready");
+        }
+        StorageService.BytesWithContentType file =
+                storageService.getFile(BucketName.DOCUMENT, inspection.getReportUuid().toString());
+        // TODO мега костыль стоит сделать чтобы при загрузке подгружалось пользовательское назнвание файла
+        file.setName(inspection.getReportName());
+        return file;
+    }
+
+    public Inspection getInspectionIfExistForUser(Long inspectionId, Long userId) {
         Inspection inspection = inspectionRepository.findByUsersIdAndId(userId, inspectionId);
         if (inspection == null) {
             throw new EntityNotFoundException(String.format("No such inspection with id %s for this user", inspectionId));

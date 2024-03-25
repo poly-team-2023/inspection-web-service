@@ -4,14 +4,16 @@ import com.service.inspection.dto.account.PasswordDto;
 import com.service.inspection.dto.account.UserUpdate;
 import com.service.inspection.dto.account.UserWithCompanyDto;
 import com.service.inspection.entities.User;
-import com.service.inspection.jwt.JwtUtils;
+import com.service.inspection.configs.security.jwt.JwtUtils;
 import com.service.inspection.mapper.UserMapper;
-import com.service.inspection.repositories.UserRepository;
 import com.service.inspection.service.StorageService;
 import com.service.inspection.service.UserAccountService;
 import com.service.inspection.service.security.UserDetailsImpl;
 import com.service.inspection.utils.ControllerUtils;
-
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,11 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/account")

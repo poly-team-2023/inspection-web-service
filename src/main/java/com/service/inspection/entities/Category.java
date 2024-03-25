@@ -1,29 +1,18 @@
 package com.service.inspection.entities;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-
 import com.service.inspection.entities.enums.Condition;
 import com.service.inspection.entities.enums.ProgressingStatus;
-
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.proxy.HibernateProxy;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.proxy.HibernateProxy;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "category")
@@ -50,7 +39,7 @@ public class Category extends Named {
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     @BatchSize(size = 50)
-    private Set<Photo> photos;
+    private List<Photo> photos;
 
     @ManyToOne(fetch = FetchType.LAZY,
             cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}
@@ -61,7 +50,7 @@ public class Category extends Named {
 
     public void addPhoto(Photo photo) {
         if (photos == null) {
-            photos = new HashSet<>();
+            photos = new ArrayList<>();
         }
         photos.add(photo);
     }
@@ -81,4 +70,7 @@ public class Category extends Named {
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
+
+    @Transient
+    private int numberOfCategory = 0;
 }

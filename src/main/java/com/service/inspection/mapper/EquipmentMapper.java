@@ -3,7 +3,6 @@ package com.service.inspection.mapper;
 import com.service.inspection.dto.equipment.EquipmentDto;
 import com.service.inspection.dto.equipment.GetEquipmentDto;
 import com.service.inspection.entities.Equipment;
-
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

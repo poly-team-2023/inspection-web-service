@@ -2,23 +2,18 @@ package com.service.inspection.controller;
 
 import com.service.inspection.dto.auth.UserSignInDto;
 import com.service.inspection.dto.auth.UserSignUpDto;
-import com.service.inspection.jwt.JwtUtils;
+import com.service.inspection.configs.security.jwt.JwtUtils;
 import com.service.inspection.mapper.UserMapper;
 import com.service.inspection.service.AuthService;
 import com.service.inspection.utils.ControllerUtils;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -31,6 +26,11 @@ public class AuthController {
 
     private final ControllerUtils controllerUtils;
     private final JwtUtils jwtUtils;
+
+    @GetMapping("/test")
+    public void test() {
+        System.out.println("Hello world");
+    }
 
     @PostMapping("/sign-in")
     public ResponseEntity<Void> authUser(@RequestBody @Valid UserSignInDto log,

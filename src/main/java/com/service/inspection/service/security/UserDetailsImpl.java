@@ -1,15 +1,13 @@
 package com.service.inspection.service.security;
 
-import java.util.Collection;
-import java.util.List;
-
 import com.service.inspection.entities.User;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Collection;
+import java.util.List;
 
 @Setter
 @Getter

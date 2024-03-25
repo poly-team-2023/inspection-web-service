@@ -6,7 +6,6 @@ import com.service.inspection.dto.auth.UserSignUpDto;
 import com.service.inspection.entities.Role;
 import com.service.inspection.entities.User;
 import com.service.inspection.service.security.UserDetailsImpl;
-
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;

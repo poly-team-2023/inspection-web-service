@@ -1,21 +1,31 @@
 package com.service.inspection.controller;
 
-import java.util.Set;
-
+import com.google.common.base.Joiner;
 import com.service.inspection.dto.IdentifiableDto;
-import com.service.inspection.dto.inspection.*;
+import com.service.inspection.dto.document.DocumentStatusDto;
+import com.service.inspection.dto.inspection.CategoryWithFile;
+import com.service.inspection.dto.inspection.GetInspectionDto;
+import com.service.inspection.dto.inspection.InspectionDto;
+import com.service.inspection.dto.inspection.InspectionWithIdOnly;
+import com.service.inspection.dto.inspection.InspectionWithName;
 import com.service.inspection.entities.Category;
 import com.service.inspection.entities.Identifiable;
 import com.service.inspection.entities.Inspection;
 import com.service.inspection.mapper.CategoryMapper;
 import com.service.inspection.mapper.CommonMapper;
 import com.service.inspection.mapper.InspectionMapper;
+import com.service.inspection.service.DataService;
+import com.service.inspection.service.DocumentService;
 import com.service.inspection.service.InspectionService;
 import com.service.inspection.service.StorageService;
 import com.service.inspection.utils.ControllerUtils;
-
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -30,9 +40,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.constraints.Min;
-import lombok.RequiredArgsConstructor;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/inspections")
@@ -45,7 +58,7 @@ public class InspectionController {
     private final ControllerUtils utils;
     private final CommonMapper commonMapper;
     private final CategoryMapper categoryMapper;
-
+    private final DocumentService dataService;
 
     // TODO заменить обращение к бд для поиска пользователя с email на id для более быстрого поиска
 
@@ -134,11 +147,11 @@ public class InspectionController {
 
     @GetMapping("/{id}/categories")
     @Operation(summary = "Получение всех категорий инспекций с информацией о фотографиях")
-    public ResponseEntity<Set<CategoryWithFile>> getAllCategories(
+    public ResponseEntity<List<CategoryWithFile>> getAllCategories(
             Authentication authentication, @PathVariable @Min(1) Long id
     ) {
         Long userId = utils.getUserId(authentication);
-        Set<Category> categories = inspectionService.getAllCategories(id, userId);
+        List<Category> categories = inspectionService.getAllCategories(id, userId);
 
         return ResponseEntity.ok(categoryMapper.mapToCategoryWithFile(categories));
     }
@@ -204,10 +217,47 @@ public class InspectionController {
     @GetMapping("/{id}")
     @Operation(summary = "Получение информации об инспекции")
     public ResponseEntity<GetInspectionDto> getInspectionInfo(
-            @PathVariable @Min(1) Long id,  Authentication authentication
+            @PathVariable @Min(1) Long id, Authentication authentication
     ) {
         Long userId = utils.getUserId(authentication);
         return ResponseEntity
                 .ok(inspectionMapper.mapToGetInspectionDto(inspectionService.getUserInspection(userId, id)));
     }
+
+    @PostMapping("/{id}/docx")
+    @Operation(summary = "Добавить отчет в очередь генерации")
+    public ResponseEntity<Void> getCategoryPhoto(@PathVariable @Min(1) Long id, Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        inspectionService.addTaskForCreatingDocument(id, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/docx")
+    @Operation(summary = "Скачать файла", description = "Перед этим требуется проверить, доступен ли файл для скачивания")
+    public ResponseEntity<Resource> getInspectionReport(@PathVariable @Min(1) Long id, Authentication authentication) {
+        Long userId = utils.getUserId(authentication);
+        StorageService.BytesWithContentType file = inspectionService.getUserInspectionReport(id, userId);
+        String fileName =
+                Joiner.on('_').join(
+                        Optional.ofNullable(file.getName()).orElse("Отчет").replace(' ', '_'),
+                        LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+                );
+        return ResponseEntity.ok().header(
+                        "Content-Disposition",
+                        "attachment; filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + ".docx")
+                .contentType(new MediaType("application", "vnd.openxmlformats-officedocument.wordprocessingml.document"))
+                .body(new ByteArrayResource(file.getBytes()));
+    }
+
+    @GetMapping("/{id}/docx/status")
+    @Operation(summary = "Проверка статуса отчета")
+    public ResponseEntity<DocumentStatusDto> getInspectionReportStatus(@PathVariable @Min(1) Long id, Authentication authentication) {
+        Long userId = utils.getUserId(authentication);
+        return ResponseEntity.ok(
+                new DocumentStatusDto(inspectionService.getReportStatus(id, userId))
+        );
+    }
+
+
 }

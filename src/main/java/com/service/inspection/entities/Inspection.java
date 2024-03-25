@@ -1,17 +1,7 @@
 package com.service.inspection.entities;
 
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-
 import com.service.inspection.entities.enums.BuildingType;
 import com.service.inspection.entities.enums.ProgressingStatus;
-
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.proxy.HibernateProxy;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +17,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.proxy.HibernateProxy;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "inspection")
@@ -37,7 +36,7 @@ import lombok.ToString;
 public class Inspection extends Named {
 
     @Column(name = "report_name")
-    private String reportName;
+    private String reportName = "Технический отчет об обследовании";
 
     // TODO:  разобраться как правильно хранить дату
     @Column(name = "start_date")
@@ -57,7 +56,7 @@ public class Inspection extends Named {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private ProgressingStatus status;
+    private ProgressingStatus status = ProgressingStatus.WAIT_FILLING;
 
     @Column(name = "main_photo_name")
     private String mainPhotoName;
@@ -67,6 +66,9 @@ public class Inspection extends Named {
 
     @Column(name = "inspected_category_count")
     private int inspectedCategoriesCount;
+
+    @Column(name = "report_uuid")
+    private UUID reportUuid;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "employer_id")
@@ -80,7 +82,7 @@ public class Inspection extends Named {
     @OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @ToString.Exclude
     @BatchSize(size = 50)
-    private Set<Category> categories;
+    private List<Category> categories;
 
     @OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
@@ -108,7 +110,7 @@ public class Inspection extends Named {
 
     public void addCategory(Category category) {
         if (categories == null) {
-            categories = new HashSet<>();
+            categories = new ArrayList<>();
         }
         categories.add(category);
     }
