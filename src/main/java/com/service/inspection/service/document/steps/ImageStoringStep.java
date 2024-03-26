@@ -19,14 +19,15 @@ public class ImageStoringStep extends AbstractImageProcessingStep {
     @Override
     public CompletableFuture<ProcessingImageDto> executeProcess(CompletableFuture<ProcessingImageDto> processingImageDto) {
         ProcessingImageDto imageModel = processingImageDto.join();
-        try {
-            StorageService.BytesWithContentType file =
-                    storageService.getFile(BucketName.DEFAULT_IMAGE_BUCKET, imageModel.getUuid().toString());
 
-            // TODO вот тот самый момент где может падать из-за нехватки памяти
-            imageModel.setPhotoBytes(file.getBytes());
-        } catch (Exception e) {
-            return CompletableFuture.failedFuture(e);
+        if (imageModel.getPhotoBytes() == null) {
+            try {
+                StorageService.BytesWithContentType file =
+                        storageService.getFile(BucketName.DEFAULT_IMAGE_BUCKET, imageModel.getUuid().toString());
+                imageModel.setPhotoBytes(file.getBytes());
+            } catch (Exception e) {
+                return CompletableFuture.failedFuture(e);
+            }
         }
 
         if (imageModel.getId() == null) {

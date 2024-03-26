@@ -1,48 +1,34 @@
 package com.service.inspection.service;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
 import com.service.inspection.configs.BucketName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.CompletableFuture;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
 public class StorageService {
 
-    private final AmazonS3 amazonS3;
+    private final S3Client amazonS3;
 
     // TODO правильная обработка ошибок
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void saveFile(BucketName bucketName, String key, MultipartFile multipartFile) {
         try (InputStream inputStream = multipartFile.getInputStream()) {
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentType(multipartFile.getContentType());
-            objectMetadata.setContentLength(multipartFile.getSize());
-
-            PutObjectRequest putObjectRequest =
-                    new PutObjectRequest(bucketName.getBucket(), key, inputStream, objectMetadata);
-
-            int newRightReadLimit = putObjectRequest.getRequestClientOptions().getReadLimit() * 100;
-
-            putObjectRequest.getRequestClientOptions().setReadLimit(newRightReadLimit);
-
-            if (!amazonS3.doesBucketExist(bucketName.getBucket())) {
-                amazonS3.createBucket(bucketName.getBucket());
-            }
-            amazonS3.putObject(putObjectRequest);
+            saveFile(bucketName, key, inputStream);
         } catch (IOException e) {
             throw new RuntimeException();
         }
@@ -50,43 +36,31 @@ public class StorageService {
 
     public void saveFile(BucketName bucketName, String key, InputStream inputStream) {
         try {
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(inputStream.available());
-
-            if (!amazonS3.doesBucketExist(bucketName.getBucket())) {
-                amazonS3.createBucket(bucketName.getBucket());
+            if (amazonS3.listBuckets().buckets().stream().map(Bucket::name)
+                    .noneMatch(b -> Objects.equals(b, bucketName.getBucket()))) {
+                amazonS3.createBucket(b -> b.bucket(bucketName.getBucket()).build());
             }
-            amazonS3.putObject(bucketName.getBucket(), key, inputStream, objectMetadata);
+
+            amazonS3.putObject(
+                    b -> b.bucket(bucketName.getBucket()).key(key),
+                    RequestBody.fromInputStream(inputStream, inputStream.available())
+            );
         } catch (IOException e) {
             throw new RuntimeException();
         }
     }
 
     public BytesWithContentType getFile(BucketName bucketName, String key) {
-        S3Object s3Object = amazonS3.getObject(bucketName.getBucket(), key);
+        ResponseInputStream<GetObjectResponse> responseInputStream =
+                amazonS3.getObject(b -> b.bucket(bucketName.getBucket()).key(key).build());
         byte[] fileBytes;
         try {
-            fileBytes = s3Object.getObjectContent().readAllBytes();
+            fileBytes = responseInputStream.readAllBytes();
         } catch (IOException e) {
             throw new RuntimeException();
         }
-        return new BytesWithContentType(fileBytes, s3Object.getObjectMetadata().getContentType());
+        return new BytesWithContentType(fileBytes, responseInputStream.response().contentType());
     }
-
-    @Async("fileAsyncExecutor")
-    public CompletableFuture<BytesWithContentType> getFileAsync(BucketName bucketName, String key) {
-        S3Object s3Object = amazonS3.getObject(bucketName.getBucket(), key);
-        byte[] fileBytes;
-        try {
-            fileBytes = s3Object.getObjectContent().readAllBytes();
-        } catch (IOException e) {
-            throw new RuntimeException();
-        }
-        return CompletableFuture
-                .completedFuture(new BytesWithContentType(fileBytes, s3Object.getObjectMetadata().getContentType()));
-    }
-
-    // нормальное хранение файлов
 
     @Data
     @AllArgsConstructor
