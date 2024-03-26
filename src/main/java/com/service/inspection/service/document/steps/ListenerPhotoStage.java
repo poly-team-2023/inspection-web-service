@@ -31,28 +31,22 @@ public class ListenerPhotoStage extends AbstractImageProcessingStep {
     private final ObjectMapper mapper;
     private final Queue queue;
     private final PhotoMapper photoMapper;
-    private final PhotoRepository photoRepository;
 
 
     public ListenerPhotoStage(AsyncRabbitTemplate asyncRabbitTemplate, ObjectMapper mapper,
-                              @Qualifier("imageTask") Queue queue, PhotoMapper photoMapper, PhotoRepository photoRepository) {
+                              @Qualifier("imageTask") Queue queue, PhotoMapper photoMapper) {
         this.asyncRabbitTemplate = asyncRabbitTemplate;
         this.mapper = mapper;
         this.queue = queue;
         this.photoMapper = photoMapper;
-        this.photoRepository = photoRepository;
     }
 
     @Override
     public CompletableFuture<ProcessingImageDto> executeProcess(CompletableFuture<ProcessingImageDto> imageModelFuture) {
         ProcessingImageDto imageModel = imageModelFuture.join();
+        PhotoDefectsDto defects = imageModel.getPhotoDefectsDto();
 
-        if (isValidImageStep(imageModel)) {
-            return CompletableFuture.failedFuture(new Throwable());
-        }
-
-        Set<Photo.Defect> defects = imageModel.getDefects();
-        if (defects == null) {
+        if (defects == null || defects.getDefectsDto() == null) {
             try {
                 Message message = MessageBuilder
                         .withBody(mapper.writeValueAsBytes(photoMapper.mapToCkSendProcessDto(imageModel)))
@@ -65,29 +59,23 @@ public class ListenerPhotoStage extends AbstractImageProcessingStep {
                             log.debug("Get image {} after process", imageModel.getId());
                             try {
                                 PhotoDefectsDto i = mapper.readValue(mes.getBody(), PhotoDefectsDto.class);
-                                imageModel.setDefects(photoMapper.mapToPhotos(i.getDefectsDto()));
-
-                                // TODO реализовать это нормально
-                                Photo photo = photoRepository.findById(imageModel.getId()).orElse(null);
-                                photo.setDefectsCoords(photoMapper.mapToPhotos(i.getDefectsDto()));
-                                photoRepository.save(photo);
-
+                                imageModel.setPhotoDefectsDto(i);
                                 return imageModel;
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
                         })
                         .orTimeout(1, TimeUnit.HOURS)
-                        .handle((el, err) -> err == null? el : null );
-
+                        .handle((el, err) -> err == null ? el : null);
             } catch (Exception e) {
                 return CompletableFuture.failedFuture(new Throwable());
             }
         }
         return CompletableFuture.completedFuture(imageModel);
     }
-        @Override
-        public boolean isValidImageStep (ProcessingImageDto currentState){
-            return currentState.getId() == null || currentState.getPhotoBytes() == null;
-        }
+
+    @Override
+    public boolean isValidImageStep(ProcessingImageDto currentState) {
+        return currentState.getId() == null || currentState.getPhotoBytes() == null;
     }
+}

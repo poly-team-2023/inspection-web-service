@@ -1,44 +1,42 @@
 package com.service.inspection.service.document.steps;
 
-import com.service.inspection.configs.BucketName;
-import com.service.inspection.service.StorageService;
+import com.service.inspection.entities.Photo;
+import com.service.inspection.mapper.PhotoMapper;
+import com.service.inspection.repositories.PhotoRepository;
 import com.service.inspection.service.document.ProcessingImageDto;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
-import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 
+@AllArgsConstructor
 @Service
-@Order(1)
-@RequiredArgsConstructor
+@Order(3)
 public class ImageStoringStep extends AbstractImageProcessingStep {
-    private final StorageService storageService;
+
+    private final PhotoRepository photoRepository;
+    private final PhotoMapper photoMapper;
+
+    @Override
+    public boolean isValidImageStep(ProcessingImageDto nextStep) {
+        return true;
+    }
+
 
     @Override
     public CompletableFuture<ProcessingImageDto> executeProcess(CompletableFuture<ProcessingImageDto> processingImageDto) {
         ProcessingImageDto imageModel = processingImageDto.join();
 
-        if (imageModel.getPhotoBytes() == null) {
-            try {
-                StorageService.BytesWithContentType file =
-                        storageService.getFile(BucketName.DEFAULT_IMAGE_BUCKET, imageModel.getUuid().toString());
-                imageModel.setPhotoBytes(file.getBytes());
-            } catch (Exception e) {
-                return CompletableFuture.failedFuture(e);
-            }
+        if (imageModel.getPhotoDefectsDto() != null) {
+            photoRepository.findById(imageModel.getId()).ifPresent(photo -> {
+
+                photo.setDefectsCoords(photoMapper.mapToPhotos(imageModel.getPhotoDefectsDto().getDefectsDto()));
+                photoRepository.save(photo);
+
+            });
         }
 
-        if (imageModel.getId() == null) {
-            return CompletableFuture.completedFuture(imageModel);
-        }
-
-        return nextStep.executeProcess(processingImageDto);
-    }
-
-    @Override
-    public boolean isValidImageStep(ProcessingImageDto currentState) {
-        return currentState.getId() == null;
+        return CompletableFuture.completedFuture(imageModel);
     }
 }

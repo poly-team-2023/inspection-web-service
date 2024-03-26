@@ -1,5 +1,6 @@
 package com.service.inspection.service.document;
 
+import com.service.inspection.dto.document.PhotoDefectsDto;
 import com.service.inspection.entities.Photo;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,5 +16,5 @@ public class ProcessingImageDto {
 
     private UUID uuid;
     private byte[] photoBytes;
-    private Set<Photo.Defect> defects;
+    private PhotoDefectsDto photoDefectsDto;
 }

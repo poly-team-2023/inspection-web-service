@@ -18,6 +18,7 @@ import com.service.inspection.service.DataService;
 import com.service.inspection.service.DocumentService;
 import com.service.inspection.service.InspectionService;
 import com.service.inspection.service.StorageService;
+import com.service.inspection.service.document.ImageProcessingFacade;
 import com.service.inspection.utils.ControllerUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.Min;
@@ -59,6 +60,7 @@ public class InspectionController {
     private final CommonMapper commonMapper;
     private final CategoryMapper categoryMapper;
     private final DocumentService dataService;
+    private final ImageProcessingFacade imageProcessingFacade;
 
     // TODO заменить обращение к бд для поиска пользователя с email на id для более быстрого поиска
 
