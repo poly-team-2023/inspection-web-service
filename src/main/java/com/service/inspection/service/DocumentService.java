@@ -67,7 +67,7 @@ public class DocumentService {
         inspectionRepository.save(inspection);
     }
 
-    @RabbitListener(queues = "doc.task", messageConverter = "")
+    @RabbitListener(queues = "doc.task.dev", messageConverter = "")
     @Transactional
     public void startProcessingInspection(UserIdInspectionIdDto dto) {
         Stopwatch timer = Stopwatch.createStarted();
@@ -80,10 +80,11 @@ public class DocumentService {
             return;
         }
 
-        log.info("Start creating inspection document for inspection {}", inspection.getId());
+        log.info("Start creating inspection document for inspection {}. Have memory {}: ", inspection.getId(),
+                Runtime.getRuntime().freeMemory());
         List<CompletableFuture<Void>> futureResult = Collections.synchronizedList(new ArrayList<>());
         DocumentModel documentModel = documentMapper.mapToDocumentModel(inspection, user, futureResult);
-        CompletableFuture.allOf(futureResult.toArray(new CompletableFuture[0])).thenAccept(x -> {
+        CompletableFuture.allOf(futureResult.toArray(new CompletableFuture[0])).thenRun(() -> {
             if (documentModel.getCategories() != null) {
                 documentModel.getCategories().sort(Comparator.comparingLong(CategoryModel::getCategoryNum));
             }
@@ -91,13 +92,16 @@ public class DocumentService {
                     XWPFTemplate template = XWPFTemplate
                             .compile(resourceLoader.getResource(templatePath).getInputStream(), config)
                             .render(documentModel);
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
             ) {
 
-                    template.write(byteArrayOutputStream);
-                    InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+
+                template.write(byteArrayOutputStream);
                 UUID fileUuid = saveDocxFileFile(inspection, inputStream);
-                log.info("Saved file uuid {} for inspection {}. Takes: {}", fileUuid, inspection.getId(), timer.stop());
+                log.info("Saved file uuid {} for inspection {}. Takes: {}. Have memory: {}", fileUuid,
+                        inspection.getId(), timer.stop(), Runtime.getRuntime().freeMemory());
+
             } catch (IOException e) {
                 log.error(e.getMessage());
             }
@@ -131,4 +135,5 @@ public class DocumentService {
         storageService.saveFile(BucketName.DOCUMENT, uuid.toString(), inputStream);
         return uuid;
     }
+
 }

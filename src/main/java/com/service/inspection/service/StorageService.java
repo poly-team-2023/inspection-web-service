@@ -51,15 +51,14 @@ public class StorageService {
     }
 
     public BytesWithContentType getFile(BucketName bucketName, String key) {
-        ResponseInputStream<GetObjectResponse> responseInputStream =
-                amazonS3.getObject(b -> b.bucket(bucketName.getBucket()).key(key).build());
         byte[] fileBytes;
-        try {
+        try (ResponseInputStream<GetObjectResponse> responseInputStream =
+                     amazonS3.getObject(b -> b.bucket(bucketName.getBucket()).key(key).build())) {
             fileBytes = responseInputStream.readAllBytes();
+            return new BytesWithContentType(fileBytes, responseInputStream.response().contentType());
         } catch (IOException e) {
             throw new RuntimeException();
         }
-        return new BytesWithContentType(fileBytes, responseInputStream.response().contentType());
     }
 
     @Data
