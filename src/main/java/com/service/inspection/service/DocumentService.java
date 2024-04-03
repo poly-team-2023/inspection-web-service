@@ -3,7 +3,6 @@ package com.service.inspection.service;
 import com.deepoove.poi.XWPFTemplate;
 import com.deepoove.poi.config.Configure;
 import com.google.common.base.Stopwatch;
-import com.rabbitmq.client.Channel;
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.document.DocumentModel;
 import com.service.inspection.document.model.CategoryModel;
@@ -13,26 +12,16 @@ import com.service.inspection.entities.enums.ProgressingStatus;
 import com.service.inspection.mapper.document.DocumentMapper;
 import com.service.inspection.repositories.InspectionRepository;
 import com.service.inspection.repositories.UserRepository;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
-import org.springframework.amqp.core.AcknowledgeMode;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.jms.JmsProperties;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -79,14 +68,14 @@ public class DocumentService {
         inspectionRepository.save(inspection);
     }
 
-    @RabbitListener(queues = "doc.task", messageConverter = "")
-    @Transactional
+    @RabbitListener(queues = "${rabbit.queue.main}", messageConverter = "")
     public void startProcessingInspection(UserIdInspectionIdDto dto) {
         Stopwatch timer = Stopwatch.createStarted();
         Inspection inspection = inspectionRepository.findById(dto.getInspectionId()).orElse(null);
         User user = userRepository.findById(dto.getUserId()).orElse(null);
-
         log.info("Start creating inspection document for inspection {}", inspection.getId());
+
+        Hibernate. initialize(user.getEquipment());
 
         List<CompletableFuture<Void>> futureResult = Collections.synchronizedList(new ArrayList<>());
         DocumentModel documentModel = documentMapper.mapToDocumentModel(inspection, user, futureResult);
@@ -101,8 +90,8 @@ public class DocumentService {
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
             ) {
 
-                    template.write(byteArrayOutputStream);
-                    InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+                template.write(byteArrayOutputStream);
+                InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
                 UUID fileUuid = saveDocxFileFile(inspection, inputStream);
                 log.info("Saved file uuid {} for inspection {}. Takes: {}", fileUuid, inspection.getId(), timer.stop());
             } catch (IOException e) {
@@ -124,12 +113,15 @@ public class DocumentService {
     }
 
     protected UUID saveDocxFileFile(Inspection inspection, InputStream inputStream) {
+        Inspection fromDB = inspectionRepository.findById(inspection.getId()).orElse(null);
+        if (fromDB == null) return null;
+
         UUID uuid = UUID.randomUUID();
 
-        inspection.setStatus(ProgressingStatus.READY);
-        inspection.setReportUuid(uuid);
+        fromDB.setStatus(ProgressingStatus.READY);
+        fromDB.setReportUuid(uuid);
 
-        inspectionRepository.save(inspection);
+        inspectionRepository.save(fromDB);
         storageService.saveFile(BucketName.DOCUMENT, uuid.toString(), inputStream);
         return uuid;
     }

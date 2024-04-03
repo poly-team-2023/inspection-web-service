@@ -3,6 +3,7 @@ package com.service.inspection.mapper.document;
 import com.deepoove.poi.data.PictureRenderData;
 import com.deepoove.poi.data.PictureType;
 import com.deepoove.poi.data.Pictures;
+import com.service.inspection.document.model.DefectModel;
 import com.service.inspection.document.model.ImageModel;
 import com.service.inspection.document.model.ImageModelWithDefects;
 import com.service.inspection.dto.document.PhotoDefectsDto;
@@ -44,10 +45,13 @@ public abstract class ImageMapper {
     @Mapping(source = "photoDefectsDto.defectsDto", target = "defects")
     public abstract ImageModelWithDefects mapToImageModelWithDefects(ProcessingImageDto processingImageDto);
 
+    @Mapping(source = "defectName", target = "name")
+    public abstract DefectModel toDefectModel(PhotoDefectsDto.DefectDto defectDto);
+
 
     public String mapToImageTitle(Set<PhotoDefectsDto.DefectDto> defects) {
         if (defects.isEmpty()) return "Дефектов не выявлено";
         return utils.toHumanReadable(defects.stream().map(PhotoDefectsDto.DefectDto::getDefectName)
-                .collect(Collectors.joining(", ")));
+                        .distinct().collect(Collectors.joining(", ")));
     }
 }

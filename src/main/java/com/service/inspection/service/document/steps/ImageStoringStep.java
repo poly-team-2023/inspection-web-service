@@ -30,7 +30,6 @@ public class ImageStoringStep extends AbstractImageProcessingStep {
 
         if (imageModel.getPhotoDefectsDto() != null) {
             photoRepository.findById(imageModel.getId()).ifPresent(photo -> {
-
                 photo.setDefectsCoords(photoMapper.mapToPhotos(imageModel.getPhotoDefectsDto().getDefectsDto()));
                 photoRepository.save(photo);
 

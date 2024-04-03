@@ -54,19 +54,21 @@ public class ListenerPhotoStage extends AbstractImageProcessingStep {
                         .setCorrelationId(UUID.randomUUID().toString()).build();
 
                 log.debug("Send image {} to process", imageModel.getId());
-                return asyncRabbitTemplate.sendAndReceive(queue.getActualName(), message)
+
+                return nextStep.executeProcess(asyncRabbitTemplate.sendAndReceive(queue.getActualName(), message)
                         .thenApply(mes -> {
                             log.debug("Get image {} after process", imageModel.getId());
                             try {
                                 PhotoDefectsDto i = mapper.readValue(mes.getBody(), PhotoDefectsDto.class);
                                 imageModel.setPhotoDefectsDto(i);
+                                log.debug(String.valueOf(i));
                                 return imageModel;
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
                         })
                         .orTimeout(1, TimeUnit.HOURS)
-                        .handle((el, err) -> err == null ? el : null);
+                        .handle((el, err) -> err == null ? el : null));
             } catch (Exception e) {
                 return CompletableFuture.failedFuture(new Throwable());
             }

@@ -43,7 +43,7 @@ public interface PhotoMapper {
         List<Integer> coordsX = dto.getCoordsX();
         List<Integer> coordsY = dto.getCoordsY();
 
-        IntStream.range(0, coordsX.size()).forEach(i -> list.add(new Photo.Coord(coordsX.get(0), coordsY.get(0))));
+        IntStream.range(0, coordsX.size()).forEach(i -> list.add(new Photo.Coord(coordsX.get(i), coordsY.get(i))));
         return list;
     }
 
