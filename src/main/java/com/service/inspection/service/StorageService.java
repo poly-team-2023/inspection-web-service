@@ -36,6 +36,13 @@ public class StorageService {
 
     public void saveFile(BucketName bucketName, String key, InputStream inputStream) {
         try {
+            saveFile(bucketName, key, inputStream, inputStream.available());
+        } catch (IOException e) {
+            throw new RuntimeException();
+        }
+    }
+
+    public void saveFile(BucketName bucketName, String key, InputStream inputStream, int contentLength) {
             if (amazonS3.listBuckets().buckets().stream().map(Bucket::name)
                     .noneMatch(b -> Objects.equals(b, bucketName.getBucket()))) {
                 amazonS3.createBucket(b -> b.bucket(bucketName.getBucket()).build());
@@ -43,11 +50,8 @@ public class StorageService {
 
             amazonS3.putObject(
                     b -> b.bucket(bucketName.getBucket()).key(key),
-                    RequestBody.fromInputStream(inputStream, inputStream.available())
+                    RequestBody.fromInputStream(inputStream, contentLength)
             );
-        } catch (IOException e) {
-            throw new RuntimeException();
-        }
     }
 
     public BytesWithContentType getFile(BucketName bucketName, String key) {

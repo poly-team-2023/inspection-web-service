@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -56,8 +55,7 @@ public class ListenerPhotoStage extends AbstractImageProcessingStep {
             try {
                 Message message = MessageBuilder
                         .withBody(mapper.writeValueAsBytes(photoMapper.mapToCkSendProcessDto(imageModel)))
-                        .setContentType(MessageProperties.CONTENT_TYPE_JSON)
-                        .setCorrelationId(UUID.randomUUID().toString()).build();
+                        .setContentType(MessageProperties.CONTENT_TYPE_JSON).build();
 
                 log.debug("Send image {} to process", imageModel.getId());
                 return asyncRabbitTemplate.sendAndReceive(queue.getActualName(), message)
@@ -76,9 +74,7 @@ public class ListenerPhotoStage extends AbstractImageProcessingStep {
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
-                        })
-                        .orTimeout(1, TimeUnit.HOURS)
-                        .handle((el, err) -> err == null? el : null );
+                        }).handle((el, err) -> err == null ? el : null);
 
             } catch (Exception e) {
                 return CompletableFuture.failedFuture(new Throwable());
@@ -86,8 +82,9 @@ public class ListenerPhotoStage extends AbstractImageProcessingStep {
         }
         return CompletableFuture.completedFuture(imageModel);
     }
-        @Override
-        public boolean isValidImageStep (ProcessingImageDto currentState){
-            return currentState.getId() == null || currentState.getPhotoBytes() == null;
-        }
+
+    @Override
+    public boolean isValidImageStep(ProcessingImageDto currentState) {
+        return currentState.getId() == null || currentState.getPhotoBytes() == null;
     }
+}

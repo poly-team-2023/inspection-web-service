@@ -2,6 +2,7 @@ package com.service.inspection.service;
 
 import com.deepoove.poi.XWPFTemplate;
 import com.deepoove.poi.config.Configure;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.document.DocumentModel;
@@ -20,6 +21,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
@@ -36,25 +38,26 @@ public class DocumentService {
     private final InspectionRepository inspectionRepository;
     private final UserRepository userRepository;
     private final DocumentMapper documentMapper;
-    private final ResourceLoader resourceLoader;
     private final StorageService storageService;
-    private final String templatePath;
     private final Configure config;
-
+    private final File fileTemplate;
 
     public DocumentService(RabbitTemplate rabbitTemplate, @Qualifier(value = "inspectionTask") Queue inspectionQueue,
                            DocumentMapper documentMapper, Configure config,
                            InspectionRepository inspectionRepository, UserRepository userRepository,
-                           ResourceLoader resourceLoader, StorageService storageService, String templatePath) {
+                           ResourceLoader resourceLoader, StorageService storageService,
+                           @Value("${file.template.path}") String templatePath) throws IOException {
+
+        Preconditions.checkState(resourceLoader.getResource(templatePath).exists(), "Can't find template at {}", templatePath);
+
         this.rabbitTemplate = rabbitTemplate;
         this.inspectionQueue = inspectionQueue;
         this.inspectionRepository = inspectionRepository;
         this.userRepository = userRepository;
         this.documentMapper = documentMapper;
-        this.resourceLoader = resourceLoader;
         this.storageService = storageService;
-        this.templatePath = templatePath;
         this.config = config;
+        fileTemplate = resourceLoader.getResource(templatePath).getFile();
     }
 
     @Transactional
@@ -88,20 +91,25 @@ public class DocumentService {
             if (documentModel.getCategories() != null) {
                 documentModel.getCategories().sort(Comparator.comparingLong(CategoryModel::getCategoryNum));
             }
+
             try (
-                    XWPFTemplate template = XWPFTemplate
-                            .compile(resourceLoader.getResource(templatePath).getInputStream(), config)
-                            .render(documentModel);
+                    XWPFTemplate template = XWPFTemplate.compile(fileTemplate, config).render(documentModel);
+                    PipedInputStream in = new PipedInputStream();
             ) {
-
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+                template.writeAndClose(byteArrayOutputStream);
 
-                template.write(byteArrayOutputStream);
-                UUID fileUuid = saveDocxFileFile(inspection, inputStream);
+                CompletableFuture.runAsync(() -> {
+                    try (final PipedOutputStream out = new PipedOutputStream(in)) {
+                        byteArrayOutputStream.writeTo(out);
+                    } catch (IOException e) {
+                        log.error("Time to cry");
+                    }
+                });
+
+                UUID fileUuid = saveDocxFileFile(inspection, in, byteArrayOutputStream.size());
                 log.info("Saved file uuid {} for inspection {}. Takes: {}. Have memory: {}", fileUuid,
                         inspection.getId(), timer.stop(), Runtime.getRuntime().freeMemory());
-
             } catch (IOException e) {
                 log.error(e.getMessage());
             }
@@ -125,15 +133,14 @@ public class DocumentService {
         private Long inspectionId;
     }
 
-    protected UUID saveDocxFileFile(Inspection inspection, InputStream inputStream) {
+    protected UUID saveDocxFileFile(Inspection inspection, InputStream inputStream, int contentLength) {
         UUID uuid = UUID.randomUUID();
 
         inspection.setStatus(ProgressingStatus.READY);
         inspection.setReportUuid(uuid);
 
         inspectionRepository.save(inspection);
-        storageService.saveFile(BucketName.DOCUMENT, uuid.toString(), inputStream);
+        storageService.saveFile(BucketName.DOCUMENT, uuid.toString(), inputStream, contentLength);
         return uuid;
     }
-
 }
