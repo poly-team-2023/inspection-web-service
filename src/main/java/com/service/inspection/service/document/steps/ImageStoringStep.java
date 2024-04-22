@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
-import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 
 @Service

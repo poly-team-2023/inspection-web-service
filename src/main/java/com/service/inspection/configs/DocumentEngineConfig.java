@@ -41,9 +41,4 @@ public class DocumentEngineConfig {
     public Map<Long, BlockingQueue<Set<Photo.Defect>>> getInnerMapStorage() {
         return new ConcurrentHashMap<>(100);
     }
-
-    @Bean(name="mainTemplatePath")
-    public String getMainTemplatePath() {
-        return "classpath:test-template2.docx";
-    }
 }
