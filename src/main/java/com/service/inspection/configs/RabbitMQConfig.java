@@ -20,6 +20,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -50,16 +51,19 @@ public class RabbitMQConfig {
         @Value("${rabbit.queue.main}")
         private String queueMain;
 
+        @Value("${rabbit.passphrase}")
+        private String passphrase;
+
         @Bean
         public com.rabbitmq.client.ConnectionFactory createMega() throws Exception {
-            char[] keyPassphrase = "12345678".toCharArray();
+            char[] keyPassphrase = passphrase.toCharArray();
             KeyStore ks = KeyStore.getInstance("JKS");
             ks.load(new ClassPathResource("cert\\client.keystore").getInputStream(), keyPassphrase);
 
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
             kmf.init(ks, keyPassphrase);
 
-            char[] trustPassphrase = "12345678".toCharArray();
+            char[] trustPassphrase = passphrase.toCharArray();
             KeyStore tks = KeyStore.getInstance("JKS");
             tks.load(new ClassPathResource("cert\\client.truststore").getInputStream(), trustPassphrase);
 

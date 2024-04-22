@@ -2,6 +2,7 @@ package com.service.inspection.service;
 
 import com.deepoove.poi.XWPFTemplate;
 import com.deepoove.poi.config.Configure;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.document.DocumentModel;
@@ -21,6 +22,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
@@ -37,25 +39,26 @@ public class DocumentService {
     private final InspectionRepository inspectionRepository;
     private final UserRepository userRepository;
     private final DocumentMapper documentMapper;
-    private final ResourceLoader resourceLoader;
     private final StorageService storageService;
-    private final String templatePath;
     private final Configure config;
-
+    private final File fileTemplate;
 
     public DocumentService(RabbitTemplate rabbitTemplate, @Qualifier(value = "inspectionTask") Queue inspectionQueue,
                            DocumentMapper documentMapper, Configure config,
                            InspectionRepository inspectionRepository, UserRepository userRepository,
-                           ResourceLoader resourceLoader, StorageService storageService, String templatePath) {
+                           ResourceLoader resourceLoader, StorageService storageService,
+                           @Value("${file.template.path}") String templatePath) throws IOException {
+
+        Preconditions.checkState(resourceLoader.getResource(templatePath).exists(), "Can't find template at {}", templatePath);
+
         this.rabbitTemplate = rabbitTemplate;
         this.inspectionQueue = inspectionQueue;
         this.inspectionRepository = inspectionRepository;
         this.userRepository = userRepository;
         this.documentMapper = documentMapper;
-        this.resourceLoader = resourceLoader;
         this.storageService = storageService;
-        this.templatePath = templatePath;
         this.config = config;
+        fileTemplate = resourceLoader.getResource(templatePath).getFile();
     }
 
     @Transactional
@@ -73,30 +76,51 @@ public class DocumentService {
         Stopwatch timer = Stopwatch.createStarted();
         Inspection inspection = inspectionRepository.findById(dto.getInspectionId()).orElse(null);
         User user = userRepository.findById(dto.getUserId()).orElse(null);
-        log.info("Start creating inspection document for inspection {}", inspection.getId());
+
+        if (inspection == null || user == null) {
+            log.error("CANT GET INSPECTION ID {} FOR USER ID {}. FIND ONLY USER {} AND INSPECTION {} !!!",
+                    dto.getInspectionId(), dto.getUserId(), user, inspection);
+            return;
+        }
+
+        log.info("Start creating inspection document for inspection {}. Have memory {}: ", inspection.getId(),
+                Runtime.getRuntime().freeMemory());
 
         Hibernate. initialize(user.getEquipment());
 
         List<CompletableFuture<Void>> futureResult = Collections.synchronizedList(new ArrayList<>());
         DocumentModel documentModel = documentMapper.mapToDocumentModel(inspection, user, futureResult);
-        CompletableFuture.allOf(futureResult.toArray(new CompletableFuture[0])).thenAccept(x -> {
+        CompletableFuture.allOf(futureResult.toArray(new CompletableFuture[0])).thenRun(() -> {
             if (documentModel.getCategories() != null) {
                 documentModel.getCategories().sort(Comparator.comparingLong(CategoryModel::getCategoryNum));
             }
-            try (
-                    XWPFTemplate template = XWPFTemplate
-                            .compile(resourceLoader.getResource(templatePath).getInputStream(), config)
-                            .render(documentModel);
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
-            ) {
 
-                template.write(byteArrayOutputStream);
-                InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-                UUID fileUuid = saveDocxFileFile(inspection, inputStream);
-                log.info("Saved file uuid {} for inspection {}. Takes: {}", fileUuid, inspection.getId(), timer.stop());
+            try (
+                    XWPFTemplate template = XWPFTemplate.compile(fileTemplate, config).render(documentModel);
+                    PipedInputStream in = new PipedInputStream();
+            ) {
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                template.writeAndClose(byteArrayOutputStream);
+
+                CompletableFuture.runAsync(() -> {
+                    try (final PipedOutputStream out = new PipedOutputStream(in)) {
+                        byteArrayOutputStream.writeTo(out);
+                    } catch (IOException e) {
+                        log.error("Time to cry");
+                    }
+                });
+
+                UUID fileUuid = saveDocxFileFile(inspection, in, byteArrayOutputStream.size());
+                log.info("Saved file uuid {} for inspection {}. Takes: {}. Have memory: {}", fileUuid,
+                        inspection.getId(), timer.stop(), Runtime.getRuntime().freeMemory());
             } catch (IOException e) {
                 log.error(e.getMessage());
             }
+        }).handle((res, exp) -> {
+            if (exp != null) {
+                log.error("WTF SMT REALLY BROKE WHILE GENERATE {} FOR {}. THROW: {}", inspection, user, exp.getMessage());
+            }
+            return null;
         }).join();
     }
 
