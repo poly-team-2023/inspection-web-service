@@ -3,8 +3,10 @@ package com.service.inspection.mapper.document;
 import com.deepoove.poi.data.PictureRenderData;
 import com.deepoove.poi.data.PictureType;
 import com.deepoove.poi.data.Pictures;
+import com.service.inspection.document.model.DefectModel;
 import com.service.inspection.document.model.ImageModel;
 import com.service.inspection.document.model.ImageModelWithDefects;
+import com.service.inspection.dto.document.PhotoDefectsDto;
 import com.service.inspection.entities.Photo;
 import com.service.inspection.service.document.ProcessingImageDto;
 import com.service.inspection.utils.CommonUtils;
@@ -39,12 +41,17 @@ public abstract class ImageMapper {
     public abstract ImageModel mapToImageModel(ProcessingImageDto processingImageDto);
 
     @Mapping(source = "photoBytes", target = "image", qualifiedByName = "mapToModelPicture")
-    @Mapping(source = "defects", target = "imageTitle", defaultValue = "Дефектов не выявлено")
-    @Mapping(source = "defects", target = "defects")
+    @Mapping(source = "photoDefectsDto.defectsDto", target = "imageTitle", defaultValue = "Дефектов не выявлено")
+    @Mapping(source = "photoDefectsDto.defectsDto", target = "defects")
     public abstract ImageModelWithDefects mapToImageModelWithDefects(ProcessingImageDto processingImageDto);
 
-    public String mapToImageTitle(Set<Photo.Defect> defects) {
+    @Mapping(source = "defectName", target = "name")
+    public abstract DefectModel toDefectModel(PhotoDefectsDto.DefectDto defectDto);
+
+
+    public String mapToImageTitle(Set<PhotoDefectsDto.DefectDto> defects) {
         if (defects.isEmpty()) return "Дефектов не выявлено";
-        return utils.toHumanReadable(defects.stream().map(Photo.Defect::getName).collect(Collectors.joining(", ")));
+        return utils.toHumanReadable(defects.stream().map(PhotoDefectsDto.DefectDto::getDefectName)
+                        .distinct().collect(Collectors.joining(", ")));
     }
 }

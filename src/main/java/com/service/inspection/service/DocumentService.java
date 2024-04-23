@@ -17,6 +17,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -41,15 +42,18 @@ public class DocumentService {
     private final StorageService storageService;
     private final Configure config;
     private final File fileTemplate;
+    private final InspectionFetcherEngine inspectionFetcherEngine;
 
     public DocumentService(RabbitTemplate rabbitTemplate, @Qualifier(value = "inspectionTask") Queue inspectionQueue,
                            DocumentMapper documentMapper, Configure config,
                            InspectionRepository inspectionRepository, UserRepository userRepository,
                            ResourceLoader resourceLoader, StorageService storageService,
-                           @Value("${file.template.path}") String templatePath) throws IOException {
+                           @Value("${file.template.path}") String templatePath,
+                           InspectionFetcherEngine inspectionFetcherEngine) throws IOException {
 
         Preconditions.checkState(resourceLoader.getResource(templatePath).exists(), "Can't find template at {}", templatePath);
 
+        this.inspectionFetcherEngine = inspectionFetcherEngine;
         this.rabbitTemplate = rabbitTemplate;
         this.inspectionQueue = inspectionQueue;
         this.inspectionRepository = inspectionRepository;
@@ -70,12 +74,12 @@ public class DocumentService {
         inspectionRepository.save(inspection);
     }
 
-    @RabbitListener(queues = "doc.task.dev", messageConverter = "")
-    @Transactional
+    @RabbitListener(queues = "${rabbit.queue.main}", messageConverter = "")
     public void startProcessingInspection(UserIdInspectionIdDto dto) {
         Stopwatch timer = Stopwatch.createStarted();
-        Inspection inspection = inspectionRepository.findById(dto.getInspectionId()).orElse(null);
-        User user = userRepository.findById(dto.getUserId()).orElse(null);
+
+        Inspection inspection = inspectionFetcherEngine.getInspectionWithSubEntities(dto.inspectionId);
+        User user = userRepository.findUserById(dto.getUserId());
 
         if (inspection == null || user == null) {
             log.error("CANT GET INSPECTION ID {} FOR USER ID {}. FIND ONLY USER {} AND INSPECTION {} !!!",
@@ -85,6 +89,7 @@ public class DocumentService {
 
         log.info("Start creating inspection document for inspection {}. Have memory {}: ", inspection.getId(),
                 Runtime.getRuntime().freeMemory());
+
         List<CompletableFuture<Void>> futureResult = Collections.synchronizedList(new ArrayList<>());
         DocumentModel documentModel = documentMapper.mapToDocumentModel(inspection, user, futureResult);
         CompletableFuture.allOf(futureResult.toArray(new CompletableFuture[0])).thenRun(() -> {
@@ -133,14 +138,17 @@ public class DocumentService {
         private Long inspectionId;
     }
 
-    protected UUID saveDocxFileFile(Inspection inspection, InputStream inputStream, int contentLength) {
+    protected UUID saveDocxFileFile(Inspection inspection, InputStream inputStream, int dataSize) {
+        Inspection fromDB = inspectionRepository.findById(inspection.getId()).orElse(null);
+        if (fromDB == null) return null;
+
         UUID uuid = UUID.randomUUID();
 
-        inspection.setStatus(ProgressingStatus.READY);
-        inspection.setReportUuid(uuid);
+        fromDB.setStatus(ProgressingStatus.READY);
+        fromDB.setReportUuid(uuid);
 
-        inspectionRepository.save(inspection);
-        storageService.saveFile(BucketName.DOCUMENT, uuid.toString(), inputStream, contentLength);
+        inspectionRepository.save(fromDB);
+        storageService.saveFile(BucketName.DOCUMENT, uuid.toString(), inputStream, dataSize);
         return uuid;
     }
 }

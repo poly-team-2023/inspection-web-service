@@ -88,7 +88,7 @@ public abstract class DocumentMapper {
         for (ImageModelWithDefects image : defectsModel) {
             if (image == null || image.getDefects() == null) continue;
             for (DefectModel defect: image.getDefects()) {
-                map.putIfAbsent(defect.getName(), new CategoryDefectsModel(new ArrayList<>(), ""));
+                map.putIfAbsent(defect.getName(), new CategoryDefectsModel(new LinkedHashSet<>(), ""));
                 map.get(defect.getName()).getPhotoNums().add(image.getPhotoNum());
             }
         }
