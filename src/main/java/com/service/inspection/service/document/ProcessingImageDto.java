@@ -17,4 +17,6 @@ public class ProcessingImageDto {
     private UUID uuid;
     private byte[] photoBytes;
     private PhotoDefectsDto photoDefectsDto;
+
+    private boolean needToSave = true;
 }

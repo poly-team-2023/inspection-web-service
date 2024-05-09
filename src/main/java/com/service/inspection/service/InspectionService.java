@@ -21,10 +21,13 @@ import com.service.inspection.repositories.CategoryRepository;
 import com.service.inspection.repositories.InspectionRepository;
 import com.service.inspection.repositories.PhotoRepository;
 import com.service.inspection.repositories.UserRepository;
+import com.service.inspection.service.document.ProcessingImageDto;
 import com.service.inspection.utils.ServiceUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
@@ -56,7 +59,8 @@ public class InspectionService {
     private final ServiceUtils serviceUtils;
     private final PhotoRepository photoRepository;
     private final DocumentService documentService;
-
+    private final AnalyzeService analyzeService;
+    private final InspectionFetcherEngine inspectionFetcherEngine;
 
     @Transactional
     public Identifiable createInspection(Long userId) {
@@ -191,6 +195,20 @@ public class InspectionService {
         // TODO логика проверки прав тд тп
 
         documentService.addInspectionInQueueToProcess(inspection, user);
+    }
+
+
+    public void sendAllPhotosToAnalyze(Long inspectionId, Long userId) {
+        boolean forThisUser = inspectionRepository.existsByIdAndUsersId(inspectionId, userId); // TODO лишний запрос к бд
+
+        if (!forThisUser) return;
+
+        Inspection inspection = inspectionFetcherEngine.getInspectionWithSubEntities(inspectionId);
+
+        Optional.ofNullable(inspection).map(Inspection::getCategories)
+                .ifPresent(cat -> cat.forEach(category -> category.getPhotos().stream()
+                        .filter(photo -> photo.getDefectsCoords() == null)
+                        .forEach(analyzeService::fetchAnalyzeAndSave)));
     }
 
     // --------------------------------------- create-document -----------------------------------------

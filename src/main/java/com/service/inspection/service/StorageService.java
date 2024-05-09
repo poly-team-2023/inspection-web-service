@@ -47,7 +47,6 @@ public class StorageService {
                     .noneMatch(b -> Objects.equals(b, bucketName.getBucket()))) {
                 amazonS3.createBucket(b -> b.bucket(bucketName.getBucket()).build());
             }
-
             amazonS3.putObject(
                     b -> b.bucket(bucketName.getBucket()).key(key),
                     RequestBody.fromInputStream(inputStream, contentLength)

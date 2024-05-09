@@ -27,6 +27,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -50,8 +51,9 @@ public class DocumentService {
                            ResourceLoader resourceLoader, StorageService storageService,
                            @Value("${file.template.path}") String templatePath,
                            InspectionFetcherEngine inspectionFetcherEngine) throws IOException {
-
-        Preconditions.checkState(resourceLoader.getResource(templatePath).exists(), "Can't find template at {}", templatePath);
+        
+        Preconditions.checkState(resourceLoader.getResource(templatePath).exists(),
+                "Can't find template at %s. I'm at %s", templatePath, Paths.get(".").toAbsolutePath().normalize().toString());
 
         this.inspectionFetcherEngine = inspectionFetcherEngine;
         this.rabbitTemplate = rabbitTemplate;

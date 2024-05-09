@@ -18,6 +18,7 @@ import java.util.stream.IntStream;
         componentModel = "spring"
 )
 public interface PhotoMapper {
+    @Mapping(source = "defectsCoords", target = "defects")
     CategoryWithFile.PhotoDto mapToPhotoDto(Photo photo);
 
     @Mapping(target = "id", ignore = true)

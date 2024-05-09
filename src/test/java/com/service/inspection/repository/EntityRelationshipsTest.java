@@ -29,9 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -104,7 +102,7 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
         categoryNotToDelete.setName("2");
         categoryNotToDelete.setCondition(Condition.OPERABLE);
         categoryNotToDelete.setInspection(inspection);
-        inspection.setCategories(new HashSet<>(Set.of(categoryToDelete, categoryNotToDelete)));
+        inspection.setCategories(new ArrayList<>(List.of(categoryToDelete, categoryNotToDelete)));
 
         inspectionRepository.save(inspection);
 

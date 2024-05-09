@@ -82,7 +82,7 @@ public class Inspection extends Named {
     @OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @ToString.Exclude
     @BatchSize(size = 50)
-    private List<Category> categories;
+    private List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
