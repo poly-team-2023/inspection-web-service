@@ -39,7 +39,7 @@ public class Category extends Named {
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     @BatchSize(size = 50)
-    private List<Photo> photos;
+    private List<Photo> photos = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY,
             cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}

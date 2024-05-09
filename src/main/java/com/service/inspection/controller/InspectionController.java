@@ -214,6 +214,13 @@ public class InspectionController {
         return utils.getResponseEntityFromFile("category-photo", file);
     }
 
+    @PostMapping("/{id}/categories/process")
+    @Operation(summary = "Отправить загруженные фотографии на анализ")
+    public ResponseEntity<Void> sendPhotosAnalyze(@PathVariable @Min(1) Long id, Authentication authentication) {
+        Long userId = utils.getUserId(authentication);
+        inspectionService.sendAllPhotosToAnalyze(id, userId);
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получение информации об инспекции")

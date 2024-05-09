@@ -1,34 +1,19 @@
 package com.service.inspection.mapper.document;
 
-import com.deepoove.poi.data.MergeCellRule;
-import com.deepoove.poi.data.Numberings;
-import com.deepoove.poi.data.Tables;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
 import com.service.inspection.document.DocumentModel;
 import com.service.inspection.document.model.*;
-import com.service.inspection.dto.document.GptReceiverDto;
 import com.service.inspection.entities.*;
 import com.service.inspection.mapper.SenderMapper;
-import com.service.inspection.service.DocumentModelService;
+import com.service.inspection.service.AnalyzeService;
 import com.service.inspection.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.sl.draw.geom.GuideIf;
 import org.hibernate.Hibernate;
 import org.mapstruct.Named;
 import org.mapstruct.*;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageBuilder;
-import org.springframework.amqp.core.MessageProperties;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
-import org.springframework.amqp.rabbit.RabbitMessageFuture;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.util.Pair;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -42,20 +27,10 @@ import java.util.stream.Collectors;
 public abstract class DocumentMapper {
 
     @Autowired
-    @Qualifier("nlmTask")
-    private Queue nlmQueue;
-
-    @Autowired
     private CommonUtils utils;
 
     @Autowired
-    private DocumentModelService documentModelService;
-
-    @Autowired
-    private ObjectMapper mapper;
-
-    @Autowired
-    private AsyncRabbitTemplate template;
+    private AnalyzeService documentModelService;
 
     @Autowired
     private SenderMapper senderMapper;
@@ -87,14 +62,13 @@ public abstract class DocumentMapper {
 
         for (ImageModelWithDefects image : defectsModel) {
             if (image == null || image.getDefects() == null) continue;
-            for (DefectModel defect: image.getDefects()) {
+            for (DefectModel defect : image.getDefects()) {
                 map.putIfAbsent(defect.getName(), new CategoryDefectsModel(new LinkedHashSet<>(), ""));
                 map.get(defect.getName()).getPhotoNums().add(image.getPhotoNum());
             }
         }
         return map;
     }
-
 
     @AfterMapping
     public void mappingAsyncPhotoFields(@MappingTarget DocumentModel documentModel, Inspection inspection, User user,
@@ -111,7 +85,7 @@ public abstract class DocumentMapper {
 
 
         List<CompletableFuture<Void>> categoryFutureContext = Collections.synchronizedList(new ArrayList<>());
-        Long lastPhotosCount = 1L;
+        long lastPhotosCount = 1L;
 
         for (Category category : categories) {
             Hibernate.initialize(category.getPhotos());
@@ -127,59 +101,28 @@ public abstract class DocumentMapper {
         }
 
         // часть генерации с GPT
-        CompletableFuture<Void> modelWithUpdatedByGptModel = CompletableFuture
-                .allOf(categoryFutureContext.toArray(new CompletableFuture[0])).thenApply(f -> {
-                    try {
-                        Message m = MessageBuilder.withBody(mapper.writeValueAsBytes(senderMapper.mapToGptSenderDto(documentModel)))
-                                .setContentType(MessageProperties.CONTENT_TYPE_JSON)
-                                .setCorrelationId(UUID.randomUUID().toString()).build();
-                        // реально в этом моменте обработку ошибок, потому что сейчас join максимально тонкое место
-                        return template.sendAndReceive(nlmQueue.getActualName(), m).handle((x, y) -> {
-                         if (y != null) {
-                             log.error("Error while waiting answer from gpt: {}", y.getMessage());
-                             return null;
-                         }
-                         return x;
-                        }).join();
-                    } catch (Exception e) {
-                        log.error(e.getMessage());
-                        throw new RuntimeException(e);
-                    }
-                }).thenAccept(x -> {
-                    try {
-                        if (x == null) return;
-                        log.debug("Receive GPT analyze for inspection with id {}", inspection.getId());
-                        GptReceiverDto dto = mapper.readValue(x.getBody(), GptReceiverDto.class);
-
-                        // добавил именно тут, что сохранить нумерацию в таблице !
-                        documentModel.getCategories().sort(Comparator.comparing(CategoryModel::getCategoryNum));
-
-                        senderMapper.updateDocumentModelWithGpt(documentModel, dto);
-                    } catch (Exception e) {
-                        log.error(e.getMessage());
-                        return ;
-                    }
+        CompletableFuture<Void> modelWithUpdatedByGptModel = CompletableFuture.allOf(categoryFutureContext.toArray(new CompletableFuture[0]))
+                .thenCompose(f -> documentModelService.analyzeAllDefects(documentModel))
+                .thenAccept(data -> {
+                    // добавил именно тут, что сохранить нумерацию в таблице !
+                    documentModel.getCategories().sort(Comparator.comparing(CategoryModel::getCategoryNum));
+                    senderMapper.updateDocumentModelWithGpt(documentModel, data);
                 });
 
 
         futureResult.add(modelWithUpdatedByGptModel);
 
-        UUID uuid = inspection.getMainPhotoUuid();
-        if (uuid != null) {
-            futureResult.add(documentModelService.processAbstractPhoto(uuid).thenAccept(documentModel::setMainPhoto));
-        }
+        Optional.ofNullable(inspection.getMainPhotoUuid())
+                .ifPresent(uuid -> futureResult.add(documentModelService.fetchPhoto(uuid)
+                        .thenAccept(documentModel::setMainPhoto)));
 
-        Optional.ofNullable(inspection.getCompany()).map(Company::getLogoUuid).ifPresent(logoUuid -> {
-            futureResult.add(documentModelService.processAbstractPhoto(logoUuid).thenAccept(x -> {
-                documentModel.getCompany().setLogo(x);
-            }));
-        });
+        Optional.ofNullable(inspection.getCompany()).map(Company::getLogoUuid)
+                .ifPresent(logoUuid -> futureResult.add(documentModelService.fetchPhoto(logoUuid)
+                .thenAccept(x -> documentModel.getCompany().setLogo(x))));
 
-        Optional.ofNullable(inspection.getEmployer()).map(Employer::getSignatureUuid).ifPresent(signUuid -> {
-            futureResult.add(documentModelService.processAbstractPhoto(signUuid).thenAccept(x -> {
-                documentModel.getEmployer().setScript(x);
-            }));
-        });
+        Optional.ofNullable(inspection.getEmployer()).map(Employer::getSignatureUuid)
+                .ifPresent(signUuid -> futureResult.add(documentModelService.fetchPhoto(signUuid)
+                .thenAccept(x -> documentModel.getEmployer().setScript(x))));
     }
 
     abstract CompanyModel companyModel(Company company, @Context List<CompletableFuture<Void>> futureResult);
@@ -189,7 +132,7 @@ public abstract class DocumentMapper {
                                          @Context List<CompletableFuture<Void>> futureResult) {
         UUID uuid = company.getLogoUuid();
         if (uuid != null) {
-            futureResult.add(documentModelService.processAbstractPhoto(uuid).thenAccept(companyModel::setLogo));
+            futureResult.add(documentModelService.fetchPhoto(uuid).thenAccept(companyModel::setLogo));
         }
     }
 }

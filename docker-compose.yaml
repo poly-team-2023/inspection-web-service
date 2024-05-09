@@ -2,17 +2,18 @@ version: "3.9"
 services:
 
   server:
-    image: tetrade/inspection:release
+    image: tetrade/inspection:updated-version
     environment:
       - spring.datasource.url=jdbc:postgresql://postgres:5432/inspection-service-db
       - aws.s3.host=http://minio:9000/
-      - image-processing.server.host=host.docker.internal
-      - image-processing.server.port=9022
+      - file.template.path=file:home/res/files/test-template2.docx
     ports:
       - "8080:8080"
+    volumes:
+      - type: bind
+        source: "C:/Users/piatl/IdeaProjects/inspection-web-service/src/main/resources/test-template2.docx"
+        target: "/home/res/files/test-template2.docx"
     restart: on-failure
-
-
 
   client:
     image: alina2002alina/front:0.0.4.5
@@ -47,13 +48,12 @@ services:
       MINIO_CONSOLE_ADDRESS: ':9001'
       MINIO_REGION: 'ru-msk'
     command: minio server /data
-
-  rabbitmq:
-      image: rabbitmq:3.12.12-management-alpine
-      hostname: rabbitmq
-      restart: always
-      volumes:
-        - ./rabbitmq:/var/lib/rabbitmq
-      ports:
-        - 15672:15672
-        - 5672:5672
+#  rabbitmq:
+#      image: rabbitmq:3.12.12-management-alpine
+#      hostname: rabbitmq
+#      restart: always
+#      volumes:
+#        - ./rabbitmq:/var/lib/rabbitmq
+#      ports:
+#        - 15672:15672
+#        - 5672:5672
