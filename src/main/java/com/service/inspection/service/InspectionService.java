@@ -22,6 +22,7 @@ import com.service.inspection.repositories.InspectionRepository;
 import com.service.inspection.repositories.PhotoRepository;
 import com.service.inspection.repositories.UserRepository;
 import com.service.inspection.service.document.ProcessingImageDto;
+import com.service.inspection.service.rabbit.RabbitMQService;
 import com.service.inspection.utils.ServiceUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -189,12 +190,14 @@ public class InspectionService {
         return storageService.getFile(BucketName.CATEGORY_PHOTOS, photo.getFileUuid().toString());
     }
 
-    public void  addTaskForCreatingDocument(Long inspectionId, Long userId) {
+    public boolean addTaskForCreatingDocument(Long inspectionId, Long userId) {
         Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
         User user = userRepository.findById(userId).orElse(null);
-        // TODO логика проверки прав тд тп
 
-        documentService.addInspectionInQueueToProcess(inspection, user);
+        // TOOD в случае если документ уже генерируется, то оповещать пользователя, что заново генерировать нельзя
+        if (inspection.getStatus() == ProgressingStatus.WAIT_ANALYZE) return false;
+
+        return documentService.addInspectionInQueueToProcess(inspection, user);
     }
 
 

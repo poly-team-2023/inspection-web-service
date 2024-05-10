@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,7 +35,6 @@ public class AnalyzeService {
     private final ImageMapper imageMapper;
     private final RabbitMQService rabbitMQService;
     private final SenderMapper senderMapper;
-    private final ObjectMapper mapper;
 
     @Async("categoryAsyncExecutor")
     public CompletableFuture<List<ImageModelWithDefects>> processAllPhotosAsync(List<Photo> photos, Long startNum) {
@@ -60,7 +58,7 @@ public class AnalyzeService {
 
     @Async("categoryAsyncExecutor") // TODO другой исполнитель, только на обработку фотографий которые не отправлены
     public void fetchAnalyzeAndSave(Photo photo) {
-        if (!rabbitMQService.wasSent(photo.getId())) {
+        if (!rabbitMQService.photoWasSent(photo.getId())) {
             fetchAndAnalyzeAndSavePhoto(photo, -1);
         } else {
             log.debug("Photo {} already in queue for analyze", photo.getId());
@@ -74,15 +72,8 @@ public class AnalyzeService {
 
     // GPT
 
-    public CompletableFuture<GptReceiverDto> analyzeAllDefects(DocumentModel documentModel) {
+    public CompletableFuture<GptReceiverDto> analyzeAllDefects(DocumentModel documentModel, long inspectionId) {
         GptSenderDto gptSenderDto = senderMapper.mapToGptSenderDto(documentModel);
-        return rabbitMQService.sendAndReceiveGptResult(gptSenderDto).thenApply(o -> {
-            try {
-                return mapper.readValue(o.getBody(), GptReceiverDto.class);
-            } catch (IOException e) {
-                log.error(e.getMessage());
-                return null;
-            }
-        });
+        return rabbitMQService.sendAndReceiveGptResult(gptSenderDto, inspectionId);
     }
 }

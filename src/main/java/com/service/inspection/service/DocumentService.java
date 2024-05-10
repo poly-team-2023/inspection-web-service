@@ -67,13 +67,14 @@ public class DocumentService {
     }
 
     @Transactional
-    public void addInspectionInQueueToProcess(Inspection inspection, User user) {
+    public boolean addInspectionInQueueToProcess(Inspection inspection, User user) {
         UserIdInspectionIdDto userIdInspectionIdDto = new UserIdInspectionIdDto(user.getId(), inspection.getId());
         // TODO стоит продумать логику повторения в случае если падает rabbitMQ
         rabbitTemplate.convertAndSend(inspectionQueue.getActualName(), userIdInspectionIdDto);
 
         inspection.setStatus(ProgressingStatus.WAIT_ANALYZE);
         inspectionRepository.save(inspection);
+        return true;
     }
 
     @RabbitListener(queues = "${rabbit.queue.main}", messageConverter = "")

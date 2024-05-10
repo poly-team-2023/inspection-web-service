@@ -234,11 +234,14 @@ public class InspectionController {
 
     @PostMapping("/{id}/docx")
     @Operation(summary = "Добавить отчет в очередь генерации")
-    public ResponseEntity<Void> getCategoryPhoto(@PathVariable @Min(1) Long id, Authentication authentication
+    public ResponseEntity<Error> getCategoryPhoto(@PathVariable @Min(1) Long id, Authentication authentication
     ) {
         Long userId = utils.getUserId(authentication);
-        inspectionService.addTaskForCreatingDocument(id, userId);
-        return ResponseEntity.ok().build();
+        boolean sendToGenerate = inspectionService.addTaskForCreatingDocument(id, userId);
+        if (sendToGenerate) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().body(new Error("Inspection already in analyze"));
     }
 
     @GetMapping("/{id}/docx")

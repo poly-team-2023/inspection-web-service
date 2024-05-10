@@ -102,7 +102,7 @@ public abstract class DocumentMapper {
 
         // часть генерации с GPT
         CompletableFuture<Void> modelWithUpdatedByGptModel = CompletableFuture.allOf(categoryFutureContext.toArray(new CompletableFuture[0]))
-                .thenCompose(f -> documentModelService.analyzeAllDefects(documentModel))
+                .thenCompose(f -> documentModelService.analyzeAllDefects(documentModel, inspection.getId()))
                 .thenAccept(data -> {
                     // добавил именно тут, что сохранить нумерацию в таблице !
                     documentModel.getCategories().sort(Comparator.comparing(CategoryModel::getCategoryNum));
