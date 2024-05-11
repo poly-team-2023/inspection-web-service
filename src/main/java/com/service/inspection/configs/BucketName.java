@@ -18,6 +18,8 @@ public enum BucketName {
 
     DEFAULT_IMAGE_BUCKET("images"),
 
+    PlAN("plans"),
+
     DOCUMENT("documents");
 
     private final String bucket;

@@ -3,21 +3,16 @@ package com.service.inspection.controller;
 import com.google.common.base.Joiner;
 import com.service.inspection.dto.IdentifiableDto;
 import com.service.inspection.dto.document.DocumentStatusDto;
-import com.service.inspection.dto.inspection.CategoryWithFile;
-import com.service.inspection.dto.inspection.GetInspectionDto;
-import com.service.inspection.dto.inspection.InspectionDto;
-import com.service.inspection.dto.inspection.InspectionWithIdOnly;
-import com.service.inspection.dto.inspection.InspectionWithName;
+import com.service.inspection.dto.inspection.*;
 import com.service.inspection.entities.Category;
 import com.service.inspection.entities.Identifiable;
 import com.service.inspection.entities.Inspection;
 import com.service.inspection.mapper.CategoryMapper;
 import com.service.inspection.mapper.CommonMapper;
 import com.service.inspection.mapper.InspectionMapper;
-import com.service.inspection.service.DocumentService;
+import com.service.inspection.mapper.PlanMapper;
 import com.service.inspection.service.InspectionService;
 import com.service.inspection.service.StorageService;
-import com.service.inspection.service.document.ImageProcessingFacade;
 import com.service.inspection.utils.ControllerUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.Min;
@@ -58,8 +53,7 @@ public class InspectionController {
     private final ControllerUtils utils;
     private final CommonMapper commonMapper;
     private final CategoryMapper categoryMapper;
-    private final DocumentService dataService;
-    private final ImageProcessingFacade imageProcessingFacade;
+    private final PlanMapper planMapper;
 
     // TODO заменить обращение к бд для поиска пользователя с email на id для более быстрого поиска
 
@@ -221,6 +215,58 @@ public class InspectionController {
         inspectionService.sendAllPhotosToAnalyze(id, userId);
         return ResponseEntity.ok().build();
     }
+
+    // ------------------------------------------------- Чертеж -------------------------------------------------
+
+    @PostMapping("/{id}/plans")
+    @Operation(summary = "Добавление чертежа к проекту")
+    public ResponseEntity<IdentifiableDto> addPlanToInspection(
+            @PathVariable @Min(1) Long id, @RequestParam("name") String name,
+            @RequestParam("file") MultipartFile multipartFile, Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        Identifiable ident = inspectionService.addPlanToInspection(userId, id, name, multipartFile);
+        return ResponseEntity.ok(commonMapper.mapToIdentifiableDto(ident));
+    }
+
+    @DeleteMapping("/{id}/plans/{planId}")
+    @Operation(summary = "Удаление чертежа из проекта")
+    public ResponseEntity<Void> deletePlanFromInspection(
+            @PathVariable @Min(1) Long planId, @PathVariable @Min(1) Long id, Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        inspectionService.deletePlanFromInspection(userId, id, planId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/plans")
+    @Operation(summary = "Получение информации о чертежах")
+    public ResponseEntity<InspectionPlansDto> getAllPlans(
+            @PathVariable @Min(1) Long id, Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        return ResponseEntity.ok(planMapper.mapToInspectionPlanDto(inspectionService.getPlans(userId, id)));
+    }
+
+    @GetMapping("/{id}/plans/{planId}")
+    @Operation(summary = "Информация о фотография на чертежах")
+    public ResponseEntity<PlanDto> getPhotosOnPlan(
+            @PathVariable @Min(1) Long id, @PathVariable @Min(1) Long planId, Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        return ResponseEntity.ok(planMapper.mapToPlanDto(inspectionService.getFullPlanInfo(userId, id, planId)));
+    }
+
+    @GetMapping("/{id}/plans/{planId}/file")
+    @Operation(summary = "Получить чертеж")
+    public ResponseEntity<Resource> getPlanFile(
+            @PathVariable @Min(1) Long id, @PathVariable @Min(1) Long planId, Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        return utils.getResponseEntityFromFile("plan" , inspectionService.getPlanFile(userId, id, planId));
+    }
+
+    // ------------------------------------------------- Инспекция -------------------------------------------------
 
     @GetMapping("/{id}")
     @Operation(summary = "Получение информации об инспекции")

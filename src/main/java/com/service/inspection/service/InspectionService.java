@@ -1,36 +1,18 @@
 package com.service.inspection.service;
 
-import com.deepoove.poi.XWPFTemplate;
-import com.google.common.base.Stopwatch;
 import com.service.inspection.advice.MessageException;
 import com.service.inspection.configs.BucketName;
-import com.service.inspection.document.DocumentModel;
-import com.service.inspection.document.model.CategoryModel;
 import com.service.inspection.dto.inspection.InspectionDto;
-import com.service.inspection.entities.Category;
-import com.service.inspection.entities.Identifiable;
-import com.service.inspection.entities.Inspection;
-import com.service.inspection.entities.Photo;
-import com.service.inspection.entities.User;
+import com.service.inspection.entities.*;
 import com.service.inspection.entities.enums.ProgressingStatus;
 import com.service.inspection.mapper.CategoryMapper;
 import com.service.inspection.mapper.InspectionMapper;
 import com.service.inspection.mapper.PhotoMapper;
-import com.service.inspection.mapper.document.DocumentMapper;
-import com.service.inspection.repositories.CategoryRepository;
-import com.service.inspection.repositories.InspectionRepository;
-import com.service.inspection.repositories.PhotoRepository;
-import com.service.inspection.repositories.UserRepository;
-import com.service.inspection.service.document.ProcessingImageDto;
-import com.service.inspection.service.rabbit.RabbitMQService;
+import com.service.inspection.repositories.*;
 import com.service.inspection.utils.ServiceUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -62,6 +44,7 @@ public class InspectionService {
     private final DocumentService documentService;
     private final AnalyzeService analyzeService;
     private final InspectionFetcherEngine inspectionFetcherEngine;
+    private final PlanRepository planRepository;
 
     @Transactional
     public Identifiable createInspection(Long userId) {
@@ -118,6 +101,62 @@ public class InspectionService {
             return null;
         }
         return storageService.getFile(BucketName.INSPECTION_MAIN_PHOTO, inspection.getMainPhotoUuid().toString());
+    }
+
+
+    // --------------------------------------- plan -----------------------------------------
+
+    @Transactional
+    public Identifiable addPlanToInspection(Long userId, Long inspectionId, String name, MultipartFile multipartFile) {
+        Inspection inspection = getUserInspection(userId, inspectionId);
+
+        UUID uuid = UUID.randomUUID();
+
+        Plan plan = new Plan();
+        plan.setInspection(inspection);
+        plan.setName(name);
+        plan.setFileUuid(uuid);
+
+        planRepository.save(plan);
+        storageService.saveFile(BucketName.PlAN, uuid.toString(), multipartFile);
+
+        return plan;
+    }
+
+    @Transactional
+    public void deletePlanFromInspection(Long userId, Long inspectionId, Long planId) {
+        Inspection inspection = getUserInspection(userId, inspectionId);
+        Plan plan = serviceUtils.tryToFindByID(inspection.getPlans(), planId);
+
+        inspection.getPlans().remove(plan);
+        planRepository.delete(plan);
+    }
+
+    @Transactional
+    public void updatePlanFromInspection(Long userId, Long inspectionId, Long planId, String newName) {
+        Inspection inspection = getUserInspection(userId, inspectionId);
+        Plan plan = serviceUtils.tryToFindByID(inspection.getPlans(), planId);
+
+        plan.setName(newName);
+
+        planRepository.save(plan);
+    }
+
+    public Set<Plan> getPlans(Long userId, Long inspectionId) {
+        Inspection inspection = getUserInspection(userId, inspectionId);
+        return inspection.getPlans();
+    }
+
+    public Plan getFullPlanInfo(Long userId, Long inspectionId, Long planId) {
+        Inspection inspection = getUserInspection(userId, inspectionId);
+        Plan plan = serviceUtils.tryToFindByID(inspection.getPlans(), planId);
+        return plan;
+    }
+
+    public StorageService.BytesWithContentType getPlanFile(Long userId, Long inspectionId, Long planId) {
+        Inspection inspection = getUserInspection(userId, inspectionId);
+        Plan plan = serviceUtils.tryToFindByID(inspection.getPlans(), planId);
+        return storageService.getFile(BucketName.PlAN, plan.getFileUuid().toString());
     }
 
     // --------------------------------------- category -----------------------------------------

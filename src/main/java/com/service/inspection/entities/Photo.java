@@ -44,6 +44,9 @@ public class Photo extends FileEntity {
     @Column(name = "date")
     private OffsetDateTime date;
 
+    @Column(name = "photo_num")
+    private Long photoNum;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "defects_coord")
     private Set<Defect> defectsCoords;

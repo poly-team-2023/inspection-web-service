@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+    
+    <changeSet id="add-photo_num-colum-to-table" author="piatlin2002@gmail.com">
+        <addColumn tableName="photo">
+            <column name="photo_num" type="bigint" defaultValue="0"/>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
