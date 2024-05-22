@@ -9,4 +9,77 @@
             <column name="photo_num" type="bigint" defaultValue="0"/>
         </addColumn>
     </changeSet>
+
+    <changeSet author="piatlin2002@gmail.com" id="drop-photo_coord-and-use-in-photo">
+        <preConditions onFail="MARK_RAN"><tableExists schemaName="public" tableName="photo_coord"/></preConditions>
+        <dropTable cascadeConstraints="true"
+                   catalogName="inspection-service-db"
+                   schemaName="public"
+                   tableName="photo_coord"/>
+    </changeSet>
+
+    <changeSet author="piatlin2002@gmail.com" id="add-coord-column-to-photo">
+        <addColumn tableName="photo">
+            <column name="x" type="double precision"/>
+            <column name="y" type="double precision"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="piatlin2002@gmail.com" id="dropNotNullConstraint">
+        <dropNotNullConstraint catalogName="inspection-service-db"
+                               columnDataType="bigint"
+                               columnName="category_id"
+                               schemaName="public"
+                               tableName="photo"/>
+    </changeSet>
+
+    <changeSet author="piatlin2002@gmail.com" id="create-plan-photo-table">
+        <createTable tableName="photo_plan">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="plan_id" type="bigint"/>
+            <column name="name" type="varchar(255)"/>
+            <column name="x" type="double precision"/>
+            <column name="y" type="double precision"/>
+            <column name="uuid" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_update_date" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="fk-plan-photo_plan" author="piatlin2002@gmail.com">
+        <addForeignKeyConstraint baseTableName="photo_plan" baseColumnNames="plan_id"
+                                 constraintName="fk-plan-photo_plan"
+                                 referencedTableName="plan" referencedColumnNames="id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="add-plan_photo_fk" author="piatlin2002@gmail.com">
+
+        <addColumn tableName="photo">
+            <column name="photo_plan_id" type="bigint"/>
+        </addColumn>
+
+        <addForeignKeyConstraint baseTableName="photo" baseColumnNames="photo_plan_id"
+                                 constraintName="fk-photo_plan_photo"
+                                 referencedTableName="photo_plan" referencedColumnNames="id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="change-on-delete-action" author="piatlin2002@gmail.com">
+        <preConditions onFail="MARK_RAN">
+            <foreignKeyConstraintExists foreignKeyName="fk-photo_plan_photo"/>
+        </preConditions>
+        <dropForeignKeyConstraint baseTableName="photo" constraintName="fk-photo_plan_photo"/>
+        <addForeignKeyConstraint baseTableName="photo" baseColumnNames="photo_plan_id"
+                                 constraintName="fk-photo_plan_photo"
+                                 referencedTableName="photo_plan" referencedColumnNames="id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="SET NULL" onUpdate="CASCADE"/>
+    </changeSet>
+
 </databaseChangeLog>

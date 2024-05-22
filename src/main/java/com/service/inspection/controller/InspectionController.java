@@ -7,14 +7,13 @@ import com.service.inspection.dto.inspection.*;
 import com.service.inspection.entities.Category;
 import com.service.inspection.entities.Identifiable;
 import com.service.inspection.entities.Inspection;
-import com.service.inspection.mapper.CategoryMapper;
-import com.service.inspection.mapper.CommonMapper;
-import com.service.inspection.mapper.InspectionMapper;
-import com.service.inspection.mapper.PlanMapper;
+import com.service.inspection.mapper.*;
 import com.service.inspection.service.InspectionService;
 import com.service.inspection.service.StorageService;
 import com.service.inspection.utils.ControllerUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -54,6 +53,7 @@ public class InspectionController {
     private final CommonMapper commonMapper;
     private final CategoryMapper categoryMapper;
     private final PlanMapper planMapper;
+    private final PhotoMapper photoMapper;
 
     // TODO заменить обращение к бд для поиска пользователя с email на id для более быстрого поиска
 
@@ -218,6 +218,7 @@ public class InspectionController {
 
     // ------------------------------------------------- Чертеж -------------------------------------------------
 
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
     @PostMapping("/{id}/plans")
     @Operation(summary = "Добавление чертежа к проекту")
     public ResponseEntity<IdentifiableDto> addPlanToInspection(
@@ -229,6 +230,7 @@ public class InspectionController {
         return ResponseEntity.ok(commonMapper.mapToIdentifiableDto(ident));
     }
 
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
     @DeleteMapping("/{id}/plans/{planId}")
     @Operation(summary = "Удаление чертежа из проекта")
     public ResponseEntity<Void> deletePlanFromInspection(
@@ -239,6 +241,7 @@ public class InspectionController {
         return ResponseEntity.ok().build();
     }
 
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
     @GetMapping("/{id}/plans")
     @Operation(summary = "Получение информации о чертежах")
     public ResponseEntity<InspectionPlansDto> getAllPlans(
@@ -248,6 +251,7 @@ public class InspectionController {
         return ResponseEntity.ok(planMapper.mapToInspectionPlanDto(inspectionService.getPlans(userId, id)));
     }
 
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
     @GetMapping("/{id}/plans/{planId}")
     @Operation(summary = "Информация о фотография на чертежах")
     public ResponseEntity<PlanDto> getPhotosOnPlan(
@@ -257,6 +261,7 @@ public class InspectionController {
         return ResponseEntity.ok(planMapper.mapToPlanDto(inspectionService.getFullPlanInfo(userId, id, planId)));
     }
 
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
     @GetMapping("/{id}/plans/{planId}/file")
     @Operation(summary = "Получить чертеж")
     public ResponseEntity<Resource> getPlanFile(
@@ -265,6 +270,73 @@ public class InspectionController {
         Long userId = utils.getUserId(authentication);
         return utils.getResponseEntityFromFile("plan" , inspectionService.getPlanFile(userId, id, planId));
     }
+
+    // ------------------------------------------------- Фотографии -------------------------------------------------
+
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
+    @PostMapping( "/{id}/plans/{planId}/photos")
+    @Operation(summary = "Загрузить фотографию на чертеж")
+    public ResponseEntity<PhotoCreateDto> savePhoto(
+            @PathVariable @Min(1) Long id, @PathVariable @Min(1) Long planId,
+            @RequestParam("file") MultipartFile multipartFile, @RequestParam("data") @Valid PhotoCreateDto photoCreateDto,
+            Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        return ResponseEntity.ok(
+                photoMapper.mapToPhotoCreateDto(
+                        inspectionService.updateOrCreatePhoto(userId, null, planId, photoCreateDto, multipartFile))
+        );
+    }
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
+    @PutMapping("/{id}/plans/{planId}/photos/{photoId}")
+    @Operation(summary = "Обновить фотографию на чертеже", description = "Если не задавать file, то изображение остается прежним")
+    public ResponseEntity<PhotoCreateDto> updatePhoto(
+            @PathVariable @Min(1) Long id, @PathVariable @Min(1) Long planId, @PathVariable @Min(1) Long photoId,
+            @RequestParam("file") MultipartFile multipartFile, @RequestParam("data") @Valid PhotoCreateDto photoCreateDto,
+            Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        return ResponseEntity.ok(
+                photoMapper.mapToPhotoCreateDto(inspectionService.updateOrCreatePhoto(userId, photoId, planId, photoCreateDto, multipartFile))
+        );
+    }
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
+    @GetMapping("/{id}/plans/{planId}/photos/{photoId}")
+    @Operation(summary = "Получить фотографию из чертежа")
+    public ResponseEntity<Resource> getPhoto(
+            @PathVariable @Min(1) Long id, @PathVariable @Min(1) Long planId, @PathVariable @Min(1) Long photoId,
+            Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        return utils.getResponseEntityFromFile("photo", inspectionService.getPhotoFromPlan(userId, id, planId, photoId));
+    }
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
+    @DeleteMapping("/{id}/plans/{planId}/photos/{photoId}")
+    @Operation(summary = "Удалить фотографию из чертежа")
+    public ResponseEntity<Resource> deletePhoto(
+            @PathVariable @Min(1) Long id, @PathVariable @Min(1) Long planId, @PathVariable @Min(1) Long photoId,
+            Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        inspectionService.deletePhotoFromPlan(userId, photoId);
+        return ResponseEntity.ok().build();
+    }
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
+    @PostMapping("/{id}/plans/{planId}/photos/{photoId}/category/{categoryId}")
+    @Operation(summary = "Добавить фото из чертежа в категорию")
+    public ResponseEntity<IdentifiableDto> movePhotoFromPlanToCategory(
+            @PathVariable @Min(1) Long id, @PathVariable @Min(1) Long planId, @PathVariable @Min(1) Long photoId,
+            @PathVariable @Min(1) Long categoryId,
+            Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+
+        return ResponseEntity.ok(
+                commonMapper.mapToIdentifiableDto(
+                        inspectionService.copyPhotoToCategoryFromPlan(userId, id, planId, photoId, categoryId))
+        );
+    }
+
 
     // ------------------------------------------------- Инспекция -------------------------------------------------
 

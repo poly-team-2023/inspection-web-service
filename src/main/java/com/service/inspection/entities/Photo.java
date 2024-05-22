@@ -61,12 +61,9 @@ public class Photo extends FileEntity {
     @ToString.Exclude
     private Category category;
 
-    @JoinColumn(name = "plan_id")
     @ManyToOne
-    private Plan plan;
-
-    @OneToOne(mappedBy = "photo")
-    private PhotoCoord coords;
+    @JoinColumn(name = "photo_plan_id")
+    private PhotoPlan originPhoto;
 
     @Embeddable
     @Data
@@ -87,20 +84,6 @@ public class Photo extends FileEntity {
     public static class DefectsElimination {
         private String defectName;
         private String defectEliminationRecommendation;
-    }
-
-    @Entity
-    @Data
-    @Table(name = "photo_coord")
-    public static class PhotoCoord {
-
-        @Id
-        @OneToOne
-        @JoinColumn(name = "photo_id", referencedColumnName = "id")
-        private Photo photo;
-
-        @Embedded
-        private Coord coords;
     }
 
     @Override

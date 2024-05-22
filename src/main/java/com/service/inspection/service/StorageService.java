@@ -1,5 +1,6 @@
 package com.service.inspection.service;
 
+import com.google.common.base.Preconditions;
 import com.service.inspection.configs.BucketName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,6 +17,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -24,6 +26,15 @@ public class StorageService {
     private final S3Client amazonS3;
 
     // TODO правильная обработка ошибок
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void saveFile(BucketName bucketName, UUID uuid, MultipartFile multipartFile) {
+        Preconditions.checkNotNull(uuid);
+        Preconditions.checkNotNull(multipartFile);
+        Preconditions.checkNotNull(multipartFile);
+
+        saveFile(bucketName, uuid.toString(), multipartFile);
+    }
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void saveFile(BucketName bucketName, String key, MultipartFile multipartFile) {

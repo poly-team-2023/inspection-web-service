@@ -1,10 +1,10 @@
 package com.service.inspection.mapper;
 
-import com.service.inspection.entities.Company;
-import com.service.inspection.entities.Employer;
-import com.service.inspection.entities.Role;
+import com.service.inspection.entities.*;
+import com.service.inspection.repositories.CategoryRepository;
 import com.service.inspection.repositories.CompanyRepository;
 import com.service.inspection.repositories.EmployerRepository;
+import com.service.inspection.repositories.PlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Named;
 import org.springframework.stereotype.Component;
@@ -17,8 +17,10 @@ public class EntityFactory {
 
     private final CompanyRepository companyRepository;
     private final EmployerRepository employerRepository;
+    private final PlanRepository planRepository;
+    private final CategoryRepository categoryRepository;
 
-    public Company createCompanyReferenceFromId(Long id) {
+    Company createCompanyReferenceFromId(Long id) {
         if (id == null) {
             return null;
         }
@@ -31,6 +33,21 @@ public class EntityFactory {
             return null;
         }
         return employerRepository.getReferenceById(id);
+    }
+
+    Category createCategoryReference(Long id) {
+        if (id == null) {
+            return null;
+        }
+        return categoryRepository.getReferenceById(id);
+    }
+
+
+    Plan createPlanReferenceFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        return planRepository.getReferenceById(id);
     }
 
     @Named("userRole")

@@ -3,6 +3,7 @@ package com.service.inspection.service;
 import com.service.inspection.advice.MessageException;
 import com.service.inspection.configs.BucketName;
 import com.service.inspection.dto.inspection.InspectionDto;
+import com.service.inspection.dto.inspection.PhotoCreateDto;
 import com.service.inspection.entities.*;
 import com.service.inspection.entities.enums.ProgressingStatus;
 import com.service.inspection.mapper.CategoryMapper;
@@ -45,6 +46,7 @@ public class InspectionService {
     private final AnalyzeService analyzeService;
     private final InspectionFetcherEngine inspectionFetcherEngine;
     private final PlanRepository planRepository;
+    private final PhotoPlanRepository photoPlanRepository;
 
     @Transactional
     public Identifiable createInspection(Long userId) {
@@ -142,21 +144,111 @@ public class InspectionService {
         planRepository.save(plan);
     }
 
+    @Transactional(readOnly = true)
     public Set<Plan> getPlans(Long userId, Long inspectionId) {
         Inspection inspection = getUserInspection(userId, inspectionId);
         return inspection.getPlans();
     }
 
+    @Transactional(readOnly = true)
     public Plan getFullPlanInfo(Long userId, Long inspectionId, Long planId) {
         Inspection inspection = getUserInspection(userId, inspectionId);
         Plan plan = serviceUtils.tryToFindByID(inspection.getPlans(), planId);
         return plan;
     }
 
+    @Transactional(readOnly = true)
     public StorageService.BytesWithContentType getPlanFile(Long userId, Long inspectionId, Long planId) {
         Inspection inspection = getUserInspection(userId, inspectionId);
         Plan plan = serviceUtils.tryToFindByID(inspection.getPlans(), planId);
         return storageService.getFile(BucketName.PlAN, plan.getFileUuid().toString());
+    }
+
+//    @Transactional
+//    public Identifiable addPhotoToPlan(Long userId, Long inspectionId, Long planId, String name, Double x, Double y, MultipartFile file) {
+//        Inspection inspection = getUserInspection(userId, inspectionId);
+//        Plan plan = serviceUtils.tryToFindByID(inspection.getPlans(), planId);
+//
+//        UUID uuid = UUID.randomUUID();
+//        PhotoPlan photo = photoMapper.mapToPhoto(name, uuid, plan, x, y);
+//
+//        Photo afterSave = photoRepository.save(photo);
+//        storageService.saveFile(BucketName.DEFAULT_IMAGE_BUCKET, uuid.toString(), file);
+//
+//        return afterSave;
+//    }
+
+    /**
+     * Создает или обновляет фотографию для мобильного приложения в зависимости от наличия photoId.
+     * При обновлении фотографии, если есть уже в категории, то происходит отчистка в категориях
+     */
+    @Transactional
+    public PhotoPlan updateOrCreatePhoto(Long userId, Long photoId, Long planId, PhotoCreateDto photoCreateDto, MultipartFile multipartFile) {
+        if (photoId == null) {
+            if (multipartFile == null || multipartFile.isEmpty()) {
+                throw new MessageException(HttpStatus.BAD_REQUEST, "Can't create photo without file");
+            }
+            PhotoPlan photo = new PhotoPlan();
+            UUID uuid = UUID.randomUUID();
+
+            photoMapper.mapToPhoto(photo, photoCreateDto, uuid, planId);
+
+            photoPlanRepository.save(photo);
+            storageService.saveFile(BucketName.DEFAULT_IMAGE_BUCKET, uuid, multipartFile);
+            return photo;
+        }
+
+        PhotoPlan photo = forThisUser(userId, photoId);
+
+        if (photo == null) {
+            throw new EntityNotFoundException("Can't find this photo for user");
+        }
+
+        // файл для модификации не может быть реальной фотки
+        UUID uuid = photo.getFileUuid();
+        photoMapper.mapToPhoto(photo, photoCreateDto, uuid, planId);
+        photoPlanRepository.save(photo);
+
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            Optional.ofNullable(photo.getConnected()).ifPresent(l -> l.forEach(connectedPhoto -> {
+                connectedPhoto.setDefectsCoords(null);
+                photoRepository.save(connectedPhoto);
+            }));
+            storageService.saveFile(BucketName.DEFAULT_IMAGE_BUCKET, uuid, multipartFile);
+        }
+
+        return photo;
+    }
+
+    public StorageService.BytesWithContentType getPhotoFromPlan(Long userId, Long inspectionId, Long planId, Long photoId) {
+        PhotoPlan plan = forThisUser(userId, photoId);
+        if (plan.getFileUuid() != null) {
+            return storageService.getFile(BucketName.DEFAULT_IMAGE_BUCKET, plan.getFileUuid().toString());
+        }
+        return null;
+    }
+
+    @Transactional
+    public void deletePhotoFromPlan(Long userId, Long photoId) {
+        PhotoPlan photo = forThisUser(userId, photoId);
+        if (photo != null) {
+            photoPlanRepository.delete(photo);
+        }
+    }
+
+
+    @Transactional
+    public Identifiable copyPhotoToCategoryFromPlan(Long userId, Long inspectionId, Long planId, Long photoId,
+                                                    Long categoryId) {
+        // TODO оптимизация запроса
+        Inspection inspection = getInspectionIfExistForUser(inspectionId, userId);
+        Plan plan = serviceUtils.tryToFindByID(inspection.getPlans(), planId);
+        PhotoPlan photoPlan = serviceUtils.tryToFindByID(plan.getPhotos(), photoId);
+        Category category = serviceUtils.tryToFindByID(inspection.getCategories(), categoryId);
+
+
+        Photo photo = photoMapper.mapToPhoto(photoPlan, category);
+        return photoRepository.save(photo);
     }
 
     // --------------------------------------- category -----------------------------------------
@@ -202,7 +294,7 @@ public class InspectionService {
 
         // TODO прикрепление к плану
         UUID uuid = UUID.randomUUID();
-        Photo photo = photoMapper.mapToPhoto(multipartFile.getOriginalFilename(), uuid, category, null);
+        Photo photo = photoMapper.mapToPhoto(multipartFile.getOriginalFilename(), uuid, category);
         category.addPhoto(photo);
 
         categoryRepository.save(category);
@@ -241,8 +333,7 @@ public class InspectionService {
 
 
     public void sendAllPhotosToAnalyze(Long inspectionId, Long userId) {
-        boolean forThisUser = inspectionRepository.existsByIdAndUsersId(inspectionId, userId); // TODO лишний запрос к бд
-
+        boolean forThisUser = inspectionRepository.existsByIdAndUsersId(inspectionId, userId);
         if (!forThisUser) return;
 
         Inspection inspection = inspectionFetcherEngine.getInspectionWithSubEntities(inspectionId);
@@ -278,5 +369,17 @@ public class InspectionService {
             throw new EntityNotFoundException(String.format("No such inspection with id %s for this user", inspectionId));
         }
         return inspection;
+    }
+
+
+    private PhotoPlan forThisUser(Long userId, Long photoId) {
+        PhotoPlan photo = photoPlanRepository.findById(photoId).orElseThrow(EntityNotFoundException::new);
+        Set<User> usersSet1 = Optional.ofNullable(photo.getPlan()).map(Plan::getInspection)
+                .map(Inspection::getUsers).orElse(Set.of());
+
+        if (!usersSet1.stream().map(User::getId).toList().contains(userId)) {
+            return null;
+        }
+        return photo;
     }
 }

@@ -13,7 +13,6 @@ import java.util.Optional;
 @AllArgsConstructor
 public class InspectionFetcherEngine {
 
-
     private final InspectionRepository inspectionRepository;
 
     @Transactional(readOnly = true)

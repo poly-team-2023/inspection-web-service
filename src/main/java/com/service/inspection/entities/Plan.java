@@ -28,7 +28,7 @@ public class Plan extends FileEntity {
 
     @OneToMany(mappedBy = "plan")
     @ToString.Exclude
-    private Set<Photo> photos;
+    private Set<PhotoPlan> photos;
 
     @ManyToOne
     @JoinColumn(name = "inspection_id", referencedColumnName = "id")
