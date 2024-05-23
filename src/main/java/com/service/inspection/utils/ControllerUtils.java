@@ -1,5 +1,6 @@
 package com.service.inspection.utils;
 
+import com.service.inspection.entities.User;
 import com.service.inspection.service.StorageService;
 import com.service.inspection.service.security.UserDetailsImpl;
 import jakarta.servlet.http.Cookie;
@@ -10,6 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 public class ControllerUtils {
@@ -28,6 +31,10 @@ public class ControllerUtils {
         return ((UserDetailsImpl) authentication.getPrincipal()).getUser().getId();
     }
 
+    public User getUser(Authentication authentication) {
+        return ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+    }
+
     public ResponseEntity<Resource> getResponseEntityFromFile(String filename, StorageService.BytesWithContentType file) {
         if (file == null) {
             return ResponseEntity.ok().build();
@@ -35,7 +42,7 @@ public class ControllerUtils {
         Resource resource = new ByteArrayResource(file.getBytes());
         return ResponseEntity.ok()
                 .header("Content-Disposition", String.format("attachment; filename=%s.png", filename))
-                .contentType(MediaType.valueOf("image/png"))
+                .contentType(MediaType.parseMediaType(Optional.of(file.getContentType()).orElse(MediaType.ALL.toString())))
                 .body(resource);
     }
 }

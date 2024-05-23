@@ -45,7 +45,7 @@ public class UserAccountController {
             @RequestBody @Valid UserUpdate userUpdate,
             Authentication authentication, HttpServletResponse httpServletResponse
     ) {
-        User targetUser = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+        User targetUser = controllerUtils.getUser(authentication);
         userAccountService.updateUser(targetUser, userUpdate);
         httpServletResponse.addCookie(controllerUtils.createJwtCookie(
                 jwtUtils.generateJwtToken(targetUser.getEmail())
@@ -56,7 +56,7 @@ public class UserAccountController {
     @PostMapping("/logo")
     @Operation(summary = "Установить аватарку пользователя")
     public ResponseEntity<Void> setUserLogo(@RequestParam("file") MultipartFile logo, Authentication authentication) {
-        User targetUser = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+        User targetUser = controllerUtils.getUser(authentication);
         userAccountService.setUserLogo(targetUser, logo); // TODO проверка типа файла (можно только изображение)
         return ResponseEntity.ok().build();
     }
@@ -64,16 +64,16 @@ public class UserAccountController {
     @GetMapping("/logo")
     @Operation(summary = "Получить аватарку пользователя")
     public ResponseEntity<Resource> getUserLogo(Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        StorageService.BytesWithContentType file = userAccountService.getUserLogo(user);
+        User targetUser = controllerUtils.getUser(authentication);
+        StorageService.BytesWithContentType file = userAccountService.getUserLogo(targetUser);
         return controllerUtils.getResponseEntityFromFile("logo", file);
     }
 
     @PutMapping("/password")
     @Operation(summary = "Изменение пароля пользователя")
     public ResponseEntity<Void> changePassword(@RequestBody PasswordDto passwordDto, Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-        boolean wasUpdated = userAccountService.changeUserPassword(user, passwordDto);
+        User targetUser = controllerUtils.getUser(authentication);
+        boolean wasUpdated = userAccountService.changeUserPassword(targetUser, passwordDto);
         if (!wasUpdated) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             // TODO обработка неправильно введенного пароля

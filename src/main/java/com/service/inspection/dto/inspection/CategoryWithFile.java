@@ -1,6 +1,7 @@
 package com.service.inspection.dto.inspection;
 
 import com.service.inspection.dto.NamedDto;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,6 +11,8 @@ import java.util.Set;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CategoryWithFile extends NamedDto {
     private Set<PhotoDto> photos;
 

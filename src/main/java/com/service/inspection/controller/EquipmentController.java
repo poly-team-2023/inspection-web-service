@@ -55,7 +55,7 @@ public class EquipmentController {
     @Operation(summary = "Добавить оборудование")
     public ResponseEntity<IdentifiableDto> addEquipment(@RequestBody @Valid EquipmentDto dto,
                                                         Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+        User user = controllerUtils.getUser(authentication);
         return ResponseEntity.ok(commonMapper.mapToIdentifiableDto(
                 equipmentService.addEquipment(user, equipmentMapper.mapToEquipment(dto))));
     }

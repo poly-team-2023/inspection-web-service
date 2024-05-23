@@ -1,7 +1,7 @@
 package com.service.inspection.controller;
 
-
 import com.service.inspection.email.UserFeedbackRequestDto;
+import com.service.inspection.entities.User;
 import com.service.inspection.mapper.EmailMapper;
 import com.service.inspection.service.CommonService;
 import com.service.inspection.service.EmailService;

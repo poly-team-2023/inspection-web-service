@@ -67,14 +67,14 @@ public class CompanyController {
     @PostMapping
     @Operation(summary = "Создать компанию")
     public ResponseEntity<IdentifiableDto> createCompany(Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+        User user = controllerUtils.getUser(authentication);
         return ResponseEntity.ok(commonMapper.mapToIdentifiableDto(companyService.createCompany(user)));
     }
 
     @GetMapping
     @Operation(summary = "Получить компании")
     public ResponseEntity<List<GetCompanyDto>> getCompanies(Authentication authentication) {
-        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+        User user = controllerUtils.getUser(authentication);
         return ResponseEntity.ok(companyService.getCompanies(user.getId())
                 .stream().map(companyMapper::mapToDto).toList());
     }

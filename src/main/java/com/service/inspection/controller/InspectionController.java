@@ -387,6 +387,4 @@ public class InspectionController {
                 new DocumentStatusDto(inspectionService.getReportStatus(id, userId))
         );
     }
-
-
 }
