@@ -37,5 +37,4 @@ public class StorageConfig {
                 .forcePathStyle(true)
                 .build();
     }
-
 }

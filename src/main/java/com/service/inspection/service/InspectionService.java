@@ -164,20 +164,6 @@ public class InspectionService {
         return storageService.getFile(BucketName.PlAN, plan.getFileUuid().toString());
     }
 
-//    @Transactional
-//    public Identifiable addPhotoToPlan(Long userId, Long inspectionId, Long planId, String name, Double x, Double y, MultipartFile file) {
-//        Inspection inspection = getUserInspection(userId, inspectionId);
-//        Plan plan = serviceUtils.tryToFindByID(inspection.getPlans(), planId);
-//
-//        UUID uuid = UUID.randomUUID();
-//        PhotoPlan photo = photoMapper.mapToPhoto(name, uuid, plan, x, y);
-//
-//        Photo afterSave = photoRepository.save(photo);
-//        storageService.saveFile(BucketName.DEFAULT_IMAGE_BUCKET, uuid.toString(), file);
-//
-//        return afterSave;
-//    }
-
     /**
      * Создает или обновляет фотографию для мобильного приложения в зависимости от наличия photoId.
      * При обновлении фотографии, если есть уже в категории, то происходит отчистка в категориях

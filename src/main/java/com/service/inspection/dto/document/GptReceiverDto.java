@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @ToString
-public class   GptReceiverDto {
+public class GptReceiverDto {
 
     @ToString.Include
     private GptBuildingInfo building;

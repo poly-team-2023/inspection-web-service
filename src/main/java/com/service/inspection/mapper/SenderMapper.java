@@ -32,7 +32,7 @@ public abstract class SenderMapper {
     @Mapping(source = "building.categories", target = "categories")
     public abstract void updateDocumentModelWithGpt(@MappingTarget DocumentModel documentModel, GptReceiverDto receiver);
 
-    void updateDocumentModelWithGptBuilding(@MappingTarget List<CategoryModel> categoriesModel,
+    protected void updateDocumentModelWithGptBuilding(@MappingTarget List<CategoryModel> categoriesModel,
                                             List<GptReceiverDto.GptReceiverCategoryDto> receiverCategoryDto) {
         if (receiverCategoryDto == null) return;
 
@@ -74,10 +74,10 @@ public abstract class SenderMapper {
     @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "photos", target = "defects")
-    abstract GptSenderDto.GptCategoryDto mapToGptCategoryDto(CategoryModel categoryModel);
+    protected abstract GptSenderDto.GptCategoryDto mapToGptCategoryDto(CategoryModel categoryModel);
 
 
-    List<GptSenderDto.GptDefectDto> mapToGptCategoryDto(List<ImageModelWithDefects> defects) {
+    protected List<GptSenderDto.GptDefectDto> mapToGptCategoryDto(List<ImageModelWithDefects> defects) {
 
         Map<String, Integer> mapDefects = defects.stream().flatMap(t -> t.getDefects().stream())
                                 .collect(Collectors.toMap(DefectModel::getName, v -> 1, Integer::sum));
@@ -86,6 +86,4 @@ public abstract class SenderMapper {
         mapDefects.forEach((key, value) -> answer.add(new GptSenderDto.GptDefectDto(key, value.longValue())));
         return answer;
     }
-
-
 }

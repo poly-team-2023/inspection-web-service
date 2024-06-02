@@ -29,11 +29,9 @@ public abstract class PlanMapper {
     }
 
     @Mapping(source = "plans", target = "plans", qualifiedByName = "namedToNamedDto")
-    abstract InspectionPlansDto mapToInspectionPlanDto(Long value, Set<Plan> plans);
+    protected abstract InspectionPlansDto mapToInspectionPlanDto(Long value, Set<Plan> plans);
 
     public abstract PlanDto mapToPlanDto(Plan plan);
-
-    public abstract List<NamedDto> mapToPhotos(Set<Photo> photos);
 
     @Named("namedToNamedDto")
     List<NamedDto> planSetToNamedDtoList(Set<Plan> set) {
