@@ -12,6 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,7 +58,7 @@ class EquipmentMapperTest {
     @Test
     void whenMapToDto_givenEquipment_shouldReturnGetEquipmentDto() {
         // Arrange
-        Set<FileScan> fileScans = new HashSet<>();
+        List<FileScan> fileScans = new ArrayList<>();
         FileScan fileScan = new FileScan();
         fileScan.setId(1L);
         fileScan.setName("TestFileScan");

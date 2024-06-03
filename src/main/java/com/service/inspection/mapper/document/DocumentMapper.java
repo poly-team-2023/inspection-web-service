@@ -1,14 +1,13 @@
 package com.service.inspection.mapper.document;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.service.inspection.document.DocumentModel;
 import com.service.inspection.document.model.*;
 import com.service.inspection.entities.*;
 import com.service.inspection.mapper.SenderMapper;
 import com.service.inspection.service.AnalyzeService;
+import com.service.inspection.service.LicenseService;
 import com.service.inspection.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.sl.draw.geom.GuideIf;
 import org.hibernate.Hibernate;
 import org.mapstruct.Named;
 import org.mapstruct.*;
@@ -41,6 +40,7 @@ public abstract class DocumentMapper {
     @Mapping(source = "inspection.script", target = "script")
     @Mapping(target = "categories", ignore = true)
     @Mapping(source = "inspection.employer", target = "employer")
+    @Mapping(source = "user.equipment", target = "equipment.table")
     public abstract DocumentModel mapToDocumentModel(Inspection inspection, User user, @Context List<CompletableFuture<Void>> futureResult);
 
     @Mapping(source = "processedPhotos", target = "photos")
@@ -123,6 +123,25 @@ public abstract class DocumentMapper {
         Optional.ofNullable(inspection.getEmployer()).map(Employer::getSignatureUuid)
                 .ifPresent(signUuid -> futureResult.add(documentModelService.fetchPhoto(signUuid)
                 .thenAccept(x -> documentModel.getEmployer().setScript(x))));
+
+        Optional.ofNullable(inspection.getCompany()).map(Company::getFilesSro).ifPresent(files -> {
+            files.stream().map(FileEntity::getFileUuid).forEach(uuid -> futureResult.add(documentModelService.fetchPhoto(uuid)
+                    .thenAccept(x -> documentModel.getCompany().getFiles().add(x))));
+        });
+
+        Optional.ofNullable(inspection.getCompany()).map(Company::getLicenses).ifPresent(licenses -> {
+            licenses.forEach(x -> Optional.ofNullable(x.getFiles()).ifPresent(files -> {
+                files.stream().map(FileEntity::getFileUuid).forEach(uuid -> futureResult.add(documentModelService.fetchPhoto(uuid)
+                        .thenAccept(y -> documentModel.getCompany().getFiles().add(y))));
+            }));
+        });
+
+        Optional.ofNullable(user.getEquipment()).ifPresent(equipment -> {
+            equipment.forEach(x -> Optional.ofNullable(x.getFiles()).ifPresent(files -> {
+                files.stream().map(FileEntity::getFileUuid).forEach(uuid -> futureResult.add(documentModelService.fetchPhoto(uuid)
+                        .thenAccept(y -> documentModel.getEquipment().getScans().add(y))));
+            }));
+        });
     }
 
     abstract CompanyModel companyModel(Company company, @Context List<CompletableFuture<Void>> futureResult);

@@ -44,15 +44,6 @@ public class Employer extends Named {
     @OneToMany(mappedBy = "employer")
     private Set<Inspection> inspections;
 
-    @PreRemove
-    public void preRemove() {
-        Optional.ofNullable(company)
-                .map(Company::getEmployers)
-                .ifPresent(employers -> employers.remove(this));
-
-        this.setCompany(null);
-    }
-
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

@@ -90,7 +90,7 @@ public class CompanyService {
 
     public void deleteAllSro(long userId, long companyId) {
         Company company = serviceUtils.getCompanyIfExistForUser(userId, companyId);
-        Set<FileScan> fileScanSet = company.getFilesSro();
+        List<FileScan> fileScanSet = company.getFilesSro();
         company.getFilesSro().clear();
         companyRepository.save(company);
         fileScanRepository.deleteAll(fileScanSet);

@@ -82,7 +82,7 @@ public class DocumentService {
         Stopwatch timer = Stopwatch.createStarted();
 
         Inspection inspection = inspectionFetcherEngine.getInspectionWithSubEntities(dto.inspectionId);
-        User user = userRepository.findUserById(dto.getUserId());
+        User user = inspectionFetcherEngine.getUserWithSubEntity(dto.getUserId());
 
         if (inspection == null || user == null) {
             log.error("CANT GET INSPECTION ID {} FOR USER ID {}. FIND ONLY USER {} AND INSPECTION {} !!!",

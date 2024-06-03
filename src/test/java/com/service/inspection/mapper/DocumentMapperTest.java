@@ -129,7 +129,7 @@ class DocumentMapperTest {
         inspection.setCategories(categories);
 
         User user = new User();
-        user.setEquipment(Set.of(equipment));
+        user.setEquipment(List.of(equipment));
 
         List<CompletableFuture<Void>> completableFutures = new ArrayList<>();
 

@@ -89,7 +89,7 @@ public class EquipmentService {
 
     public void deleteAllScan(long userId, long equipmentId) {
         Equipment equipment = getEquipmentIfExistForUser(equipmentId, userId);
-        Set<FileScan> fileScanSet = equipment.getFiles();
+        List<FileScan> fileScanSet = equipment.getFiles();
         equipment.getFiles().clear();
         equipmentRepository.save(equipment);
         fileScanRepository.deleteAll(fileScanSet);

@@ -1,10 +1,8 @@
 package com.service.inspection.document;
 
 import com.deepoove.poi.data.TableRenderData;
-import com.service.inspection.document.model.CategoryModel;
-import com.service.inspection.document.model.CompanyModel;
-import com.service.inspection.document.model.EmployerModel;
-import com.service.inspection.document.model.ImageModel;
+import com.service.inspection.document.model.*;
+import com.service.inspection.entities.FileInspection;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,14 +25,13 @@ public class DocumentModel {
 
     private CompanyModel company;
 
-    private TableRenderData equipment;
+    private EquipmentModel equipment;
 
     private List<CategoryModel> categories = Collections.synchronizedList(new ArrayList<>());
     private TableRenderData categoriesDefectsTable;
 
     private String recommendation;
     private String estimation;
-
 
     public void addCategory(CategoryModel categoryModel) {
         categories.add(categoryModel);

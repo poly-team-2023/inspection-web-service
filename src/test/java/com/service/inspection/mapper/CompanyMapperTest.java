@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,9 +46,9 @@ class CompanyMapperTest {
         company.setName("Company");
         company.setLegalAddress("Legal Address");
         company.setCity("City");
-        company.setFilesSro(new HashSet<>());
-        company.setEmployers(new HashSet<>());
-        company.setLicenses(new HashSet<>());
+        company.setFilesSro(new ArrayList<>());
+        company.setEmployers(new ArrayList<>());
+        company.setLicenses(new ArrayList<>());
 
         // Act
         GetCompanyDto result = companyMapper.mapToDto(company);

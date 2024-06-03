@@ -15,11 +15,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "company")
@@ -47,24 +43,15 @@ public class Company extends Named {
 
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
-    private Set<Employer> employers;
+    private List<Employer> employers;
 
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
-    private Set<License> licenses;
+    private List<License> licenses;
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
-    private Set<FileScan> filesSro;
-
-    @PreRemove
-    private void preRemove() {
-        Optional.ofNullable(user)
-                .map(User::getCompanies)
-                .ifPresent(companies -> companies.remove(this));
-
-        this.setUser(null);
-    }
+    private List<FileScan> filesSro;
 
     @Override
     public final boolean equals(Object o) {
@@ -84,14 +71,14 @@ public class Company extends Named {
 
     public void addLicense(License license) {
         if (licenses == null) {
-            licenses = new HashSet<>();
+            licenses = new ArrayList<>();
         }
         licenses.add(license);
     }
 
     public void addSro(FileScan sro) {
         if (filesSro == null) {
-            filesSro = new HashSet<>();
+            filesSro = new ArrayList<>();
         }
         filesSro.add(sro);
     }

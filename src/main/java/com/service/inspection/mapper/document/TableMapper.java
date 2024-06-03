@@ -38,7 +38,7 @@ public abstract class TableMapper {
     }
 
 
-    public TableRenderData mapToTableRenderData(Set<Equipment> equipmentSet) {
+    public TableRenderData mapToTableRenderData(Collection<Equipment> equipmentSet) {
         TableRenderData tableRenderData = Tables.of(
                 Rows.of("№ п/п", "Наименование СИ и ИО", "Зав. №", "Сведения о поверке/калибровке")
                         .horizontalCenter().verticalCenter().create()
