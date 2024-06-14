@@ -12,5 +12,6 @@
     <include file="create-table.xml" relativeToChangelogFile="true"/>
     <include file="create-cast.xml" relativeToChangelogFile="true"/>
     <include file="add-default-data.xml" relativeToChangelogFile="true"/>
+    <include file="add-mobile-support.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

@@ -38,7 +38,7 @@ public abstract class TableMapper {
     }
 
 
-    public TableRenderData mapToTableRenderData(Set<Equipment> equipmentSet) {
+    public TableRenderData mapToTableRenderData(Collection<Equipment> equipmentSet) {
         TableRenderData tableRenderData = Tables.of(
                 Rows.of("№ п/п", "Наименование СИ и ИО", "Зав. №", "Сведения о поверке/калибровке")
                         .horizontalCenter().verticalCenter().create()
@@ -85,7 +85,7 @@ public abstract class TableMapper {
             for (Map.Entry<String, CategoryDefectsModel> entry: category.getDefectsWithPhotos().entrySet()) {
                 tableRenderData.addRow(Rows.of(category.getCategoryNum() + "." + currentLocalCounter++,
                                         utils.toHumanReadable(entry.getKey()), null, entry.getValue().getRecommendation(),
-                        "Фото №№" + Joiner.on(", №").join(entry.getValue().getPhotoNums()))
+                        "Фото №№" + Joiner.on(", №").skipNulls().join(entry.getValue().getPhotoNums()))
                         .textFontSize(10).textFontFamily("Times New Roman").create());
             }
 

@@ -193,16 +193,22 @@ class EntityRelationshipsTest extends AbstractTestContainerStartUp {
         employerNotToDelete.setSignatureUuid(UUID.randomUUID());
         employerNotToDelete.setCompany(company);
 
-        company.setEmployers(new HashSet<>(Set.of(employerToDelete, employerNotToDelete)));
+        ArrayList<Employer> arrayList = new ArrayList<>();
+        arrayList.add(employerToDelete);
+        arrayList.add(employerNotToDelete);
+
+        company.setEmployers(arrayList);
 
         userRepository.save(user);
 
+        company.getEmployers().remove(employerToDelete);
         employerRepository.deleteById(employerToDelete.getId());
 
         assertThat(employerRepository.findAll())
                 .usingRecursiveFieldByFieldElementComparator()
                 .containsOnly(employerNotToDelete);
 
+        user.getCompanies().remove(company);
         companyRepository.deleteById(company.getId());
 
         assertThat(userRepository.findAll()).containsOnly(user);

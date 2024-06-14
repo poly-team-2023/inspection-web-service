@@ -2,7 +2,9 @@ package com.service.inspection.service.rabbit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
 import com.service.inspection.dto.document.CkImageProcessingDto;
+import com.service.inspection.dto.document.GptReceiverDto;
 import com.service.inspection.dto.document.GptSenderDto;
 import com.service.inspection.dto.document.PhotoDefectsDto;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +28,8 @@ public class RabbitMQService {
     private final ObjectMapper mapper;
     private final Queue imagePublishQueue;
     private final Queue nlmQueue;
-    private ConcurrentHashMap<Long, CompletableFuture<PhotoDefectsDto>> pending = new ConcurrentHashMap<>();
+
+    private ConcurrentHashMap<Long, CompletableFuture<PhotoDefectsDto>> photoPending = new ConcurrentHashMap<>();
 
     public RabbitMQService(
             AsyncRabbitTemplate asyncRabbitTemplate, ObjectMapper mapper,
@@ -45,9 +48,9 @@ public class RabbitMQService {
      * @return дефекты
      */
     public CompletableFuture<PhotoDefectsDto> sendAndReceiveImageDefects(CkImageProcessingDto imageDto, long photoId) {
+        Preconditions.checkState(imageDto != null && photoId > 0);
 
         Message message = createMessage(imageDto);
-
         if (message == null) {
             return CompletableFuture.failedFuture(new Throwable("Can't create message"));
         }
@@ -62,30 +65,44 @@ public class RabbitMQService {
                     }
                 });
 
-        pending.put(photoId, rabbitMessageFuture);
+        photoPending.put(photoId, rabbitMessageFuture);
 
-        if (photoId > 0) {
-            rabbitMessageFuture.handle((m, e) -> {
-                pending.remove(photoId);
-                return null;
-            });
-        }
+        rabbitMessageFuture.handle((m, e) -> {
+            photoPending.remove(photoId);
+            return null;
+        });
+
 
         return rabbitMessageFuture;
     }
 
-    public boolean wasSent(long photoId) {
-        return pending.contains(photoId);
+    public boolean photoWasSent(long photoId) {
+        return photoPending.contains(photoId);
     }
 
     public CompletableFuture<PhotoDefectsDto> findById(long photoId) {
-        return pending.get(photoId);
+        return photoPending.get(photoId);
     }
 
+    public CompletableFuture<GptReceiverDto> sendAndReceiveGptResult(GptSenderDto senderDto, long inspectionId) {
+        Preconditions.checkState(senderDto != null && inspectionId > 0);
 
-    public CompletableFuture<Message> sendAndReceiveGptResult(GptSenderDto senderDto) {
         Message message = createMessage(senderDto);
-        return asyncRabbitTemplate.sendAndReceive(nlmQueue.getActualName(), message);
+        if (message == null) {
+            return CompletableFuture.failedFuture(new Throwable("Can't create message"));
+        }
+
+        CompletableFuture<GptReceiverDto> documentAnalyzeFuture =
+                asyncRabbitTemplate.sendAndReceive(nlmQueue.getActualName(), message).thenApply(o -> {
+            try {
+                return mapper.readValue(o.getBody(), GptReceiverDto.class);
+            } catch (IOException e) {
+                log.error(e.getMessage());
+                return null;
+            }
+        });
+
+       return documentAnalyzeFuture;
     }
 
     private <T> Message createMessage(T imageDto) {

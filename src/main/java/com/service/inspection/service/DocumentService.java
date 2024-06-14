@@ -67,13 +67,14 @@ public class DocumentService {
     }
 
     @Transactional
-    public void addInspectionInQueueToProcess(Inspection inspection, User user) {
+    public boolean addInspectionInQueueToProcess(Inspection inspection, User user) {
         UserIdInspectionIdDto userIdInspectionIdDto = new UserIdInspectionIdDto(user.getId(), inspection.getId());
         // TODO стоит продумать логику повторения в случае если падает rabbitMQ
         rabbitTemplate.convertAndSend(inspectionQueue.getActualName(), userIdInspectionIdDto);
 
         inspection.setStatus(ProgressingStatus.WAIT_ANALYZE);
         inspectionRepository.save(inspection);
+        return true;
     }
 
     @RabbitListener(queues = "${rabbit.queue.main}", messageConverter = "")
@@ -81,7 +82,7 @@ public class DocumentService {
         Stopwatch timer = Stopwatch.createStarted();
 
         Inspection inspection = inspectionFetcherEngine.getInspectionWithSubEntities(dto.inspectionId);
-        User user = userRepository.findUserById(dto.getUserId());
+        User user = inspectionFetcherEngine.getUserWithSubEntity(dto.getUserId());
 
         if (inspection == null || user == null) {
             log.error("CANT GET INSPECTION ID {} FOR USER ID {}. FIND ONLY USER {} AND INSPECTION {} !!!",

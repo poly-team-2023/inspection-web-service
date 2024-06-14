@@ -74,7 +74,7 @@ public class User extends Identifiable {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @ToString.Exclude
-    private Set<Equipment> equipment;
+    private List<Equipment> equipment;
 
     @Override
     public final boolean equals(Object o) {

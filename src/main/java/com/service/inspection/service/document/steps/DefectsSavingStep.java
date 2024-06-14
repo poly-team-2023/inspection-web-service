@@ -20,6 +20,9 @@ public class DefectsSavingStep extends AbstractImageProcessingStep {
     public CompletableFuture<ProcessingImageDto> executeProcess(ProcessingImageDto imageModel) {
         photoRepository.findById(imageModel.getId()).ifPresent(photo -> {
             photo.setDefectsCoords(photoMapper.mapToPhotos(imageModel.getPhotoDefectsDto().getDefectsDto()));
+            if (imageModel.getPhotoNum() != null) {
+                photo.setPhotoNum(imageModel.getPhotoNum());
+            }
             photoRepository.save(photo);
         });
         return CompletableFuture.completedFuture(imageModel);

@@ -4,30 +4,52 @@ import com.google.common.base.Preconditions;
 import com.service.inspection.dto.document.CkImageProcessingDto;
 import com.service.inspection.dto.document.PhotoDefectsDto;
 import com.service.inspection.dto.inspection.CategoryWithFile;
+import com.service.inspection.dto.inspection.PhotoCreateDto;
 import com.service.inspection.entities.Category;
 import com.service.inspection.entities.Photo;
+import com.service.inspection.entities.PhotoPlan;
 import com.service.inspection.entities.Plan;
 import com.service.inspection.service.document.ProcessingImageDto;
 import org.mapstruct.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.IntStream;
 
 @Mapper(
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        componentModel = "spring"
+        componentModel = "spring", uses = {EntityFactory.class}, imports = {Instant.class}
 )
 public interface PhotoMapper {
     @Mapping(source = "defectsCoords", target = "defects")
     CategoryWithFile.PhotoDto mapToPhotoDto(Photo photo);
 
+    PhotoCreateDto mapToPhotoCreateDto(PhotoPlan photo);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "recommendation", ignore = true)
-    @Mapping(source = "plan", target = "plan")
     @Mapping(source = "category", target = "category")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "uuid", target = "fileUuid")
-    Photo mapToPhoto(String name, UUID uuid, Category category, Plan plan);
+    Photo mapToPhoto(String name, UUID uuid, Category category);
+
+    @Mapping(source = "planId", target = "plan")
+    @Mapping(source = "photoCreateDto.name", target = "name")
+    @Mapping(source = "photoCreateDto.x", target = "x")
+    @Mapping(source = "photoCreateDto.y", target = "y")
+    @Mapping(source = "uuid", target = "fileUuid")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "lastUpdateTime", expression = "java(Instant.now())")
+    void mapToPhoto(@MappingTarget PhotoPlan photo, PhotoCreateDto photoCreateDto, UUID uuid, Long planId);
+
+
+    @Mapping(source = "photo.name", target = "name")
+    @Mapping(source = "photo.fileUuid", target = "fileUuid")
+    @Mapping(source = "photo", target = "originPhoto")
+    @Mapping(source = "category", target = "category")
+    @Mapping(target = "id", ignore = true)
+    Photo mapToPhoto(PhotoPlan photo, Category category);
 
     Set<Photo.Defect> mapToPhotos(Set<PhotoDefectsDto.DefectDto> dto);
 

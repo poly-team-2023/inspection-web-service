@@ -1,7 +1,7 @@
 package com.service.inspection.entities;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -32,7 +32,7 @@ public class License extends Named {
 
     @OneToMany(mappedBy = "license", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
-    private Set<FileScan> files;
+    private List<FileScan> files;
 
     @Override
     public final boolean equals(Object o) {

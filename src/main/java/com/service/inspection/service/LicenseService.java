@@ -1,5 +1,6 @@
 package com.service.inspection.service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -76,7 +77,7 @@ public class LicenseService {
 
     public void deleteAllLicenseScan(long userId, long companyId, long licenseId) {
         License license = getLicense(companyId, userId, licenseId);
-        Set<FileScan> fileScanSet = license.getFiles();
+        List<FileScan> fileScanSet = license.getFiles();
         license.getFiles().clear();
         licenseRepository.save(license);
         fileScanRepository.deleteAll(fileScanSet);

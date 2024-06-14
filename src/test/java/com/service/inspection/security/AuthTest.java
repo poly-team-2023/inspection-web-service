@@ -2,20 +2,27 @@ package com.service.inspection.security;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.service.inspection.configs.RabbitMQConfig;
 import com.service.inspection.dto.auth.UserSignInDto;
 import com.service.inspection.dto.auth.UserSignUpDto;
 import com.service.inspection.entities.User;
-import com.service.inspection.repositories.RoleRepository;
 import com.service.inspection.repositories.UserRepository;
+import com.service.inspection.service.AbstractIntegrationTest;
 import com.service.inspection.service.AbstractTestContainerStartUp;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -25,13 +32,10 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class AuthTest extends AbstractTestContainerStartUp {
+class AuthTest extends AbstractIntegrationTest {
 
     @Autowired
     private UserRepository userRepo;
-
-    @Autowired
-    private RoleRepository roleRepo;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -77,7 +81,8 @@ class AuthTest extends AbstractTestContainerStartUp {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(userSignInDto))
                 )
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.cookie().exists("jwt"));
     }
 
     @Test
