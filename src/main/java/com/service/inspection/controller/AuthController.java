@@ -27,15 +27,10 @@ public class AuthController {
     private final ControllerUtils controllerUtils;
     private final JwtUtils jwtUtils;
 
-    @GetMapping("/test")
-    public void test() {
-        System.out.println("Hello world");
-    }
-
     @PostMapping("/sign-in")
     public ResponseEntity<Void> authUser(@RequestBody @Valid UserSignInDto log,
                                          HttpServletResponse httpServletResponse) {
-        Authentication authentication = authService.auth(log.getEmail(), log.getPassword());
+        Authentication authentication = authService.auth(log.getEmail(), log.getPassword(), log.getSecretToken());
         Cookie cookie = controllerUtils.createJwtCookie(jwtUtils.generateJwtToken(authentication));
         httpServletResponse.addCookie(cookie);
         return ResponseEntity.ok().build();

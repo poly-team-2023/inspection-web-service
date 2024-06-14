@@ -11,4 +11,6 @@ public class UserSignInDto {
     private String email;
     @NotBlank
     private String password;
+    @NotBlank
+    private String secretToken;
 }

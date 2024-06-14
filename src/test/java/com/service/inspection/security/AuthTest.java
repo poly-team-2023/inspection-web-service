@@ -16,6 +16,7 @@ import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -33,6 +34,9 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @SpringBootTest
 @AutoConfigureMockMvc
 class AuthTest extends AbstractIntegrationTest {
+
+    @Value("${login.secret.code}")
+    private String systemCode;
 
     @Autowired
     private UserRepository userRepo;
@@ -64,7 +68,7 @@ class AuthTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldAuth_whenUserExist() throws Exception {
+    void shouldNotAuth_whenUserExistButWrongSecretCode() throws Exception {
         User user = new User();
         user.setFirstName("test");
         user.setSecondName("test");
@@ -75,6 +79,29 @@ class AuthTest extends AbstractIntegrationTest {
         UserSignInDto userSignInDto = new UserSignInDto();
         userSignInDto.setEmail(user.getEmail());
         userSignInDto.setPassword("test-password");
+        userSignInDto.setSecretToken(systemCode + "1");
+
+        mvc.perform(
+                        MockMvcRequestBuilders.post("/api/v1/auth/sign-in")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userSignInDto))
+                )
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+    }
+
+    @Test
+    void shouldAuth_whenUserExistAndRightSecretCode() throws Exception {
+        User user = new User();
+        user.setFirstName("test");
+        user.setSecondName("test");
+        user.setPassword(passwordEncoder.encode("test-password"));
+        user.setEmail("test@mail.com");
+        userRepo.save(user);
+
+        UserSignInDto userSignInDto = new UserSignInDto();
+        userSignInDto.setEmail(user.getEmail());
+        userSignInDto.setPassword("test-password");
+        userSignInDto.setSecretToken(systemCode);
 
         mvc.perform(
                         MockMvcRequestBuilders.post("/api/v1/auth/sign-in")

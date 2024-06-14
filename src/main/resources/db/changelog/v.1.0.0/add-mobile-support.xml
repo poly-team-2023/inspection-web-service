@@ -81,5 +81,60 @@
                                  deferrable="false" initiallyDeferred="false"
                                  onDelete="SET NULL" onUpdate="CASCADE"/>
     </changeSet>
+    
+    <changeSet id="plan-defects-table" author="piatlin2002@gmail.com">
+        <createTable tableName="plan_defect">
+            <column name="uuid" type="uuid">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="plan_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="defect_type_uuid" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="closed" type="bool"/>
+            <column name="coords" type="json"/>
+            <column name="last_update_date" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="defect-type-table" author="piatlin2002@gmail.com">
+        <createTable tableName="defect_type">
+            <column name="uuid" type="uuid">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="inspection_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)"/>
+            <column name="hex_code" type="varchar(10)"/>
+            <column name="last_update_date" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="fk-plan_defect-plan" author="piatlin2002@gmail.com">
+        <addForeignKeyConstraint baseTableName="plan_defect" baseColumnNames="plan_id"
+                                 constraintName="fk-plan_defect-plan"
+                                 referencedTableName="plan" referencedColumnNames="id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="fk-plan_defect-defect_type" author="piatlin2002@gmail.com">
+        <addForeignKeyConstraint baseTableName="plan_defect" baseColumnNames="defect_type_uuid"
+                                 constraintName="fk-plan_defect-defect_type"
+                                 referencedTableName="defect_type" referencedColumnNames="uuid"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="fk-defect_type-inspection_id" author="piatlin2002@gmail.com">
+        <addForeignKeyConstraint baseTableName="defect_type" baseColumnNames="inspection_id"
+                                 constraintName="fk-defect_type-inspection_id"
+                                 referencedTableName="inspection" referencedColumnNames="id"
+                                 deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
 
 </databaseChangeLog>
