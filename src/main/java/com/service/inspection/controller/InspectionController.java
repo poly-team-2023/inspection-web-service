@@ -1,6 +1,7 @@
 package com.service.inspection.controller;
 
 import com.google.common.base.Joiner;
+import com.service.inspection.dto.IdentUuid;
 import com.service.inspection.dto.IdentifiableDto;
 import com.service.inspection.dto.document.DocumentStatusDto;
 import com.service.inspection.dto.inspection.*;
@@ -321,6 +322,7 @@ public class InspectionController {
         inspectionService.deletePhotoFromPlan(userId, photoId);
         return ResponseEntity.ok().build();
     }
+
     @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
     @PostMapping("/{id}/plans/{planId}/photos/{photoId}/category/{categoryId}")
     @Operation(summary = "Добавить фото из чертежа в категорию")
@@ -335,6 +337,66 @@ public class InspectionController {
                 commonMapper.mapToIdentifiableDto(
                         inspectionService.copyPhotoToCategoryFromPlan(userId, id, planId, photoId, categoryId))
         );
+    }
+
+
+
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
+    @PostMapping("/{id}/type-defect")
+    @Operation(summary = "Создать тип дефекта к инспекции")
+    public ResponseEntity<IdentUuid> createTypeDefect(
+            @PathVariable @Min(1) Long id,  @RequestBody TypeDefectDto typeDefectDto,
+            Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        //// TODO вызов создания
+        return ResponseEntity.ok(new IdentUuid());
+    }
+
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
+    @GetMapping("/{id}/type-defect")
+    @Operation(summary = "Все типы дефектов инспекции")
+    public ResponseEntity<InspectionWithTypeDefect> getAllTypeDefects(
+            @PathVariable @Min(1) Long id, Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        //// TODO вызов получения
+        return ResponseEntity.ok(new InspectionWithTypeDefect());
+    }
+
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
+    @GetMapping("/{id}/plans/{planId}")
+    @Operation(summary = "Получить все дефекты на плане")
+    public ResponseEntity<PlanWithDefects> getAllPlanDefect(
+            @PathVariable @Min(1) Long id,  @PathVariable @Min(1) Long planId, Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        //// TODO вызов создания
+        return ResponseEntity.ok(new PlanWithDefects());
+    }
+
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
+    @PostMapping("/{id}/plans/{planId}")
+    @Operation(summary = "Добавить дефект на план")
+    public ResponseEntity<IdentUuid> createPlanDefect(
+            @PathVariable @Min(1) Long id,  @PathVariable @Min(1) Long planId, @RequestBody PlanDefectDto planDefectDto,
+            Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        //// TODO вызов создания
+        return ResponseEntity.ok(new IdentUuid());
+    }
+
+    @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
+    @DeleteMapping("/{id}/plans/{planId}/defects/{defectId}")
+    @Operation(summary = "Удалить дефект с плана")
+    public ResponseEntity<Void> deletePlanDefect(
+            @PathVariable @Min(1) Long id,  @PathVariable @Min(1) Long planId, @PathVariable @Min(1) Long defectId,
+            Authentication authentication
+    ) {
+        Long userId = utils.getUserId(authentication);
+        //// TODO вызов создания
+        return ResponseEntity.ok().build();
     }
 
 
