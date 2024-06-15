@@ -100,6 +100,9 @@ public class Inspection extends Named {
     @ToString.Exclude
     private Company company;
 
+    @OneToMany(mappedBy = "inspection")
+    private List<DefectType> defects = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     @Column(name = "building_type")
     private BuildingType buildingType;

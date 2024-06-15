@@ -14,6 +14,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -34,6 +36,9 @@ public class Plan extends FileEntity {
     @JoinColumn(name = "inspection_id", referencedColumnName = "id")
     @EqualsAndHashCode.Exclude
     private Inspection inspection;
+
+    @OneToMany(mappedBy = "plan")
+    private List<PlanDefect> planDefects = new ArrayList<>();
 
     @Override
     public final boolean equals(Object o) {
