@@ -19,5 +19,6 @@ public class TypeDefectDto {
     @Size(min = 1, max = 10)
     private String hexCode;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Instant lastUpdateDate = Instant.now();
 }

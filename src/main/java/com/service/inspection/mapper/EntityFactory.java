@@ -4,6 +4,7 @@ import com.service.inspection.entities.*;
 import com.service.inspection.repositories.CategoryRepository;
 import com.service.inspection.repositories.CompanyRepository;
 import com.service.inspection.repositories.EmployerRepository;
+import com.service.inspection.repositories.InspectionRepository;
 import com.service.inspection.repositories.PlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Named;
@@ -19,6 +20,14 @@ public class EntityFactory {
     private final EmployerRepository employerRepository;
     private final PlanRepository planRepository;
     private final CategoryRepository categoryRepository;
+    private final InspectionRepository inspectionRepository;
+
+    Inspection createInspectionReferenceFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        return inspectionRepository.getReferenceById(id);
+    }
 
     Company createCompanyReferenceFromId(Long id) {
         if (id == null) {

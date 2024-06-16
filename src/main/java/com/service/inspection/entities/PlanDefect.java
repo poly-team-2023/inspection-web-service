@@ -19,6 +19,7 @@ public class PlanDefect {
 
     @Column(name="uuid")
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID uuid = UUID.randomUUID();
 
     @ManyToOne(fetch = FetchType.LAZY)

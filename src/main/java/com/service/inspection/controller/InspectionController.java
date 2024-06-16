@@ -365,7 +365,7 @@ public class InspectionController {
     }
 
     @Tag(name = "Мобильное приложение", description = "APIs для мобильного приложения")
-    @GetMapping("/{id}/plans/{planId}")
+    @GetMapping("/{id}/plans/{planId}/defects")
     @Operation(summary = "Получить все дефекты на плане")
     public ResponseEntity<PlanWithDefects> getAllPlanDefect(
             @PathVariable @Min(1) Long id,  @PathVariable @Min(1) Long planId, Authentication authentication

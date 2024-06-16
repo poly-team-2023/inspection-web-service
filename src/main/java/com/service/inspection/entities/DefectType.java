@@ -19,6 +19,7 @@ public class DefectType {
 
     @Column(name="uuid")
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID uuid = UUID.randomUUID();
 
     @ManyToOne

@@ -2,13 +2,16 @@ package com.service.inspection.service;
 
 import com.service.inspection.advice.MessageException;
 import com.service.inspection.configs.BucketName;
+import com.service.inspection.dto.IdentUuid;
 import com.service.inspection.dto.inspection.InspectionDto;
 import com.service.inspection.dto.inspection.PhotoCreateDto;
+import com.service.inspection.dto.inspection.TypeDefectDto;
 import com.service.inspection.entities.*;
 import com.service.inspection.entities.enums.ProgressingStatus;
 import com.service.inspection.mapper.CategoryMapper;
 import com.service.inspection.mapper.InspectionMapper;
 import com.service.inspection.mapper.PhotoMapper;
+import com.service.inspection.mapper.PlanDefectMapper;
 import com.service.inspection.repositories.*;
 import com.service.inspection.utils.ServiceUtils;
 import jakarta.persistence.EntityNotFoundException;
@@ -47,6 +50,10 @@ public class InspectionService {
     private final InspectionFetcherEngine inspectionFetcherEngine;
     private final PlanRepository planRepository;
     private final PhotoPlanRepository photoPlanRepository;
+
+    private final PlanDefectMapper planDefectMapper;
+    private final TypeDefectRepository typeDefectRepository;
+    private final PlanDefectRepository planDefectRepository;
 
     @Transactional
     public Identifiable createInspection(Long userId) {
@@ -162,6 +169,27 @@ public class InspectionService {
         Inspection inspection = getUserInspection(userId, inspectionId);
         Plan plan = serviceUtils.tryToFindByID(inspection.getPlans(), planId);
         return storageService.getFile(BucketName.PlAN, plan.getFileUuid().toString());
+    }
+
+    @Transactional(readOnly = true)
+    public List<DefectType> getAllDefectTypes(Long userId, Long inspectionId) {
+        Inspection inspection = getUserInspection(userId, inspectionId);
+        return inspection.getDefects();
+    }
+
+    @Transactional
+    public DefectType createDefectType(Long userId, Long inspectionId, TypeDefectDto typeDefectDto) {
+        Inspection inspection = getUserInspection(userId, inspectionId);
+        DefectType defectType =  planDefectMapper.mapToNewDefectType(typeDefectDto, inspectionId);
+        inspection.getDefects().add(defectType);
+        return typeDefectRepository.save(defectType);
+    }
+
+    @Transactional
+    public List<PlanDefect> getAllPlanDefects(Long userId, Long inspectionId, Long planId) {
+        Inspection inspection = getUserInspection(userId, inspectionId);
+        Plan plan = serviceUtils.tryToFindByID(inspection.getPlans(), planId);
+        return plan.getPlanDefects();
     }
 
     /**
